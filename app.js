@@ -1,6 +1,6 @@
 /**
- * Avakaya & Co. - Artisanal Heritage Pickles
- * Application Logic & Dynamic Interactions
+ * HOME DELIGHTS - INTI RUCHULU | AMMAMMA SPECIAL
+ * Artisanal Heritage Pickles - Application Logic
  */
 
 // -------------------------------------------------------------------
@@ -199,7 +199,7 @@ const AppState = {
 
 // Load cart from localStorage if present
 try {
-  const savedCart = localStorage.getItem("avakaya_cart");
+  const savedCart = localStorage.getItem("homedelights_cart");
   if (savedCart) {
     AppState.cart = JSON.parse(savedCart);
   }
@@ -209,7 +209,7 @@ try {
 
 function saveCart() {
   try {
-    localStorage.setItem("avakaya_cart", JSON.stringify(AppState.cart));
+    localStorage.setItem("homedelights_cart", JSON.stringify(AppState.cart));
   } catch (e) {
     console.warn("Could not save cart:", e);
   }
@@ -704,7 +704,7 @@ function setupCartEvents() {
       const total = subtotal + delivery;
 
       // Construct WhatsApp message
-      let message = `*🏺 NEW ORDER - AVAKAYA & CO. (Website)*\n`;
+      let message = `*🏺 NEW ORDER - HOME DELIGHTS - INTI RUCHULU (AMMAMMA SPECIAL)*\n`;
       message += `--------------------------------------\n`;
       AppState.cart.forEach((item, index) => {
         message += `${index + 1}. *${item.title}* (${item.size})\n   Qty: ${item.quantity} × ₹${item.price} = ₹${item.quantity * item.price}\n`;
@@ -1018,7 +1018,7 @@ function setupNewsletter() {
     const emailInput = document.getElementById("newsletterEmail");
     const email = emailInput ? emailInput.value.trim() : "";
     if (email) {
-      showToast(`Welcome to the Secret Pickle Club! Use promo DESI15 for 15% OFF.`);
+      showToast(`Welcome to Home Delights - Inti Ruchulu! Use promo DESI15 for 15% OFF.`);
       newsletterForm.reset();
     }
   });
