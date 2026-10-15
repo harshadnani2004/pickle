@@ -17,7 +17,7 @@ const PICKLE_PRODUCTS = [
     rating: 4.9,
     reviewsCount: 382,
     badge: "Bestseller",
-    image: "./assets/images/mango_pickle.jpg",
+    image: "./mango_pickle.jpg",
     shortDesc: "The undisputed king of pickles. Raw green mango wedges marinated in stone-ground Guntur chillies, yellow mustard, and wood-pressed sesame oil.",
     oilType: "Wood-Pressed Gingelly (Til) Oil",
     ingredients: "Raw Country Mangoes, Cold-Pressed Sesame Oil, Guntur Teja Red Chilli, Mustard Seed Powder (Ava Pindi), Fenugreek (Methi), Turmeric, Sun-Dried Sea Salt.",
@@ -39,7 +39,7 @@ const PICKLE_PRODUCTS = [
     rating: 4.8,
     reviewsCount: 246,
     badge: "Chef's Choice",
-    image: "./assets/images/garlic_pickle.jpg",
+    image: "./garlic_pickle.jpg",
     shortDesc: "Whole plump peeled garlic cloves slow-simmered in aromatic red spices, curry leaves, and wood-pressed oil. Great for digestion and deep spicy savoriness.",
     oilType: "Wood-Pressed Gingelly & Mustard Oil",
     ingredients: "Peeled Native Garlic Cloves, Cold-Pressed Sesame Oil, Red Chilli Powder, Mustard Seeds, Cumin, Tamarind Pulp, Fenugreek, Rock Salt.",
@@ -61,7 +61,7 @@ const PICKLE_PRODUCTS = [
     rating: 4.9,
     reviewsCount: 190,
     badge: "Oil-Light",
-    image: "./assets/images/lemon_pickle.jpg",
+    image: "./lemon_pickle.jpg",
     shortDesc: "Juicy kagzi lemons cured naturally under the midday sun for 30 days until the peel turns velvet soft. Infused with carom seeds and green chillies.",
     oilType: "Sun-Cured (Zero Added Oil)",
     ingredients: "Kagzi Thin-skinned Lemons, Green Slit Chillies, Roasted Ajwain (Carom Seeds), Roasted Cumin, Turmeric, Black Salt, Sea Salt.",
@@ -83,7 +83,7 @@ const PICKLE_PRODUCTS = [
     rating: 5.0,
     reviewsCount: 315,
     badge: "Heritage Pride",
-    image: "./assets/images/gongura_pickle.jpg",
+    image: "./gongura_pickle.jpg",
     shortDesc: "The crown jewel of Andhra Pradesh. Fresh sour red sorrel leaves sautéed in sesame oil, pounded with whole red chillies, garlic, and coriander seeds.",
     oilType: "Pure Wood-Pressed Gingelly Oil",
     ingredients: "Fresh Red Gongura Leaves, Wood-Pressed Til Oil, Whole Dry Red Chillies, Crushed Garlic, Coriander Seeds, Cumin, Mustard, Sea Salt.",
@@ -105,7 +105,7 @@ const PICKLE_PRODUCTS = [
     rating: 4.8,
     reviewsCount: 178,
     badge: "Tangy Delight",
-    image: "./assets/images/tomato_pickle.jpg",
+    image: "./tomato_pickle.jpg",
     shortDesc: "Sun-ripened country tomatoes simmered to a thick jam-like savory reduction with tamarind, fresh curry leaves, and fragrant mustard tadka.",
     oilType: "Cold-Pressed Sesame Oil",
     ingredients: "Country Ripe Red Tomatoes, Cold-Pressed Sesame Oil, Guntur Chilli Powder, Aged Tamarind, Fresh Curry Leaves, Mustard, Fenugreek, Rock Salt.",
@@ -127,7 +127,7 @@ const PAIRING_DATA = {
     badge: "The Eternal Classic",
     title: "Hot Steamed Rice, Pure Ghee & Heritage Avakaya",
     quote: "Nothing in the culinary world comes close to the first bite of steaming rice mixed with raw gingelly oil avakaya and fragrant melted cow ghee.",
-    img: "./assets/images/mango_pickle.jpg",
+    img: "./mango_pickle.jpg",
     features: [
       "Signature Pairing: Heritage Cut Mango Avakaya",
       "Flavor Profile: Fiery, Tangy, Umami & Nutty",
@@ -139,7 +139,7 @@ const PAIRING_DATA = {
     badge: "The Soothing Remedy",
     title: "Creamy Curd Rice & Sun-Cured Nimbu Achar",
     quote: "The cool, creamy probiotic comfort of tempered curd rice offset by the intense, sun-aged citrus bite of aged lemon pickle.",
-    img: "./assets/images/lemon_pickle.jpg",
+    img: "./lemon_pickle.jpg",
     features: [
       "Signature Pairing: Sun-Cured Yellow Nimbu Achar",
       "Flavor Profile: Zesty, Tangy, Piquant & Digestive",
@@ -151,7 +151,7 @@ const PAIRING_DATA = {
     badge: "The Dhaba Soul",
     title: "Stuffed Hot Parathas & Whole Garlic Pickle",
     quote: "Break through crispy, butter-slicked layers of potato or paneer paratha and scoop up whole, slow-matured spiced garlic pods.",
-    img: "./assets/images/garlic_pickle.jpg",
+    img: "./garlic_pickle.jpg",
     features: [
       "Signature Pairing: Desi Whole Garlic Pod Pickle",
       "Flavor Profile: Savory, Aromatic, Pungent & Warm",
@@ -163,7 +163,7 @@ const PAIRING_DATA = {
     badge: "South Indian Tiffin Love",
     title: "Golden Crispy Dosa & Country Tomato Pachadi",
     quote: "A savory, concentrated tomato and curry leaf reduction that clings perfectly to golden, lace-edged dosas and soft steamed idlis.",
-    img: "./assets/images/tomato_pickle.jpg",
+    img: "./tomato_pickle.jpg",
     features: [
       "Signature Pairing: Country Tomato Nilava Pachadi",
       "Flavor Profile: Rich Tangy, Mustard-Spiced & Glossy",
@@ -175,7 +175,7 @@ const PAIRING_DATA = {
     badge: "The Ayurvedic Comfort",
     title: "Moong Dal Khichdi & Gongura Pachadi",
     quote: "When you want instant warmth and grounding nourishment, the tangy sorrel kick of Gongura turns simple khichdi into a royal feast.",
-    img: "./assets/images/gongura_pickle.jpg",
+    img: "./gongura_pickle.jpg",
     features: [
       "Signature Pairing: Authentic Guntur Gongura Pachadi",
       "Flavor Profile: Deep Sour-Spicy, Earthy & Herbal",
@@ -348,7 +348,7 @@ function renderCatalog() {
     return `
       <article class="product-card" id="card-${item.id}" data-id="${item.id}">
         <div class="product-thumb-wrap">
-          <img src="${item.image}" alt="${item.title}" class="product-thumb" loading="lazy">
+          <img src="${item.image}" onerror="this.onerror=null;this.src='./assets/images/' + this.src.split('/').pop();" alt="${item.title}" class="product-thumb" loading="lazy">
           ${item.badge ? `<span class="product-badge-corner">${item.badge}</span>` : ""}
           <button class="quick-view-trigger" data-action="quickview" data-id="${item.id}" title="Quick View">
             <i class="fa-solid fa-eye"></i>
@@ -601,6 +601,8 @@ function updateCartUI() {
   // Header counters
   if (cartCounter) cartCounter.textContent = totalCount;
   if (cartCountHeader) cartCountHeader.textContent = totalCount;
+  const mobCartBadge = document.getElementById("mobCartBadge");
+  if (mobCartBadge) mobCartBadge.textContent = totalCount;
 
   // Free shipping progress bar
   if (shippingProgressFill && shippingProgressText) {
@@ -637,7 +639,7 @@ function updateCartUI() {
     } else {
       cartItemsList.innerHTML = AppState.cart.map((item, idx) => `
         <div class="cart-item">
-          <img src="${item.image}" alt="${item.title}" class="cart-item-img">
+          <img src="${item.image}" onerror="this.onerror=null;this.src='./assets/images/' + this.src.split('/').pop();" alt="${item.title}" class="cart-item-img">
           <div class="cart-item-details">
             <div class="cart-item-header">
               <span class="cart-item-title">${item.title}</span>
@@ -766,7 +768,7 @@ function openQuickView(productId) {
   modalContent.innerHTML = `
     <div class="modal-content-grid">
       <div class="modal-img-col">
-        <img src="${item.image}" alt="${item.title}">
+        <img src="${item.image}" onerror="this.onerror=null;this.src='./assets/images/' + this.src.split('/').pop();" alt="${item.title}">
       </div>
 
       <div class="modal-details-col">
@@ -890,7 +892,7 @@ function renderPairing(dishKey) {
 
   pairingDisplayCard.innerHTML = `
     <div class="pairing-img-box">
-      <img src="${data.img}" alt="${data.title}">
+      <img src="${data.img}" onerror="this.onerror=null;this.src='./assets/images/' + this.src.split('/').pop();" alt="${data.title}">
     </div>
 
     <div class="pairing-details-col">
@@ -965,17 +967,36 @@ function setupScrollEffects() {
     }
   }, { passive: true });
 
-  // Mobile navigation
-  if (mobileMenuBtn && navLinks) {
-    mobileMenuBtn.addEventListener("click", () => {
-      navLinks.classList.toggle("mobile-open");
-    });
+  // Mobile Navigation Drawer with Overlay
+  const closeMobileNav = document.getElementById("closeMobileNav");
+  const mobileMenuOverlay = document.getElementById("mobileMenuOverlay");
+  const mobNavCart = document.getElementById("mobNavCart");
 
-    // Close on clicking link
-    navLinks.querySelectorAll(".nav-item").forEach((link) => {
-      link.addEventListener("click", () => {
-        navLinks.classList.remove("mobile-open");
-      });
+  function toggleMobileDrawer(show) {
+    if (navLinks && mobileMenuOverlay) {
+      navLinks.classList.toggle("mobile-open", show);
+      mobileMenuOverlay.classList.toggle("active", show);
+      document.body.style.overflow = show ? "hidden" : "";
+    }
+  }
+
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener("click", () => toggleMobileDrawer(true));
+  }
+  if (closeMobileNav) {
+    closeMobileNav.addEventListener("click", () => toggleMobileDrawer(false));
+  }
+  if (mobileMenuOverlay) {
+    mobileMenuOverlay.addEventListener("click", () => toggleMobileDrawer(false));
+  }
+  navLinks?.querySelectorAll(".nav-item").forEach((link) => {
+    link.addEventListener("click", () => toggleMobileDrawer(false));
+  });
+
+  // Mobile Bottom Bar Cart click
+  if (mobNavCart) {
+    mobNavCart.addEventListener("click", () => {
+      openCart();
     });
   }
 

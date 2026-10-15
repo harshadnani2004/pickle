@@ -61,14 +61,28 @@
         </div>
       </a>
 
-      <!-- Desktop Nav -->
+      <!-- Desktop & Mobile Nav Drawer -->
+      <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
       <nav class="nav-links" id="navLinks">
+        <div class="mobile-nav-header">
+          <div class="mobile-brand">
+            <i class="fa-solid fa-pepper-hot"></i>
+            <span>Avakaya & Co.</span>
+          </div>
+          <button class="mobile-nav-close" id="closeMobileNav" aria-label="Close menu">&times;</button>
+        </div>
         <a href="#hero" class="nav-item active">Home</a>
         <a href="#shop" class="nav-item">Our Jars</a>
         <a href="#heritage" class="nav-item">Grandma's Craft</a>
         <a href="#pairing" class="nav-item">Pairing Guide</a>
         <a href="#reviews" class="nav-item">Reviews</a>
         <a href="#faq" class="nav-item">FAQ</a>
+        <div class="mobile-nav-footer">
+          <a href="https://wa.me/919876543210?text=Hello%20Avakaya%20%26%20Co.,%20I%20would%20like%20to%20order%20pickles" target="_blank" class="btn btn-whatsapp-checkout">
+            <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
+          </a>
+          <p class="mobile-helpline"><i class="fa-solid fa-phone"></i> +91 98765 43210</p>
+        </div>
       </nav>
 
       <!-- Header Actions -->
@@ -163,7 +177,7 @@
         <!-- Right Visual with Interactive Floating Cards -->
         <div class="hero-visual animate-scale-in">
           <div class="hero-image-wrapper">
-            <img src="./assets/images/hero_pickle.jpg" alt="Artisanal Indian Pickles in traditional ceramic Martaban jars" class="hero-image" id="heroImage">
+            <img src="./hero_pickle.jpg" onerror="this.onerror=null;this.src='./assets/images/hero_pickle.jpg';" alt="Artisanal Indian Pickles in traditional ceramic Martaban jars" class="hero-image" id="heroImage">
             <div class="hero-overlay-gradient"></div>
 
             <!-- Floating Spice Card 1 -->
@@ -315,7 +329,7 @@
         <div class="heritage-grid">
           <div class="heritage-media">
             <div class="craft-image-frame">
-              <img src="./assets/images/heritage_craft.jpg" alt="Grandmother making traditional pickles in a village courtyard" class="craft-img">
+              <img src="./heritage_craft.jpg" onerror="this.onerror=null;this.src='./assets/images/heritage_craft.jpg';" alt="Grandmother making traditional pickles in a village courtyard" class="craft-img">
               <div class="craft-overlay-card">
                 <div class="card-quote-mark">“</div>
                 <p>Pickle is not just a condiment in an Indian home; it is an inheritance of patient sun-drying, precise spices, and love that stays good for a year.</p>
@@ -783,6 +797,33 @@
 
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div class="toast-container" id="toastContainer"></div>
+
+  <!-- MOBILE BOTTOM APP BAR (Native App Feel for Mobile) -->
+  <nav class="mobile-bottom-bar" id="mobileBottomBar" aria-label="Mobile Navigation">
+    <a href="#hero" class="mob-bar-item active" id="mobNavHome">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+    <a href="#shop" class="mob-bar-item" id="mobNavShop">
+      <i class="fa-solid fa-jar"></i>
+      <span>Jars</span>
+    </a>
+    <a href="#pairing" class="mob-bar-item" id="mobNavPairing">
+      <i class="fa-solid fa-utensils"></i>
+      <span>Pairings</span>
+    </a>
+    <button class="mob-bar-item" id="mobNavCart" aria-label="Open Cart">
+      <div class="mob-cart-badge-wrap">
+        <i class="fa-solid fa-basket-shopping"></i>
+        <span class="mob-cart-badge" id="mobCartBadge">0</span>
+      </div>
+      <span>Cart</span>
+    </button>
+    <a href="https://wa.me/919876543210?text=Hello%20Avakaya%20%26%20Co.,%20I%20would%20like%20to%20order%20pickles" target="_blank" class="mob-bar-item mob-wa" id="mobNavWa">
+      <i class="fa-brands fa-whatsapp"></i>
+      <span>Order</span>
+    </a>
+  </nav>
 
   <!-- JavaScript -->
   <script src="app.js"></script>
