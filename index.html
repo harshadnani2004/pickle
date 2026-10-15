@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta Tags -->
+  <title>Avakaya & Co. | Authentic Handcrafted Heritage Pickles</title>
+  <meta name="description" content="Authentic, homemade artisanal Indian pickles crafted with 75-year-old heritage family recipes, cold-pressed wood-churned oils, sun-cured spices, and zero chemical preservatives.">
+  <meta name="keywords" content="avakaya pickle, mango pickle, homemade achar, garlic pickle, gongura pachadi, authentic andhra pickles, cold pressed oil pickle, artisanal pickles">
+  <meta name="author" content="Avakaya & Co.">
+  <link rel="canonical" href="https://yourusername.github.io/pickle-business/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Avakaya & Co. | Handcrafted Heritage Pickles">
+  <meta property="og:description" content="Sun-cured, small-batch traditional pickles prepared with pure cold-pressed oil and grandma's secret spice blends.">
+  <meta property="og:image" content="./assets/images/hero_pickle.jpg">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Avakaya & Co. | Authentic Handcrafted Pickles">
+  <meta name="twitter:description" content="Taste the authentic warmth of tradition. 100% natural, sun-matured artisanal pickles.">
+  <meta name="twitter:image" content="./assets/images/hero_pickle.jpg">
+
+  <!-- Google Fonts: Playfair Display for luxury heritage titles, Plus Jakarta Sans for UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏺</text></svg>">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar" id="announcementBar">
+    <div class="announcement-content">
+      <span class="announcement-badge"><i class="fa-solid fa-fire-flame-curved"></i> FRESH BATCH</span>
+      <span>Authentic Summer Avakaya & Gongura Batch Now Maturing! <strong>Use code DESI15 for 15% OFF</strong> on First Order • Free Express Delivery above ₹599</span>
+    </div>
+    <button class="announcement-close" id="closeAnnouncement" aria-label="Close Announcement">&times;</button>
+  </div>
+
+  <!-- Main Navigation Header -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-container">
+      <a href="#hero" class="brand-logo" aria-label="Avakaya & Co. Home">
+        <div class="logo-mark">
+          <i class="fa-solid fa-pepper-hot"></i>
+        </div>
+        <div class="logo-text">
+          <span class="brand-name">Avakaya <span class="amp">&</span> Co.</span>
+          <span class="brand-sub">HERITAGE PICKLE CRAFTERS</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="nav-links" id="navLinks">
+        <a href="#hero" class="nav-item active">Home</a>
+        <a href="#shop" class="nav-item">Our Jars</a>
+        <a href="#heritage" class="nav-item">Grandma's Craft</a>
+        <a href="#pairing" class="nav-item">Pairing Guide</a>
+        <a href="#reviews" class="nav-item">Reviews</a>
+        <a href="#faq" class="nav-item">FAQ</a>
+      </nav>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <button class="icon-btn search-toggle" id="searchToggle" aria-label="Search Pickles">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+
+        <a href="https://wa.me/919876543210?text=Hello%20Avakaya%20%26%20Co.,%20I%20would%20like%20to%20order%20pickles" target="_blank" class="whatsapp-nav-btn" title="Chat on WhatsApp">
+          <i class="fa-brands fa-whatsapp"></i>
+          <span>Order via Chat</span>
+        </a>
+
+        <!-- Cart Trigger Button -->
+        <button class="cart-trigger-btn" id="cartTrigger" aria-label="Open Shopping Jar Cart">
+          <i class="fa-solid fa-basket-shopping"></i>
+          <span class="cart-counter" id="cartCounter">0</span>
+        </button>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Toggle Mobile Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Collapsible Search Bar Header overlay -->
+    <div class="header-search-bar" id="headerSearchBar">
+      <div class="search-input-wrapper">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="globalSearchInput" placeholder="Search garlic pickle, avakaya, gongura, lemon, zero garlic...">
+        <button id="clearSearchBtn" class="clear-search-btn">&times;</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO SECTION -->
+    <section class="hero-section" id="hero">
+      <div class="hero-bg-glow glow-1"></div>
+      <div class="hero-bg-glow glow-2"></div>
+      
+      <div class="hero-container">
+        <!-- Left Content -->
+        <div class="hero-content">
+          <div class="hero-pill animate-fade-in">
+            <span class="pill-dot"></span>
+            <span class="pill-text">100% Wood-Pressed Gingelly & Mustard Oils</span>
+          </div>
+
+          <h1 class="hero-title animate-fade-up">
+            Sun-Cured In Clay Jars.
+            <span class="title-highlight">Grandma's 75-Year Heritage Recipe.</span>
+          </h1>
+
+          <p class="hero-lead animate-fade-up delay-1">
+            Hand-cut raw mangos, hand-pounded Guntur red chillies, and sun-dried rock salt matured under natural golden sunlight in authentic ceramic <em>martabans</em>. Zero preservatives. Zero compromises.
+          </p>
+
+          <div class="hero-actions animate-fade-up delay-2">
+            <a href="#shop" class="btn btn-primary pulse-btn">
+              <span>Explore The Jars</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <a href="#heritage" class="btn btn-secondary">
+              <i class="fa-solid fa-sun"></i>
+              <span>See How It's Sun-Cured</span>
+            </a>
+          </div>
+
+          <!-- Trust Badges & Metrics -->
+          <div class="hero-metrics animate-fade-up delay-3">
+            <div class="metric-item">
+              <div class="metric-number">4.9 <span class="stars"><i class="fa-solid fa-star"></i></span></div>
+              <div class="metric-label">12,400+ Jars Delivered</div>
+            </div>
+            <div class="metric-divider"></div>
+            <div class="metric-item">
+              <div class="metric-number">100%</div>
+              <div class="metric-label">Natural & Sun-Matured</div>
+            </div>
+            <div class="metric-divider"></div>
+            <div class="metric-item">
+              <div class="metric-number">0%</div>
+              <div class="metric-label">Chemical Preservatives</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Visual with Interactive Floating Cards -->
+        <div class="hero-visual animate-scale-in">
+          <div class="hero-image-wrapper">
+            <img src="./assets/images/hero_pickle.jpg" alt="Artisanal Indian Pickles in traditional ceramic Martaban jars" class="hero-image" id="heroImage">
+            <div class="hero-overlay-gradient"></div>
+
+            <!-- Floating Spice Card 1 -->
+            <div class="floating-badge badge-top-right">
+              <div class="badge-icon"><i class="fa-solid fa-fire"></i></div>
+              <div class="badge-info">
+                <strong>Guntur Teja Chillies</strong>
+                <span>Pounded for slow heat</span>
+              </div>
+            </div>
+
+            <!-- Floating Spice Card 2 -->
+            <div class="floating-badge badge-bottom-left">
+              <div class="badge-icon"><i class="fa-solid fa-seedling"></i></div>
+              <div class="badge-info">
+                <strong>Cold-Pressed Oil</strong>
+                <span>Preserves fresh aroma</span>
+              </div>
+            </div>
+
+            <!-- Interactive Authenticity Seal -->
+            <div class="authenticity-stamp">
+              <svg viewBox="0 0 100 100" class="rotating-text-svg">
+                <path id="circlePath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"/>
+                <text font-size="9.5" font-weight="700" fill="#f59e0b" letter-spacing="2">
+                  <textPath href="#circlePath" startOffset="0%">
+                    • ARTISANAL HANDMADE • ESTD 1948 • SUN CURED
+                  </textPath>
+                </text>
+              </svg>
+              <div class="stamp-center">
+                <i class="fa-solid fa-shield-heart"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRUST STRIP -->
+    <section class="trust-strip">
+      <div class="trust-container">
+        <div class="trust-card">
+          <div class="trust-icon"><i class="fa-solid fa-mortar-pestle"></i></div>
+          <div class="trust-text">
+            <h4>Stone Pounded Spices</h4>
+            <p>Whole roasted mustard & fenugreek seeds ground gently</p>
+          </div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-icon"><i class="fa-solid fa-jar"></i></div>
+          <div class="trust-text">
+            <h4>Aged In Martabans</h4>
+            <p>Porcelain earthen jars for slow, safe natural fermentation</p>
+          </div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-icon"><i class="fa-solid fa-droplet"></i></div>
+          <div class="trust-text">
+            <h4>Wood-Pressed Sesame Oil</h4>
+            <p>Kachi Ghani pure gingelly oil with rich golden depth</p>
+          </div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-icon"><i class="fa-solid fa-truck-fast"></i></div>
+          <div class="trust-text">
+            <h4>Safe Leak-Proof Shipping</h4>
+            <p>Double vacuum seal in break-proof glass jars</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCT CATALOG SECTION -->
+    <section class="catalog-section" id="shop">
+      <div class="catalog-container">
+        
+        <!-- Section Header -->
+        <div class="section-header text-center">
+          <span class="section-tag">THE ARTISANAL PANTRY</span>
+          <h2 class="section-title">Fresh Small-Batch Jars</h2>
+          <p class="section-desc">
+            Bottled in hygienic glass jars with food-grade inner induction seals. Choose your preferred jar weight and heat intensity.
+          </p>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="filter-controls-wrap">
+          <!-- Category Tabs -->
+          <div class="category-tabs" id="categoryTabs">
+            <button class="cat-btn active" data-category="all">
+              <i class="fa-solid fa-border-all"></i> All Jars
+            </button>
+            <button class="cat-btn" data-category="signature">
+              <i class="fa-solid fa-award"></i> Signature Mango
+            </button>
+            <button class="cat-btn" data-category="tangy">
+              <i class="fa-solid fa-lemon"></i> Tangy & Sour
+            </button>
+            <button class="cat-btn" data-category="pungent">
+              <i class="fa-solid fa-clove"></i> Garlic & Spiced
+            </button>
+            <button class="cat-btn" data-category="leafy">
+              <i class="fa-solid fa-leaf"></i> Gongura & Greens
+            </button>
+          </div>
+
+          <!-- Heat / Spice Filter & Sorter -->
+          <div class="secondary-filters">
+            <div class="spice-filter-group">
+              <span class="filter-label"><i class="fa-solid fa-pepper-hot"></i> Heat Level:</span>
+              <div class="spice-buttons" id="spiceFilters">
+                <button class="spice-btn active" data-heat="all">Any</button>
+                <button class="spice-btn" data-heat="mild">Mild 🌶️</button>
+                <button class="spice-btn" data-heat="medium">Medium 🌶️🌶️</button>
+                <button class="spice-btn" data-heat="fiery">Fiery 🌶️🌶️🌶️</button>
+              </div>
+            </div>
+
+            <div class="sort-group">
+              <label for="productSort" class="filter-label">Sort by:</label>
+              <select id="productSort" class="sort-select">
+                <option value="featured">Bestsellers</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="rating">Customer Rating</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Results Count -->
+        <div class="catalog-status">
+          <span id="resultsCount">Showing all handcrafted jars</span>
+        </div>
+
+        <!-- Product Cards Grid -->
+        <div class="products-grid" id="productsGrid">
+          <!-- Dynamically populated via app.js -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- HERITAGE CRAFT & TRADITION SECTION -->
+    <section class="heritage-section" id="heritage">
+      <div class="heritage-container">
+        
+        <div class="heritage-grid">
+          <div class="heritage-media">
+            <div class="craft-image-frame">
+              <img src="./assets/images/heritage_craft.jpg" alt="Grandmother making traditional pickles in a village courtyard" class="craft-img">
+              <div class="craft-overlay-card">
+                <div class="card-quote-mark">“</div>
+                <p>Pickle is not just a condiment in an Indian home; it is an inheritance of patient sun-drying, precise spices, and love that stays good for a year.</p>
+                <span class="quote-author">— Shrimati Kamala Devi (Founding Matriarch, 1948)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="heritage-content">
+            <span class="section-tag">UNTOUCHED BY MACHINES</span>
+            <h2 class="section-title">The 4-Step Sun-Curing Ritual</h2>
+            <p class="heritage-intro">
+              Unlike factory pickles that rely on synthetic acetic acid and fast pasteurization, we let time, whole spices, and raw sunlight perform their natural culinary alchemy.
+            </p>
+
+            <div class="ritual-steps">
+              <div class="ritual-step">
+                <div class="step-num">01</div>
+                <div class="step-detail">
+                  <h4>Hand-Inspected Green Mangoes</h4>
+                  <p>Procured straight from farmers in Andhra and Tamil Nadu. Only stone-hard raw mangoes with pristine sour pulp make the cut.</p>
+                </div>
+              </div>
+
+              <div class="ritual-step">
+                <div class="step-num">02</div>
+                <div class="step-detail">
+                  <h4>Stone-Ground Guntur Chillies & Methi</h4>
+                  <p>Spices are hand-roasted on slow flame and coarsely ground in traditional stone mills so the essential aromatic oils are preserved.</p>
+                </div>
+              </div>
+
+              <div class="ritual-step">
+                <div class="step-num">03</div>
+                <div class="step-detail">
+                  <h4>Wood-Pressed Sesame (Gingelly) Oil</h4>
+                  <p>Golden cold-pressed oil extracted without heat chemicals covers the pickles, acting as nature’s purest antioxidant and seal.</p>
+                </div>
+              </div>
+
+              <div class="ritual-step">
+                <div class="step-num">04</div>
+                <div class="step-detail">
+                  <h4>21-Day Porcelain Jar Maturation</h4>
+                  <p>Jars are tied with bleached cotton cloth and sunned for three weeks. Every day, the batch is gently stirred by hand with a neem ladle.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="heritage-cta">
+              <a href="#shop" class="btn btn-primary">Taste Grandma's Tradition</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- INTERACTIVE PAIRING GUIDE / FLAVOR FINDER -->
+    <section class="pairing-section" id="pairing">
+      <div class="pairing-container">
+        <div class="section-header text-center">
+          <span class="section-tag">THE FLAVOR COMPASS</span>
+          <h2 class="section-title">What Are You Craving Today?</h2>
+          <p class="section-desc">Click your comfort meal below to discover its soulmate pickle pairing!</p>
+        </div>
+
+        <!-- Dish Selector Buttons -->
+        <div class="dish-selector" id="dishSelector">
+          <button class="dish-btn active" data-dish="rice-ghee">
+            <span class="dish-emoji">🍚</span>
+            <span class="dish-name">Hot Rice & Desi Ghee</span>
+          </button>
+          <button class="dish-btn" data-dish="curd-rice">
+            <span class="dish-emoji">🥣</span>
+            <span class="dish-name">Chilled Curd Rice</span>
+          </button>
+          <button class="dish-btn" data-dish="paratha">
+            <span class="dish-emoji">🫓</span>
+            <span class="dish-name">Crisp Aloo Paratha</span>
+          </button>
+          <button class="dish-btn" data-dish="dosa-idli">
+            <span class="dish-emoji">🥞</span>
+            <span class="dish-name">Crispy Dosa & Idli</span>
+          </button>
+          <button class="dish-btn" data-dish="khichdi">
+            <span class="dish-emoji">🍲</span>
+            <span class="dish-name">Dal Khichdi & Papad</span>
+          </button>
+        </div>
+
+        <!-- Pairing Dynamic Result Card -->
+        <div class="pairing-display-card" id="pairingDisplayCard">
+          <!-- Rendered dynamically by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- CUSTOMER REVIEWS & TESTIMONIALS -->
+    <section class="reviews-section" id="reviews">
+      <div class="reviews-container">
+        <div class="section-header text-center">
+          <span class="section-tag">HONEST WORD OF MOUTH</span>
+          <h2 class="section-title">Loved by Generations of Foodies</h2>
+          <p class="section-desc">Over 8,500 homes across India and abroad trust us for their daily nostalgia.</p>
+        </div>
+
+        <div class="reviews-grid">
+          
+          <div class="review-card">
+            <div class="review-rating">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+            </div>
+            <p class="review-text">
+              "The Avakaya brought tears to my eyes. Living in Bangalore away from my hometown in Vijayawada, this jar tasted EXACTLY like the ceramic jar my grandmother used to pack for hostel. The sesame oil aroma is unmatchable."
+            </p>
+            <div class="reviewer-meta">
+              <div class="reviewer-avatar">SP</div>
+              <div class="reviewer-info">
+                <strong>Srinivas Prasad</strong>
+                <span>Software Architect, Bengaluru</span>
+                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Pickle Buyer</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="review-card highlighted-review">
+            <div class="review-badge-top">Top Rated Review</div>
+            <div class="review-rating">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+            </div>
+            <p class="review-text">
+              "The Spicy Garlic Pickle (Lahsun Achar) is an absolute punch of joy. Most market pickles are soaked in vinegar water, but Avakaya & Co. uses real cold-pressed oil and whole plump cloves. My whole family is hooked!"
+            </p>
+            <div class="reviewer-meta">
+              <div class="reviewer-avatar">RK</div>
+              <div class="reviewer-info">
+                <strong>Radhika Kapoor</strong>
+                <span>Home Chef & Food Blogger, Mumbai</span>
+                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Pickle Buyer</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="review-card">
+            <div class="review-rating">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+            </div>
+            <p class="review-text">
+              "The Gongura pachadi with hot rice and ghee is heaven on a plate. The packaging was top tier—bubble wrapped, glass jar arrived completely leak-proof in Delhi within 3 days. Super fast WhatsApp support too!"
+            </p>
+            <div class="reviewer-meta">
+              <div class="reviewer-avatar">VM</div>
+              <div class="reviewer-info">
+                <strong>Varun Menon</strong>
+                <span>Delhi NCR</span>
+                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Pickle Buyer</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Social Proof Stats Banner -->
+        <div class="stats-banner">
+          <div class="stat-box">
+            <h3>98.4%</h3>
+            <p>Repeat Order Rate</p>
+          </div>
+          <div class="stat-box">
+            <h3>50,000+</h3>
+            <p>Kg Sun-Cured Seasonally</p>
+          </div>
+          <div class="stat-box">
+            <h3>100%</h3>
+            <p>Cold Pressed Oil Guarantee</p>
+          </div>
+          <div class="stat-box">
+            <h3>4.9★</h3>
+            <p>Average Google & Store Rating</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FREQUENTLY ASKED QUESTIONS -->
+    <section class="faq-section" id="faq">
+      <div class="faq-container">
+        <div class="section-header text-center">
+          <span class="section-tag">COMMON QUERIES</span>
+          <h2 class="section-title">Everything You Need to Know</h2>
+          <p class="section-desc">Have questions regarding shelf-life, shipping, and ingredients? We’ve got answers.</p>
+        </div>
+
+        <div class="faq-accordion" id="faqAccordion">
+          
+          <div class="faq-item active">
+            <button class="faq-question">
+              <span>What is the shelf life of these pickles without preservatives?</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                Our pickles have a natural shelf life of <strong>12 months</strong>! Because we follow the ancient method of preserving with natural sun-dried rock salt and keeping the pickle submerged under a protective layer of pure cold-pressed sesame/mustard oil, bad bacteria cannot survive. Always remember to use a dry clean spoon!
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>What oils do you use in preparation?</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                We strictly use <strong>100% wood-churned (wood-pressed / Kachi Ghani) sesame (gingelly) oil</strong> for South Indian style pickles (Avakaya, Gongura, Tomato) and pure cold-pressed mustard oil for Northern varieties. We NEVER use cheap refined palm oil, cotton-seed oil, or synthetic preservatives.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>How are the glass jars safely shipped without leakage?</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                Each jar is fitted with an induction foil leak-seal under the cap, wrapped in thick biodegradable honeycomb paper, encased in high-density foam buffers, and packed in reinforced corrugated shipping boxes. In the rare event of transit damage, we offer 100% free instant replacement!
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>Can I order directly through WhatsApp?</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                Yes! Our WhatsApp ordering is the quickest way. Simply click the "Order on WhatsApp" button anywhere on our site, or add your favorite jars to the cart and click "WhatsApp Checkout". Your order list and address will be formatted automatically for one-click confirmation.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>Do you ship internationally to the USA, UK, UAE, or Canada?</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                Yes, we do special international courier consignments via DHL and FedEx Express with vacuum-sealed travel packs and customs clearances. Contact us on WhatsApp for international shipping rates.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- NEWSLETTER / BATCH RELEASE NOTIFICATION -->
+    <section class="newsletter-section">
+      <div class="newsletter-card">
+        <div class="newsletter-content">
+          <span class="section-tag light">NEVER MISS A HARVEST</span>
+          <h2>Join The Secret Pickle Club</h2>
+          <p>Get notified when rare seasonal batches like <em>Allam Avakaya</em>, <em>Usirikaya (Amla)</em>, and <em>Sun-dried Chintakaya</em> drop. Plus, get 15% off your first order!</p>
+          
+          <form class="newsletter-form" id="newsletterForm">
+            <div class="form-group">
+              <input type="email" id="newsletterEmail" placeholder="Enter your email address" required>
+              <button type="submit" class="btn btn-primary">Join Club</button>
+            </div>
+            <small class="form-disclaimer">Zero spam. Just delicious pickle updates once a month.</small>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- SITE FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      
+      <div class="footer-col brand-col">
+        <div class="footer-logo">
+          <i class="fa-solid fa-pepper-hot"></i>
+          <span>Avakaya <span class="amp">&</span> Co.</span>
+        </div>
+        <p class="footer-about">
+          Restoring pure, nostalgic flavors to modern tables. Pure heritage recipes, sun-cured spices, cold-pressed oils, and generational craftsmanship since 1948.
+        </p>
+        <div class="footer-socials">
+          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+          <a href="#" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Signature Pickles</h4>
+        <ul class="footer-links">
+          <li><a href="#shop" data-filter="signature">Traditional Mango Avakaya</a></li>
+          <li><a href="#shop" data-filter="pungent">Spicy Garlic Nilava Pachadi</a></li>
+          <li><a href="#shop" data-filter="tangy">Sun-Cured Lemon Nimbu Achar</a></li>
+          <li><a href="#shop" data-filter="leafy">Authentic Gongura Pachadi</a></li>
+          <li><a href="#shop" data-filter="tangy">Country Tomato Thakkali Achar</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Craft & Heritage</h4>
+        <ul class="footer-links">
+          <li><a href="#heritage">The 4-Step Sun Ritual</a></li>
+          <li><a href="#pairing">Flavor Pairing Guide</a></li>
+          <li><a href="#reviews">Customer Stories</a></li>
+          <li><a href="#faq">Storage & Shelf Life</a></li>
+          <li><a href="#faq">Shipping & Returns</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col contact-col">
+        <h4>Direct Contact</h4>
+        <p><i class="fa-solid fa-location-dot"></i> Traditional Kitchens, Old Heritage Lane, Rajahmundry & Hyderabad, India</p>
+        <p><i class="fa-solid fa-phone"></i> +91 98765 43210</p>
+        <p><i class="fa-solid fa-envelope"></i> orders@avakayaco.com</p>
+        <div class="payment-methods">
+          <span><i class="fa-brands fa-google-pay"></i> UPI</span>
+          <span><i class="fa-brands fa-cc-visa"></i> Visa</span>
+          <span><i class="fa-brands fa-cc-mastercard"></i> MC</span>
+          <span><i class="fa-solid fa-money-bill-wave"></i> COD</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-container">
+        <p>&copy; <span id="currentYear"></span> Avakaya & Co. Handcrafted Heritage Pickles. Built for GitHub Pages deployment.</p>
+        <div class="footer-legal">
+          <a href="#">Privacy Policy</a>
+          <span>•</span>
+          <a href="#">Terms of Service</a>
+          <span>•</span>
+          <a href="#">FSSAI License #10023000000001</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SLIDE-IN CART DRAWER -->
+  <div class="cart-drawer-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
+    <div class="cart-header">
+      <div class="cart-title">
+        <i class="fa-solid fa-jar"></i>
+        <span>Your Pickle Jar Box (<span id="cartCountHeader">0</span>)</span>
+      </div>
+      <button class="cart-close-btn" id="closeCartBtn" aria-label="Close cart">&times;</button>
+    </div>
+
+    <!-- Free Delivery Progress Bar -->
+    <div class="free-shipping-bar">
+      <div class="shipping-info">
+        <i class="fa-solid fa-truck-ramp-box"></i>
+        <span id="shippingProgressText">Add ₹599 for FREE Delivery</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="shippingProgressFill" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <!-- Cart Items Scroll List -->
+    <div class="cart-items-list" id="cartItemsList">
+      <!-- Injected dynamically via app.js -->
+    </div>
+
+    <!-- Cart Footer & Checkout -->
+    <div class="cart-footer" id="cartFooter">
+      <div class="cart-subtotal-row">
+        <span>Subtotal:</span>
+        <span class="subtotal-val" id="cartSubtotal">₹0</span>
+      </div>
+      <div class="cart-shipping-row">
+        <span>Standard Packing & Fragile Delivery:</span>
+        <span id="cartDeliveryCharge">₹50</span>
+      </div>
+      <div class="cart-total-row">
+        <span>Total:</span>
+        <span class="total-val" id="cartTotal">₹0</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="cart-actions-column">
+        <button class="btn btn-whatsapp-checkout" id="whatsappCheckoutBtn">
+          <i class="fa-brands fa-whatsapp"></i>
+          <span>Order via WhatsApp (Instant)</span>
+        </button>
+
+        <button class="btn btn-checkout-sim" id="directCheckoutBtn">
+          <i class="fa-solid fa-lock"></i>
+          <span>Standard Checkout (Demo)</span>
+        </button>
+      </div>
+
+      <div class="cart-safe-badge">
+        <i class="fa-solid fa-shield-halved"></i> 100% Spill-Proof Break-Proof Transit Warranty
+      </div>
+    </div>
+  </aside>
+
+  <!-- QUICK VIEW PRODUCT MODAL -->
+  <div class="modal-overlay" id="quickViewModal">
+    <div class="modal-container">
+      <button class="modal-close" id="closeModalBtn">&times;</button>
+      <div class="modal-content" id="modalContent">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKOUT SUCCESS / DEMO MODAL -->
+  <div class="modal-overlay" id="checkoutSuccessModal">
+    <div class="modal-container modal-small text-center">
+      <div class="success-icon-wrap">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 class="success-title">Order Received!</h3>
+      <p class="success-desc" id="successOrderDetails">
+        Thank you for trusting Avakaya & Co.! We are preparing your fresh sun-cured jar with care.
+      </p>
+      <div class="success-order-box">
+        <strong>Batch Preparation Time:</strong> 12 Hours<br>
+        <strong>Courier Partner:</strong> Express BlueDart / DTDC
+      </div>
+      <button class="btn btn-primary" id="closeSuccessModalBtn">Back to Pantry</button>
+    </div>
+  </div>
+
+  <!-- FLOATING QUICK WHATSAPP BUTTON -->
+  <a href="https://wa.me/919876543210?text=Hello%20Avakaya%20%26%20Co.,%20I%20have%20a%20question%20about%20your%20artisanal%20pickles" 
+     class="floating-whatsapp" 
+     target="_blank" 
+     rel="noopener" 
+     title="Ask on WhatsApp">
+    <div class="pulse-ring"></div>
+    <i class="fa-brands fa-whatsapp"></i>
+    <span class="floating-tooltip">Chat with us!</span>
+  </a>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- JavaScript -->
+  <script src="app.js"></script>
+</body>
+</html>
