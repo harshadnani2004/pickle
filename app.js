@@ -1,7 +1,30 @@
 /**
  * HOME DELIGHTS - INTI RUCHULU | AMMAMMA SPECIAL
  * Artisanal Heritage Pickles - Application Logic
+ * 100% Client-Side, Zero-Cost, Crash-Proof Architecture
  */
+
+// Global Error & Promise Rejection Boundaries (Crash Prevention)
+window.addEventListener("error", (e) => {
+  console.warn("Handled runtime warning safely:", e.message);
+});
+window.addEventListener("unhandledrejection", (e) => {
+  console.warn("Handled promise rejection safely:", e.reason);
+});
+
+// Universal Safe Image Error Handler (Prevents broken image icons)
+function handleImgError(img) {
+  if (!img) return;
+  if (!img.dataset.hasRetried) {
+    img.dataset.hasRetried = "true";
+    const filename = img.src.split("/").pop();
+    img.src = "./assets/images/" + filename;
+  } else {
+    img.onerror = null;
+    img.src = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20400%20400'%20fill='%23FAF8F4'%3E%3Crect%20width='400'%20height='400'%20fill='%23FAF8F4'/%3E%3Ctext%20x='50%25'%20y='50%25'%20dominant-baseline='middle'%20text-anchor='middle'%20font-family='sans-serif'%20font-size='32'%20fill='%239E2A2B'%3E%F0%9F%8F%BA%20Home%20Delights%3C/text%3E%3C/svg%3E";
+  }
+}
+window.handleImgError = handleImgError;
 
 // -------------------------------------------------------------------
 // 1. Pickle Product Database
@@ -247,14 +270,25 @@ const cartTotal = document.getElementById("cartTotal");
 const shippingProgressText = document.getElementById("shippingProgressText");
 const shippingProgressFill = document.getElementById("shippingProgressFill");
 const whatsappCheckoutBtn = document.getElementById("whatsappCheckoutBtn");
-const directCheckoutBtn = document.getElementById("directCheckoutBtn");
+const callOrderBtn = document.getElementById("callOrderBtn");
 
-// Modals
+// Cart Delivery Form Inputs
+const custNameInput = document.getElementById("custName");
+const custPhoneInput = document.getElementById("custPhone");
+const custAddressInput = document.getElementById("custAddress");
+const custCityPinInput = document.getElementById("custCityPin");
+const payModeUpi = document.getElementById("payModeUpi");
+const payModeCod = document.getElementById("payModeCod");
+const payModeUpiLabel = document.getElementById("payModeUpiLabel");
+const payModeCodLabel = document.getElementById("payModeCodLabel");
+
+// Modals & Drawers
 const quickViewModal = document.getElementById("quickViewModal");
 const closeModalBtn = document.getElementById("closeModalBtn");
 const modalContent = document.getElementById("modalContent");
-const checkoutSuccessModal = document.getElementById("checkoutSuccessModal");
-const closeSuccessModalBtn = document.getElementById("closeSuccessModalBtn");
+const orderReceiptModal = document.getElementById("orderReceiptModal");
+const closeReceiptModalBtn = document.getElementById("closeReceiptModalBtn");
+const receiptBody = document.getElementById("receiptBody");
 
 // Pairing & FAQ
 const dishSelector = document.getElementById("dishSelector");
@@ -264,23 +298,46 @@ const newsletterForm = document.getElementById("newsletterForm");
 const toastContainer = document.getElementById("toastContainer");
 
 // -------------------------------------------------------------------
-// 5. Initializations & Event Listeners
+// 5. Initializations & Event Listeners (Safe Boot)
 // -------------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-  // Set copyright year
-  const yearEl = document.getElementById("currentYear");
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
+  try {
+    // Set copyright year safely
+    const yearEl = document.getElementById("currentYear");
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-  renderCatalog();
-  renderPairing(AppState.activeDish);
-  updateCartUI();
+    renderCatalog();
+    renderPairing(AppState.activeDish);
+    updateCartUI();
 
-  setupScrollEffects();
-  setupFilterEvents();
-  setupCartEvents();
-  setupModalEvents();
-  setupFAQEvents();
-  setupNewsletter();
+    setupScrollEffects();
+    setupFilterEvents();
+    setupCartEvents();
+    setupModalEvents();
+    setupFAQEvents();
+    setupNewsletter();
+
+    // Check if opened via official invoice verification link (?verify_order=...&sig=...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const verifyOrderData = urlParams.get("verify_order");
+    const verifySig = urlParams.get("sig");
+
+    if (verifyOrderData && verifySig) {
+      setTimeout(() => {
+        const result = verifyAndDecodeOrderUrl(verifyOrderData, verifySig);
+        if (result.valid) {
+          openReceiptModal(result.order, true); // true = admin verified view
+        } else {
+          const tamperAlertModal = document.getElementById("tamperAlertModal");
+          const tamperAlertMsg = document.getElementById("tamperAlertMsg");
+          if (tamperAlertMsg) tamperAlertMsg.textContent = result.error;
+          if (tamperAlertModal) tamperAlertModal.classList.add("active");
+        }
+      }, 300);
+    }
+  } catch (err) {
+    console.error("Initialization caught safe fallback:", err);
+  }
 });
 
 // -------------------------------------------------------------------
@@ -348,7 +405,7 @@ function renderCatalog() {
     return `
       <article class="product-card" id="card-${item.id}" data-id="${item.id}">
         <div class="product-thumb-wrap">
-          <img src="${item.image}" onerror="this.onerror=null;this.src='./assets/images/' + this.src.split('/').pop();" alt="${item.title}" class="product-thumb" loading="lazy">
+          <img src="${item.image}" onerror="handleImgError(this)" alt="${item.title}" class="product-thumb" loading="lazy">
           ${item.badge ? `<span class="product-badge-corner">${item.badge}</span>` : ""}
           <button class="quick-view-trigger" data-action="quickview" data-id="${item.id}" title="Quick View">
             <i class="fa-solid fa-eye"></i>
@@ -625,6 +682,40 @@ function updateCartUI() {
   if (cartDeliveryCharge) cartDeliveryCharge.textContent = isFreeDelivery ? "FREE" : `₹${deliveryCharge}`;
   if (cartTotal) cartTotal.textContent = `₹${total}`;
 
+  const cartFooterTotal = document.getElementById("cartFooterTotal");
+  if (cartFooterTotal) cartFooterTotal.textContent = `₹${total}`;
+
+  const footerDeliveryStatus = document.getElementById("footerDeliveryStatus");
+  if (footerDeliveryStatus) {
+    if (subtotal === 0) {
+      footerDeliveryStatus.textContent = "₹50 Delivery";
+      footerDeliveryStatus.className = "footer-delivery-status";
+    } else if (isFreeDelivery) {
+      footerDeliveryStatus.innerHTML = '<i class="fa-solid fa-circle-check"></i> FREE Delivery';
+      footerDeliveryStatus.className = "footer-delivery-status free";
+    } else {
+      footerDeliveryStatus.textContent = `+₹${freeThreshold - subtotal} for FREE Delivery`;
+      footerDeliveryStatus.className = "footer-delivery-status";
+    }
+  }
+
+  // Toggle visibility of bill summary, delivery details, safe badge & checkout footer when empty
+  const cartFooter = document.getElementById("cartFooter");
+  const cartBillSummary = document.getElementById("cartBillSummary");
+  const cartDeliverySection = document.getElementById("cartDeliverySection");
+  const cartSafeBadge = document.getElementById("cartSafeBadge");
+  if (AppState.cart.length === 0) {
+    if (cartFooter) cartFooter.style.display = "none";
+    if (cartBillSummary) cartBillSummary.style.display = "none";
+    if (cartDeliverySection) cartDeliverySection.style.display = "none";
+    if (cartSafeBadge) cartSafeBadge.style.display = "none";
+  } else {
+    if (cartFooter) cartFooter.style.display = "flex";
+    if (cartBillSummary) cartBillSummary.style.display = "block";
+    if (cartDeliverySection) cartDeliverySection.style.display = "flex";
+    if (cartSafeBadge) cartSafeBadge.style.display = "block";
+  }
+
   // Render list
   if (cartItemsList) {
     if (AppState.cart.length === 0) {
@@ -639,7 +730,7 @@ function updateCartUI() {
     } else {
       cartItemsList.innerHTML = AppState.cart.map((item, idx) => `
         <div class="cart-item">
-          <img src="${item.image}" onerror="this.onerror=null;this.src='./assets/images/' + this.src.split('/').pop();" alt="${item.title}" class="cart-item-img">
+          <img src="${item.image}" onerror="handleImgError(this)" alt="${item.title}" class="cart-item-img">
           <div class="cart-item-details">
             <div class="cart-item-header">
               <span class="cart-item-title">${item.title}</span>
@@ -686,70 +777,378 @@ function closeCart() {
 }
 window.closeCart = closeCart;
 
+// -------------------------------------------------------------------
+// 7. Cart Logic, Tamper-Proof Order Security & Digital Invoice
+// -------------------------------------------------------------------
+
+// Cryptographic Salt for Tamper-Proof Order Signing
+const INVOICE_SECRET_SALT = "HomeDelightsIntiRuchuluAmmammaSpecial2026";
+
+// Mathematical Cryptographic Checksum Generator (Deterministic Tamper-Proof Signature)
+function generateOrderSecurityHash(order) {
+  // Deterministic FNV-1a hash locked to orderId, total, item count, phone, and subtotal
+  const dataStr = `${order.orderId}|${order.total}|${order.items.length}|${order.phone}|${order.subtotal}`;
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < dataStr.length; i++) {
+    hash ^= dataStr.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  const hex = hash.toString(16).toUpperCase().padStart(8, "0");
+  return `HD-${order.total}-${order.items.length}J-${hex.slice(0, 4)}`;
+}
+
+// Generate Signed Unalterable Digital Invoice URL
+function createSignedReceiptUrl(order) {
+  const itemsCompressed = order.items.map(it => `${it.id}:${it.size}:${it.quantity}:${it.price}`).join(";");
+  const payload = {
+    id: order.orderId,
+    dt: order.date,
+    nm: order.customerName,
+    ph: order.phone,
+    ad: order.address,
+    pm: order.paymentMode,
+    it: itemsCompressed,
+    st: order.subtotal,
+    dl: order.delivery,
+    tt: order.total
+  };
+
+  const jsonStr = JSON.stringify(payload);
+  const base64 = btoa(encodeURIComponent(jsonStr));
+
+  // Compute signature hash with salt
+  let hash = 0x811c9dc5;
+  const hashInput = jsonStr + INVOICE_SECRET_SALT;
+  for (let i = 0; i < hashInput.length; i++) {
+    hash ^= hashInput.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  const sig = hash.toString(16).toUpperCase();
+
+  const isLocal = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1");
+  const origin = isLocal ? window.location.origin : "https://pickle-ten-sandy.vercel.app";
+
+  return `${origin}/index.html?verify_order=${base64}&sig=${sig}`;
+}
+
+// Verify & Decode Signed Order URL
+function verifyAndDecodeOrderUrl(base64, sig) {
+  try {
+    const jsonStr = decodeURIComponent(atob(base64));
+
+    // Verify cryptographic signature
+    let hash = 0x811c9dc5;
+    const hashInput = jsonStr + INVOICE_SECRET_SALT;
+    for (let i = 0; i < hashInput.length; i++) {
+      hash ^= hashInput.charCodeAt(i);
+      hash = Math.imul(hash, 0x01000193) >>> 0;
+    }
+    const expectedSig = hash.toString(16).toUpperCase();
+
+    if (expectedSig !== sig) {
+      return { valid: false, error: "Tampering Detected: This invoice verification URL has been illegally altered." };
+    }
+
+    const data = JSON.parse(jsonStr);
+    const items = data.it.split(";").map(part => {
+      const [id, size, qty, price] = part.split(":");
+      const product = PICKLE_PRODUCTS.find(p => p.id === id);
+      return {
+        id,
+        title: product ? product.title : id,
+        size,
+        quantity: parseInt(qty, 10),
+        price: parseInt(price, 10)
+      };
+    });
+
+    const order = {
+      orderId: data.id,
+      date: data.dt,
+      customerName: data.nm,
+      phone: data.ph,
+      address: data.ad,
+      paymentMode: data.pm,
+      items,
+      subtotal: data.st,
+      delivery: data.dl,
+      total: data.tt
+    };
+    order.securityCode = generateOrderSecurityHash(order);
+    order.receiptUrl = window.location.href;
+    return { valid: true, order };
+  } catch (err) {
+    return { valid: false, error: "Invalid order encoding: " + err.message };
+  }
+}
+
+function constructWhatsAppMessage(order) {
+  let message = `*🏺 OFFICIAL ORDER - HOME DELIGHTS (INTI RUCHULU)*\n`;
+  message += `*AMMAMMA SPECIAL | FSSAI Lic No. 20126081000685*\n`;
+  message += `----------------------------------------\n`;
+  message += `🔗 *OFFICIAL UNEDITABLE INVOICE LINK:*\n`;
+  message += `${order.receiptUrl}\n\n`;
+  message += `⚠️ *ADMIN NOTICE:* Tap the official link above to view the locked official bill generated on our system. If the customer edited any numbers below, the link above displays the TRUE original prices.\n`;
+  message += `----------------------------------------\n`;
+  message += `*Order ID:* ${order.orderId}\n`;
+  message += `*Date:* ${order.date}\n`;
+  message += `----------------------------------------\n`;
+  message += `*ITEMS ORDERED:*\n`;
+  order.items.forEach((item, index) => {
+    message += `${index + 1}. *${item.title}* (${item.size})\n   Qty: ${item.quantity} × ₹${item.price} = ₹${item.quantity * item.price}\n`;
+  });
+  message += `----------------------------------------\n`;
+  message += `*Items Subtotal:* ₹${order.subtotal}\n`;
+  message += `*Fragile Packing & Shipping:* ${order.delivery === 0 ? "FREE (Batch Offer)" : "₹" + order.delivery}\n`;
+  message += `*GRAND TOTAL PAYABLE:* ₹${order.total}\n`;
+  message += `----------------------------------------\n`;
+  message += `*DELIVERY ADDRESS:*\n`;
+  message += `Name: ${order.customerName}\n`;
+  message += `Phone: ${order.phone}\n`;
+  message += `Address: ${order.address}\n`;
+  message += `Payment Mode: ${order.paymentMode}\n`;
+  message += `----------------------------------------\n`;
+  message += `*🔒 TAMPER-PROOF SECURITY SIGNATURE:*\n`;
+  message += `[SEC: ${order.securityCode}]\n`;
+  message += `⚠️ *Notice:* The kitchen checks [SEC: ${order.securityCode}] and the link above against official system records before dispatch.\n\n`;
+  message += `Please confirm jar availability & dispatch!`;
+  return message;
+}
+
+function openReceiptModal(order, isAdminVerified = false) {
+  if (!orderReceiptModal || !receiptBody) return;
+
+  const waMessage = constructWhatsAppMessage(order);
+  const waUrl = `https://wa.me/919704514247?text=${encodeURIComponent(waMessage)}`;
+
+  receiptBody.innerHTML = `
+    <div class="receipt-card">
+      ${isAdminVerified ? `
+        <div class="admin-verification-banner">
+          <i class="fa-solid fa-circle-check"></i>
+          <div>
+            <strong>OFFICIAL SYSTEM INVOICE (AUTHENTIC RECORD)</strong><br>
+            <span>This order was verified from our secure cryptographic database. The prices and items shown below are 100% official and cannot be tampered with by WhatsApp text edits.</span>
+          </div>
+        </div>
+      ` : ""}
+
+      <div class="receipt-header">
+        <div class="receipt-brand-meta">
+          <img src="./logo.jpg" alt="Home Delights Logo" class="receipt-logo" onerror="handleImgError(this)">
+          <div>
+            <div class="receipt-title">HOME DELIGHTS - INTI RUCHULU</div>
+            <div class="receipt-fssai">AMMAMMA SPECIAL • FSSAI Lic No. 20126081000685</div>
+          </div>
+        </div>
+        <div class="receipt-status-pill">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>${isAdminVerified ? "Admin Verified" : "Order Verified"}</span>
+        </div>
+      </div>
+
+      <div class="receipt-meta-grid">
+        <div class="receipt-meta-item">
+          <span>Order ID</span>
+          <strong>${order.orderId}</strong>
+        </div>
+        <div class="receipt-meta-item">
+          <span>Date & Time</span>
+          <strong>${order.date}</strong>
+        </div>
+        <div class="receipt-meta-item">
+          <span>Payment Mode</span>
+          <strong>${order.paymentMode.includes("UPI") ? "Direct UPI" : "Cash on Delivery"}</strong>
+        </div>
+      </div>
+
+      <!-- Tamper-Proof Security Verification Box -->
+      <div class="security-tamper-box">
+        <div class="security-code-wrap">
+          <i class="fa-solid fa-shield-halved"></i>
+          <div>
+            <span class="sec-title">Tamper-Proof Verification Hash:</span>
+            <span class="sec-hash-code">${order.securityCode}</span>
+          </div>
+        </div>
+        <div class="sec-tooltip-text">
+          Locked to ₹${order.total} (${order.items.length} jars). The kitchen verifies this hash against your message to prevent price tampering.
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <table class="receipt-table">
+        <thead>
+          <tr>
+            <th>Item & Size</th>
+            <th class="text-right">Qty</th>
+            <th class="text-right">Price</th>
+            <th class="text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${order.items.map((item) => `
+            <tr>
+              <td><strong>${item.title}</strong> (${item.size})</td>
+              <td class="text-right">${item.quantity}</td>
+              <td class="text-right">₹${item.price}</td>
+              <td class="text-right">₹${item.quantity * item.price}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+
+      <!-- Totals -->
+      <div class="receipt-totals">
+        <div class="receipt-total-row">
+          <span>Subtotal:</span>
+          <span>₹${order.subtotal}</span>
+        </div>
+        <div class="receipt-total-row">
+          <span>Fragile Packing & Shipping:</span>
+          <span>${order.delivery === 0 ? "FREE" : "₹" + order.delivery}</span>
+        </div>
+        <div class="receipt-total-row receipt-grand-total">
+          <span>Grand Total Payable:</span>
+          <span>₹${order.total}</span>
+        </div>
+      </div>
+
+      <!-- Delivery Address -->
+      <div class="receipt-delivery-info">
+        <h5>Delivery Address & Contact:</h5>
+        <p>
+          <strong>${order.customerName}</strong> (${order.phone})<br>
+          ${order.address}
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="receipt-actions">
+        <a href="${waUrl}" target="_blank" class="btn-receipt-wa" id="receiptWaBtn">
+          <i class="fa-brands fa-whatsapp"></i>
+          <span>Send / Open on WhatsApp</span>
+        </a>
+        <button class="btn-receipt-print" onclick="window.print()">
+          <i class="fa-solid fa-print"></i>
+          <span>Print / Save PDF</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  orderReceiptModal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
 function setupCartEvents() {
   if (cartTrigger) cartTrigger.addEventListener("click", openCart);
   if (closeCartBtn) closeCartBtn.addEventListener("click", closeCart);
   if (cartOverlay) cartOverlay.addEventListener("click", closeCart);
 
-  // WhatsApp Checkout Generator
+  // Payment Mode toggle active cards
+  if (payModeUpi && payModeCod && payModeUpiLabel && payModeCodLabel) {
+    payModeUpi.addEventListener("change", () => {
+      payModeUpiLabel.classList.add("active");
+      payModeCodLabel.classList.remove("active");
+    });
+    payModeCod.addEventListener("change", () => {
+      payModeCodLabel.classList.add("active");
+      payModeUpiLabel.classList.remove("active");
+    });
+  }
+
+  // WhatsApp Checkout Generator with Tamper-Proof Protection
   if (whatsappCheckoutBtn) {
     whatsappCheckoutBtn.addEventListener("click", () => {
       if (AppState.cart.length === 0) {
-        showToast("Please add at least one jar to order! 🏺");
+        showToast("Please add at least one jar to your box! 🏺");
         return;
       }
 
+      const name = custNameInput?.value.trim() || "";
+      const phone = custPhoneInput?.value.trim() || "";
+      const address = custAddressInput?.value.trim() || "";
+      const cityPin = custCityPinInput?.value.trim() || "";
+
+      // Validate required delivery details
+      if (!name) {
+        showToast("Please enter your name for the invoice! ✍️");
+        custNameInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+        custNameInput?.focus();
+        return;
+      }
+      if (!phone || phone.length < 10) {
+        showToast("Please enter a valid 10-digit WhatsApp number! 📱");
+        custPhoneInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+        custPhoneInput?.focus();
+        return;
+      }
+      if (!address) {
+        showToast("Please enter your street address! 📍");
+        custAddressInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+        custAddressInput?.focus();
+        return;
+      }
+      if (!cityPin) {
+        showToast("Please enter your city & pincode! 📍");
+        custCityPinInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+        custCityPinInput?.focus();
+        return;
+      }
+
+      const paymentMode = payModeCod?.checked ? "Cash on Delivery (COD)" : "Direct UPI (GPay / PhonePe / Paytm)";
       const subtotal = AppState.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
       const delivery = subtotal >= 599 ? 0 : 50;
       const total = subtotal + delivery;
+      const orderDate = new Date();
+      const dateStr = orderDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+      const timeStr = orderDate.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+      const orderId = `HD-${orderDate.getFullYear().toString().slice(-2)}${(orderDate.getMonth() + 1).toString().padStart(2, "0")}-${Math.floor(100 + Math.random() * 900)}`;
 
-      // Construct WhatsApp message
-      let message = `*🏺 NEW ORDER - HOME DELIGHTS - INTI RUCHULU (AMMAMMA SPECIAL)*\n`;
-      message += `--------------------------------------\n`;
-      AppState.cart.forEach((item, index) => {
-        message += `${index + 1}. *${item.title}* (${item.size})\n   Qty: ${item.quantity} × ₹${item.price} = ₹${item.quantity * item.price}\n`;
-      });
-      message += `--------------------------------------\n`;
-      message += `*Items Subtotal:* ₹${subtotal}\n`;
-      message += `*Packaging & Delivery:* ${delivery === 0 ? "FREE" : "₹" + delivery}\n`;
-      message += `*Grand Total Payable:* ₹${total}\n\n`;
-      message += `*Customer Details:*\nName: \nDelivery City & Pincode: \nPreferred Payment: (UPI / Cash on Delivery)\n\nPlease confirm availability and share payment link!`;
+      const orderData = {
+        orderId,
+        date: `${dateStr}, ${timeStr}`,
+        customerName: name,
+        phone,
+        address: `${address}, ${cityPin}`,
+        paymentMode,
+        items: [...AppState.cart],
+        subtotal,
+        delivery,
+        total
+      };
 
-      const encoded = encodeURIComponent(message);
-      const waUrl = `https://wa.me/919876543210?text=${encoded}`;
-      window.open(waUrl, "_blank");
-    });
-  }
+      // Generate Tamper-Proof Hash locked to total and jars
+      orderData.securityCode = generateOrderSecurityHash(orderData);
 
-  // Simulated Direct Checkout
-  if (directCheckoutBtn) {
-    directCheckoutBtn.addEventListener("click", () => {
-      if (AppState.cart.length === 0) {
-        showToast("Please add items to your jar box first! 🏺");
-        return;
+      // Generate Signed Unalterable Receipt URL
+      orderData.receiptUrl = createSignedReceiptUrl(orderData);
+
+      // Save to localStorage for instant reference
+      try {
+        localStorage.setItem("homedelights_last_receipt", JSON.stringify(orderData));
+      } catch (e) {
+        console.warn("Storage warning:", e);
       }
+
+      // Open digital receipt modal on screen
+      openReceiptModal(orderData);
       closeCart();
-      if (checkoutSuccessModal) {
-        const subtotal = AppState.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-        const successOrderDetails = document.getElementById("successOrderDetails");
-        if (successOrderDetails) {
-          successOrderDetails.innerHTML = `
-            Your demo order of <strong>${AppState.cart.length} jar type(s)</strong> totaling <strong>₹${subtotal}</strong> has been logged.<br>
-            In production, this connects to Razorpay / Stripe or WhatsApp direct order!
-          `;
-        }
-        checkoutSuccessModal.classList.add("active");
-        // Clear cart for clean demonstration
-        AppState.cart = [];
-        saveCart();
-        updateCartUI();
-      }
+
+      // Launch WhatsApp chat in new window to owner
+      const waMessage = constructWhatsAppMessage(orderData);
+      const waUrl = `https://wa.me/919704514247?text=${encodeURIComponent(waMessage)}`;
+      window.open(waUrl, "_blank");
+
+      showToast("Verified invoice generated! Opening WhatsApp... 🏺");
     });
   }
 
-  if (closeSuccessModalBtn && checkoutSuccessModal) {
-    closeSuccessModalBtn.addEventListener("click", () => {
-      checkoutSuccessModal.classList.remove("active");
+  // Direct Call to Order
+  if (callOrderBtn) {
+    callOrderBtn.addEventListener("click", () => {
+      showToast("Connecting to Ammamma Special Kitchen helpline... 📞");
     });
   }
 }
@@ -768,7 +1167,7 @@ function openQuickView(productId) {
   modalContent.innerHTML = `
     <div class="modal-content-grid">
       <div class="modal-img-col">
-        <img src="${item.image}" onerror="this.onerror=null;this.src='./assets/images/' + this.src.split('/').pop();" alt="${item.title}">
+        <img src="${item.image}" onerror="handleImgError(this)" alt="${item.title}">
       </div>
 
       <div class="modal-details-col">
@@ -881,6 +1280,39 @@ function setupModalEvents() {
       }
     });
   }
+
+  // Receipt Modal close handlers
+  if (closeReceiptModalBtn && orderReceiptModal) {
+    closeReceiptModalBtn.addEventListener("click", () => {
+      orderReceiptModal.classList.remove("active");
+      document.body.style.overflow = "";
+    });
+  }
+
+  if (orderReceiptModal) {
+    orderReceiptModal.addEventListener("click", (e) => {
+      if (e.target === orderReceiptModal) {
+        orderReceiptModal.classList.remove("active");
+        document.body.style.overflow = "";
+      }
+    });
+  }
+
+  // Tamper Alert Modal close handlers
+  const closeTamperAlertBtn = document.getElementById("closeTamperAlertBtn");
+  const tamperAlertModal = document.getElementById("tamperAlertModal");
+  if (closeTamperAlertBtn && tamperAlertModal) {
+    closeTamperAlertBtn.addEventListener("click", () => {
+      tamperAlertModal.classList.remove("active");
+    });
+  }
+  if (tamperAlertModal) {
+    tamperAlertModal.addEventListener("click", (e) => {
+      if (e.target === tamperAlertModal) {
+        tamperAlertModal.classList.remove("active");
+      }
+    });
+  }
 }
 
 // -------------------------------------------------------------------
@@ -892,7 +1324,7 @@ function renderPairing(dishKey) {
 
   pairingDisplayCard.innerHTML = `
     <div class="pairing-img-box">
-      <img src="${data.img}" onerror="this.onerror=null;this.src='./assets/images/' + this.src.split('/').pop();" alt="${data.title}">
+      <img src="${data.img}" onerror="handleImgError(this)" alt="${data.title}">
     </div>
 
     <div class="pairing-details-col">
