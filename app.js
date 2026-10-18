@@ -786,15 +786,16 @@ const INVOICE_SECRET_SALT = "HomeDelightsIntiRuchuluAmmammaSpecial2026";
 
 // Mathematical Cryptographic Checksum Generator (Deterministic Tamper-Proof Signature)
 function generateOrderSecurityHash(order) {
-  // Deterministic FNV-1a hash locked to orderId, total, item count, phone, and subtotal
-  const dataStr = `${order.orderId}|${order.total}|${order.items.length}|${order.phone}|${order.subtotal}`;
+  // Sum total jar quantities (e.g. 2 + 1 + 1 = 4 jars)
+  const totalJars = order.items.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 1), 0);
+  const dataStr = `${order.orderId}|${order.total}|${totalJars}|${order.phone}|${order.subtotal}|${INVOICE_SECRET_SALT}`;
   let hash = 0x811c9dc5;
   for (let i = 0; i < dataStr.length; i++) {
     hash ^= dataStr.charCodeAt(i);
     hash = Math.imul(hash, 0x01000193) >>> 0;
   }
   const hex = hash.toString(16).toUpperCase().padStart(8, "0");
-  return `HD-${order.total}-${order.items.length}J-${hex.slice(0, 4)}`;
+  return `HD-${order.total}-${totalJars}J-${hex.slice(0, 4)}`;
 }
 
 // Generate Signed Unalterable Digital Invoice URL
@@ -814,7 +815,7 @@ function createSignedReceiptUrl(order) {
   };
 
   const jsonStr = JSON.stringify(payload);
-  const base64 = btoa(encodeURIComponent(jsonStr));
+  const base64 = encodeURIComponent(btoa(encodeURIComponent(jsonStr)));
 
   // Compute signature hash with salt
   let hash = 0x811c9dc5;
@@ -834,7 +835,8 @@ function createSignedReceiptUrl(order) {
 // Verify & Decode Signed Order URL
 function verifyAndDecodeOrderUrl(base64, sig) {
   try {
-    const jsonStr = decodeURIComponent(atob(base64));
+    const safeBase64 = decodeURIComponent(base64).replace(/\s/g, "+");
+    const jsonStr = decodeURIComponent(atob(safeBase64));
 
     // Verify cryptographic signature
     let hash = 0x811c9dc5;
@@ -883,162 +885,423 @@ function verifyAndDecodeOrderUrl(base64, sig) {
 }
 
 function constructWhatsAppMessage(order) {
-  let message = `*🏺 OFFICIAL ORDER - HOME DELIGHTS (INTI RUCHULU)*\n`;
-  message += `*AMMAMMA SPECIAL | FSSAI Lic No. 20126081000685*\n`;
+  const totalJars = order.items.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 1), 0);
+
+  let message = `*Namaste Ammamma Special Pickles!*\n\n`;
+  message += `I have placed an order on your website:\n`;
   message += `----------------------------------------\n`;
-  message += `🔗 *OFFICIAL UNEDITABLE INVOICE LINK:*\n`;
-  message += `${order.receiptUrl}\n\n`;
-  message += `⚠️ *ADMIN NOTICE:* Tap the official link above to view the locked official bill generated on our system. If the customer edited any numbers below, the link above displays the TRUE original prices.\n`;
-  message += `----------------------------------------\n`;
-  message += `*Order ID:* ${order.orderId}\n`;
+  message += `*Order ID:* #${order.orderId}\n`;
   message += `*Date:* ${order.date}\n`;
-  message += `----------------------------------------\n`;
-  message += `*ITEMS ORDERED:*\n`;
+  message += `*Security Token:* [SEC: ${order.securityCode}]\n`;
+  message += `----------------------------------------\n\n`;
+  message += `*Customer Details:*\n`;
+  message += `- Name: ${order.customerName}\n`;
+  message += `- Phone: ${order.phone}\n`;
+  message += `- Delivery Address: ${order.address}\n`;
+  message += `- Payment: ${order.paymentMode.includes("UPI") ? "Direct UPI (0% Fee)" : "Cash on Delivery (COD)"}\n\n`;
+  message += `*Jars Ordered (${totalJars} Jars):*\n`;
   order.items.forEach((item, index) => {
-    message += `${index + 1}. *${item.title}* (${item.size})\n   Qty: ${item.quantity} × ₹${item.price} = ₹${item.quantity * item.price}\n`;
+    message += `${index + 1}. *${item.title}* (${item.size}) x ${item.quantity} = Rs.${item.quantity * item.price}\n`;
   });
-  message += `----------------------------------------\n`;
-  message += `*Items Subtotal:* ₹${order.subtotal}\n`;
-  message += `*Fragile Packing & Shipping:* ${order.delivery === 0 ? "FREE (Batch Offer)" : "₹" + order.delivery}\n`;
-  message += `*GRAND TOTAL PAYABLE:* ₹${order.total}\n`;
-  message += `----------------------------------------\n`;
-  message += `*DELIVERY ADDRESS:*\n`;
-  message += `Name: ${order.customerName}\n`;
-  message += `Phone: ${order.phone}\n`;
-  message += `Address: ${order.address}\n`;
-  message += `Payment Mode: ${order.paymentMode}\n`;
-  message += `----------------------------------------\n`;
-  message += `*🔒 TAMPER-PROOF SECURITY SIGNATURE:*\n`;
-  message += `[SEC: ${order.securityCode}]\n`;
-  message += `⚠️ *Notice:* The kitchen checks [SEC: ${order.securityCode}] and the link above against official system records before dispatch.\n\n`;
-  message += `Please confirm jar availability & dispatch!`;
+  message += `\n*Bill Summary:*\n`;
+  message += `- Items Subtotal: Rs.${order.subtotal}\n`;
+  message += `- Fragile Delivery: ${order.delivery === 0 ? "FREE" : "Rs." + order.delivery}\n`;
+  message += `- *GRAND TOTAL PAYABLE: Rs.${order.total}*\n\n`;
+  message += `Please confirm my order and share UPI / dispatch details!`;
   return message;
+}
+
+// -------------------------------------------------------------------
+// HTML5 Canvas Non-Editable Invoice Image Generator (100% Client-Side)
+// -------------------------------------------------------------------
+function generateReceiptCanvasBlob(order, callback) {
+  const scale = 2; // High-DPI 2x scale for crystal-sharp text
+  const width = 640;
+  const padding = 32;
+  const contentWidth = width - (padding * 2);
+
+  // Dynamic height based on number of items
+  const itemRowHeight = 34;
+  const itemsHeight = order.items.length * itemRowHeight;
+  const height = 660 + itemsHeight;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+
+  function render(logoImg) {
+    // 1. Background
+    ctx.fillStyle = "#FFFDF9";
+    ctx.fillRect(0, 0, width, height);
+
+    // 2. Double Heritage Borders
+    ctx.strokeStyle = "#9E2A2B";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(12, 12, width - 24, height - 24);
+
+    ctx.strokeStyle = "#C99A45";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(17, 17, width - 34, height - 34);
+
+    let y = 34;
+
+    // 3. Top Official Badge
+    ctx.fillStyle = "#9E2A2B";
+    ctx.beginPath();
+    ctx.roundRect((width - 260) / 2, y, 260, 24, 12);
+    ctx.fill();
+
+    ctx.fillStyle = "#FFF";
+    ctx.font = "bold 10px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("OFFICIAL VERIFIED ORDER INVOICE", width / 2, y + 16);
+    y += 38;
+
+    // 4. Logo & Brand Title
+    if (logoImg && logoImg.complete && logoImg.naturalWidth > 0) {
+      const logoSize = 60;
+      const logoX = (width - logoSize) / 2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(width / 2, y + (logoSize / 2), logoSize / 2, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.drawImage(logoImg, logoX, y, logoSize, logoSize);
+      ctx.restore();
+
+      ctx.strokeStyle = "#C99A45";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(width / 2, y + (logoSize / 2), (logoSize / 2) + 1, 0, Math.PI * 2);
+      ctx.stroke();
+
+      y += logoSize + 12;
+    }
+
+    ctx.fillStyle = "#9E2A2B";
+    ctx.font = "bold 20px 'Playfair Display', Georgia, serif";
+    ctx.textAlign = "center";
+    ctx.fillText("HOME DELIGHTS - INTI RUCHULU", width / 2, y);
+    y += 18;
+
+    ctx.fillStyle = "#555";
+    ctx.font = "bold 10px sans-serif";
+    ctx.fillText("AMMAMMA SPECIAL • TRADITIONAL HANDCRAFTED PICKLES", width / 2, y);
+    y += 16;
+
+    ctx.fillStyle = "#15803D";
+    ctx.font = "bold 11px sans-serif";
+    ctx.fillText("FSSAI Lic No. 20126081000685", width / 2, y);
+    y += 16;
+
+    // Divider
+    ctx.strokeStyle = "#E8DFCF";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padding, y);
+    ctx.lineTo(width - padding, y);
+    ctx.stroke();
+    y += 14;
+
+    // 5. Order & Customer Info Card
+    ctx.fillStyle = "#FAF5ED";
+    ctx.beginPath();
+    ctx.roundRect(padding, y, contentWidth, 96, 8);
+    ctx.fill();
+    ctx.strokeStyle = "#E2DACB";
+    ctx.stroke();
+
+    const col1X = padding + 16;
+    const col2X = padding + (contentWidth / 2) + 10;
+    const cardY = y + 18;
+
+    ctx.textAlign = "left";
+    // Col 1: Order Details
+    ctx.fillStyle = "#777";
+    ctx.font = "9px sans-serif";
+    ctx.fillText("ORDER ID", col1X, cardY);
+    ctx.fillStyle = "#9E2A2B";
+    ctx.font = "bold 13px sans-serif";
+    ctx.fillText("#" + order.orderId, col1X, cardY + 15);
+
+    ctx.fillStyle = "#777";
+    ctx.font = "9px sans-serif";
+    ctx.fillText("DATE & TIME", col1X, cardY + 36);
+    ctx.fillStyle = "#222";
+    ctx.font = "11px sans-serif";
+    ctx.fillText(order.date, col1X, cardY + 50);
+
+    ctx.fillStyle = "#777";
+    ctx.font = "9px sans-serif";
+    ctx.fillText("PAYMENT MODE", col1X, cardY + 70);
+    ctx.fillStyle = "#15803D";
+    ctx.font = "bold 11px sans-serif";
+    ctx.fillText(order.paymentMode.includes("UPI") ? "Direct UPI (0% Fee)" : "Cash on Delivery", col1X, cardY + 84);
+
+    // Col 2: Customer Details
+    ctx.fillStyle = "#777";
+    ctx.font = "9px sans-serif";
+    ctx.fillText("CUSTOMER NAME", col2X, cardY);
+    ctx.fillStyle = "#222";
+    ctx.font = "bold 13px sans-serif";
+    ctx.fillText(order.customerName, col2X, cardY + 15);
+
+    ctx.fillStyle = "#777";
+    ctx.font = "9px sans-serif";
+    ctx.fillText("PHONE", col2X, cardY + 36);
+    ctx.fillStyle = "#222";
+    ctx.font = "11px sans-serif";
+    ctx.fillText(order.phone, col2X, cardY + 50);
+
+    ctx.fillStyle = "#777";
+    ctx.font = "9px sans-serif";
+    ctx.fillText("DELIVERY ADDRESS", col2X, cardY + 70);
+    ctx.fillStyle = "#222";
+    ctx.font = "11px sans-serif";
+    const shortAddress = order.address.length > 32 ? order.address.substring(0, 30) + "..." : order.address;
+    ctx.fillText(shortAddress, col2X, cardY + 84);
+
+    y += 110;
+
+    // 6. Items Table Header
+    ctx.fillStyle = "#EAE2D4";
+    ctx.fillRect(padding, y, contentWidth, 24);
+
+    ctx.fillStyle = "#9E2A2B";
+    ctx.font = "bold 10px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("#", padding + 8, y + 16);
+    ctx.fillText("JAR VARIETY & SIZE", padding + 28, y + 16);
+    ctx.textAlign = "center";
+    ctx.fillText("QTY", padding + contentWidth - 130, y + 16);
+    ctx.textAlign = "right";
+    ctx.fillText("RATE", padding + contentWidth - 70, y + 16);
+    ctx.fillText("TOTAL", padding + contentWidth - 10, y + 16);
+
+    y += 24;
+
+    // 7. Table Rows
+    order.items.forEach((item, index) => {
+      ctx.fillStyle = index % 2 === 0 ? "#FFF" : "#FAF8F5";
+      ctx.fillRect(padding, y, contentWidth, itemRowHeight);
+
+      ctx.strokeStyle = "#EFE9DF";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padding, y + itemRowHeight);
+      ctx.lineTo(padding + contentWidth, y + itemRowHeight);
+      ctx.stroke();
+
+      ctx.fillStyle = "#666";
+      ctx.font = "11px sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText((index + 1).toString(), padding + 8, y + 22);
+
+      ctx.fillStyle = "#111";
+      ctx.font = "bold 11px sans-serif";
+      const shortTitle = item.title.length > 28 ? item.title.substring(0, 26) + "..." : item.title;
+      ctx.fillText(`${shortTitle} (${item.size})`, padding + 28, y + 22);
+
+      ctx.textAlign = "center";
+      ctx.font = "11px sans-serif";
+      ctx.fillText(item.quantity.toString(), padding + contentWidth - 130, y + 22);
+
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#666";
+      ctx.fillText("Rs." + item.price, padding + contentWidth - 70, y + 22);
+
+      ctx.fillStyle = "#9E2A2B";
+      ctx.font = "bold 12px sans-serif";
+      ctx.fillText("Rs." + (item.price * item.quantity), padding + contentWidth - 10, y + 22);
+
+      y += itemRowHeight;
+    });
+
+    y += 10;
+
+    // 8. Totals & Pricing Breakdown Box
+    ctx.fillStyle = "#FAF5ED";
+    ctx.beginPath();
+    ctx.roundRect(padding, y, contentWidth, 68, 8);
+    ctx.fill();
+    ctx.strokeStyle = "#E2DACB";
+    ctx.stroke();
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#666";
+    ctx.font = "11px sans-serif";
+    ctx.fillText("Items Subtotal:", padding + 16, y + 22);
+    ctx.fillText("Fragile Packaging & Express Delivery:", padding + 16, y + 46);
+
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#222";
+    ctx.fillText("Rs. " + order.subtotal, padding + contentWidth - 16, y + 22);
+    ctx.fillStyle = order.delivery === 0 ? "#15803D" : "#222";
+    ctx.font = "bold 11px sans-serif";
+    ctx.fillText(order.delivery === 0 ? "FREE" : "Rs. " + order.delivery, padding + contentWidth - 16, y + 46);
+
+    y += 78;
+
+    // 9. Grand Total Banner
+    ctx.fillStyle = "#9E2A2B";
+    ctx.beginPath();
+    ctx.roundRect(padding, y, contentWidth, 42, 8);
+    ctx.fill();
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#FFF";
+    ctx.font = "bold 13px sans-serif";
+    ctx.fillText("GRAND TOTAL PAYABLE:", padding + 18, y + 26);
+
+    ctx.textAlign = "right";
+    ctx.font = "bold 18px 'Playfair Display', Georgia, serif";
+    ctx.fillText("Rs. " + order.total, padding + contentWidth - 18, y + 28);
+
+    y += 52;
+
+    // 10. Security Hash Stamp & Authenticity Verification
+    ctx.fillStyle = "#F0FDF4";
+    ctx.beginPath();
+    ctx.roundRect(padding, y, contentWidth, 46, 8);
+    ctx.fill();
+    ctx.strokeStyle = "#BBF7D0";
+    ctx.stroke();
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#15803D";
+    ctx.font = "bold 10px sans-serif";
+    ctx.fillText("OFFICIAL SECURITY TOKEN (TAMPER-PROOF):", padding + 14, y + 18);
+
+    ctx.fillStyle = "#9E2A2B";
+    ctx.font = "bold 12px monospace";
+    ctx.fillText("[SEC: " + order.securityCode + "]", padding + 14, y + 34);
+
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#666";
+    ctx.font = "italic 9px sans-serif";
+    ctx.fillText("Non-editable verified digital bill", padding + contentWidth - 14, y + 20);
+    ctx.fillText("pickle-ten-sandy.vercel.app", padding + contentWidth - 14, y + 34);
+
+    // Convert to Blob and DataURL
+    canvas.toBlob((blob) => {
+      callback(blob, canvas.toDataURL("image/png"));
+    }, "image/png");
+  }
+
+  // Preload logo for canvas drawing
+  const logo = new Image();
+  logo.crossOrigin = "anonymous";
+  logo.onload = () => render(logo);
+  logo.onerror = () => render(null);
+  logo.src = "./logo.jpg";
 }
 
 function openReceiptModal(order, isAdminVerified = false) {
   if (!orderReceiptModal || !receiptBody) return;
 
-  const waMessage = constructWhatsAppMessage(order);
-  const waUrl = `https://wa.me/919704514247?text=${encodeURIComponent(waMessage)}`;
-
+  // Show loading spinner while canvas creates the locked image
   receiptBody.innerHTML = `
-    <div class="receipt-card">
-      ${isAdminVerified ? `
-        <div class="admin-verification-banner">
-          <i class="fa-solid fa-circle-check"></i>
-          <div>
-            <strong>OFFICIAL SYSTEM INVOICE (AUTHENTIC RECORD)</strong><br>
-            <span>This order was verified from our secure cryptographic database. The prices and items shown below are 100% official and cannot be tampered with by WhatsApp text edits.</span>
-          </div>
-        </div>
-      ` : ""}
-
-      <div class="receipt-header">
-        <div class="receipt-brand-meta">
-          <img src="./logo.jpg" alt="Home Delights Logo" class="receipt-logo" onerror="handleImgError(this)">
-          <div>
-            <div class="receipt-title">HOME DELIGHTS - INTI RUCHULU</div>
-            <div class="receipt-fssai">AMMAMMA SPECIAL • FSSAI Lic No. 20126081000685</div>
-          </div>
-        </div>
-        <div class="receipt-status-pill">
-          <i class="fa-solid fa-circle-check"></i>
-          <span>${isAdminVerified ? "Admin Verified" : "Order Verified"}</span>
-        </div>
-      </div>
-
-      <div class="receipt-meta-grid">
-        <div class="receipt-meta-item">
-          <span>Order ID</span>
-          <strong>${order.orderId}</strong>
-        </div>
-        <div class="receipt-meta-item">
-          <span>Date & Time</span>
-          <strong>${order.date}</strong>
-        </div>
-        <div class="receipt-meta-item">
-          <span>Payment Mode</span>
-          <strong>${order.paymentMode.includes("UPI") ? "Direct UPI" : "Cash on Delivery"}</strong>
-        </div>
-      </div>
-
-      <!-- Tamper-Proof Security Verification Box -->
-      <div class="security-tamper-box">
-        <div class="security-code-wrap">
-          <i class="fa-solid fa-shield-halved"></i>
-          <div>
-            <span class="sec-title">Tamper-Proof Verification Hash:</span>
-            <span class="sec-hash-code">${order.securityCode}</span>
-          </div>
-        </div>
-        <div class="sec-tooltip-text">
-          Locked to ₹${order.total} (${order.items.length} jars). The kitchen verifies this hash against your message to prevent price tampering.
-        </div>
-      </div>
-
-      <!-- Items Table -->
-      <table class="receipt-table">
-        <thead>
-          <tr>
-            <th>Item & Size</th>
-            <th class="text-right">Qty</th>
-            <th class="text-right">Price</th>
-            <th class="text-right">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${order.items.map((item) => `
-            <tr>
-              <td><strong>${item.title}</strong> (${item.size})</td>
-              <td class="text-right">${item.quantity}</td>
-              <td class="text-right">₹${item.price}</td>
-              <td class="text-right">₹${item.quantity * item.price}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-
-      <!-- Totals -->
-      <div class="receipt-totals">
-        <div class="receipt-total-row">
-          <span>Subtotal:</span>
-          <span>₹${order.subtotal}</span>
-        </div>
-        <div class="receipt-total-row">
-          <span>Fragile Packing & Shipping:</span>
-          <span>${order.delivery === 0 ? "FREE" : "₹" + order.delivery}</span>
-        </div>
-        <div class="receipt-total-row receipt-grand-total">
-          <span>Grand Total Payable:</span>
-          <span>₹${order.total}</span>
-        </div>
-      </div>
-
-      <!-- Delivery Address -->
-      <div class="receipt-delivery-info">
-        <h5>Delivery Address & Contact:</h5>
-        <p>
-          <strong>${order.customerName}</strong> (${order.phone})<br>
-          ${order.address}
-        </p>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="receipt-actions">
-        <a href="${waUrl}" target="_blank" class="btn-receipt-wa" id="receiptWaBtn">
-          <i class="fa-brands fa-whatsapp"></i>
-          <span>Send / Open on WhatsApp</span>
-        </a>
-        <button class="btn-receipt-print" onclick="window.print()">
-          <i class="fa-solid fa-print"></i>
-          <span>Print / Save PDF</span>
-        </button>
-      </div>
+    <div class="receipt-generating-state">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <span>Generating Official Non-Editable Bill Image...</span>
     </div>
   `;
 
   orderReceiptModal.classList.add("active");
   document.body.style.overflow = "hidden";
+
+  // Generate the Canvas Image
+  generateReceiptCanvasBlob(order, (blob, dataUrl) => {
+    const fileName = `HomeDelights-Invoice-${order.orderId}.png`;
+
+    receiptBody.innerHTML = `
+      <div class="receipt-card">
+        <div class="admin-verification-banner" style="background: #F0FDF4; border-color: #BBF7D0; color: #15803D;">
+          <i class="fa-solid fa-circle-check"></i>
+          <div>
+            <strong>LOCKED NON-EDITABLE INVOICE IMAGE</strong><br>
+            <span>This verified bill image is locked and cannot be edited in WhatsApp. Tap below to share the photo!</span>
+          </div>
+        </div>
+
+        <!-- Rendered Non-Editable Canvas Image Preview -->
+        <div class="receipt-image-preview-card">
+          <img src="${dataUrl}" alt="Official Order Invoice #${order.orderId}" class="generated-invoice-img" id="generatedInvoiceImg">
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="receipt-actions">
+          <button class="btn-receipt-wa" id="receiptShareWaBtn">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span>Send Bill Image to WhatsApp (+91 97045 14247)</span>
+          </button>
+          <a href="${dataUrl}" download="${fileName}" class="btn-receipt-download" id="receiptDownloadBtn">
+            <i class="fa-solid fa-download"></i>
+            <span>Download PNG</span>
+          </a>
+          <button class="btn-receipt-print" onclick="window.print()">
+            <i class="fa-solid fa-print"></i>
+            <span>Print</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    const receiptShareWaBtn = document.getElementById("receiptShareWaBtn");
+    if (receiptShareWaBtn) {
+      receiptShareWaBtn.onclick = async () => {
+        const file = new File([blob], fileName, { type: "image/png" });
+
+        // Clear cart once order is dispatched
+        AppState.cart = [];
+        saveCart();
+        updateCartUI();
+
+        // 1. Mobile Web Share API (Android & iOS attaches the image directly to WhatsApp!)
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: `Home Delights Order Bill #${order.orderId}`,
+              text: `Namaste! Here is my official order bill #${order.orderId} (Rs. ${order.total}).`
+            });
+            showToast("Invoice image shared to WhatsApp! 🙏");
+            return;
+          } catch (shareErr) {
+            if (shareErr.name === "AbortError") return; // User cancelled share sheet
+            console.warn("Share sheet fallback:", shareErr);
+          }
+        }
+
+        // 2. Desktop Fallback: Copy to clipboard & open WhatsApp Web
+        try {
+          if (navigator.clipboard && window.ClipboardItem) {
+            await navigator.clipboard.write([
+              new ClipboardItem({ "image/png": blob })
+            ]);
+            showToast("📸 Bill image copied to clipboard! Paste (Ctrl+V) in WhatsApp!");
+          }
+        } catch (clipErr) {
+          console.warn("Clipboard copy not available:", clipErr);
+        }
+
+        // Trigger file download
+        const dl = document.createElement("a");
+        dl.href = dataUrl;
+        dl.download = fileName;
+        document.body.appendChild(dl);
+        dl.click();
+        document.body.removeChild(dl);
+
+        // Open WhatsApp Web with clean text
+        const cleanMsg = constructWhatsAppMessage(order);
+        const waUrl = `https://wa.me/919704514247?text=${encodeURIComponent(cleanMsg)}`;
+        window.open(waUrl, "_blank");
+      };
+    }
+  });
 }
 
 function setupCartEvents() {
@@ -1132,16 +1395,10 @@ function setupCartEvents() {
         console.warn("Storage warning:", e);
       }
 
-      // Open digital receipt modal on screen
-      openReceiptModal(orderData);
+      // Open verified digital receipt modal on screen for customer review
       closeCart();
-
-      // Launch WhatsApp chat in new window to owner
-      const waMessage = constructWhatsAppMessage(orderData);
-      const waUrl = `https://wa.me/919704514247?text=${encodeURIComponent(waMessage)}`;
-      window.open(waUrl, "_blank");
-
-      showToast("Verified invoice generated! Opening WhatsApp... 🏺");
+      openReceiptModal(orderData);
+      showToast("Official bill generated! Review and tap Send on WhatsApp 🏺");
     });
   }
 
