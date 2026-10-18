@@ -398,7 +398,7 @@ function renderCatalog() {
 
   productsGrid.innerHTML = filtered.map((item) => {
     const defaultWeight = item.weights[1] || item.weights[0]; // default to 500g or 250g
-    const chiliIcons = Array.from({ length: 3 }, (_, i) => 
+    const chiliIcons = Array.from({ length: 3 }, (_, i) =>
       `<i class="fa-solid fa-pepper-hot" style="opacity: ${i < item.heatScore ? '1' : '0.25'};"></i>`
     ).join("");
 
@@ -489,7 +489,7 @@ function renderCatalog() {
       const selectedWeightBtn = card.querySelector(".weight-btn.selected");
       const size = selectedWeightBtn ? selectedWeightBtn.dataset.size : "500g";
       const price = selectedWeightBtn ? parseInt(selectedWeightBtn.dataset.price, 10) : 349;
-      
+
       addToCart(id, size, price);
     });
   });
@@ -500,14 +500,14 @@ function resetAllFilters() {
   AppState.selectedHeat = "all";
   AppState.searchQuery = "";
   if (globalSearchInput) globalSearchInput.value = "";
-  
+
   document.querySelectorAll(".cat-btn").forEach((b) => {
     b.classList.toggle("active", b.dataset.category === "all");
   });
   document.querySelectorAll(".spice-btn").forEach((b) => {
     b.classList.toggle("active", b.dataset.heat === "all");
   });
-  
+
   renderCatalog();
 }
 window.resetAllFilters = resetAllFilters;
@@ -798,6 +798,51 @@ function generateOrderSecurityHash(order) {
   return `HD-${order.total}-${totalJars}J-${hex.slice(0, 4)}`;
 }
 
+// -------------------------------------------------------------------
+// Google Sheets Order Auto-Logger (Option 2: 100% Free & Tamper-Proof)
+// Follow GOOGLE_SHEET_SETUP_GUIDE.md to deploy your private Google Sheet
+// -------------------------------------------------------------------
+const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyOEq8pHbA5A2nFTEqu4KuF2W1jY7aw1sii2jdtg14lCwKCfDI_8-nuS3lB_JMVxvvy/exec";
+
+function logOrderToGoogleSheet(order) {
+  if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("REPLACE_WITH_YOUR_DEPLOYED_URL")) {
+    console.log("ℹ️ Google Sheet Auto-Logger: Web App URL not set yet. See GOOGLE_SHEET_SETUP_GUIDE.md");
+    return;
+  }
+
+  try {
+    const payload = JSON.stringify({
+      orderId: order.orderId,
+      date: order.date,
+      customerName: order.customerName,
+      phone: order.phone,
+      address: order.address,
+      paymentMode: order.paymentMode,
+      items: order.items,
+      subtotal: order.subtotal,
+      delivery: order.delivery,
+      total: order.total,
+      securityCode: order.securityCode,
+      receiptUrl: order.receiptUrl
+    });
+
+    if (navigator.sendBeacon) {
+      const blob = new Blob([payload], { type: "text/plain;charset=utf-8" });
+      navigator.sendBeacon(GOOGLE_SHEET_WEBAPP_URL, blob);
+    } else {
+      fetch(GOOGLE_SHEET_WEBAPP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: payload
+      }).catch((e) => console.warn("Google Sheet log fallback:", e));
+    }
+    console.log("✅ Genuine order logged to Google Sheet:", order.orderId);
+  } catch (err) {
+    console.warn("Google Sheet logger exception:", err);
+  }
+}
+
 // Generate Signed Unalterable Digital Invoice URL
 function createSignedReceiptUrl(order) {
   const itemsCompressed = order.items.map(it => `${it.id}:${it.size}:${it.quantity}:${it.price}`).join(";");
@@ -893,6 +938,9 @@ function constructWhatsAppMessage(order) {
   message += `*Order ID:* #${order.orderId}\n`;
   message += `*Date:* ${order.date}\n`;
   message += `*Security Token:* [SEC: ${order.securityCode}]\n`;
+  if (order.receiptUrl) {
+    message += `👉 *TAP TO VERIFY BILL & PACK SLIP:*\n${order.receiptUrl}\n`;
+  }
   message += `----------------------------------------\n\n`;
   message += `*Customer Details:*\n`;
   message += `- Name: ${order.customerName}\n`;
@@ -1205,7 +1253,7 @@ function openReceiptModal(order, isAdminVerified = false) {
   receiptBody.innerHTML = `
     <div class="receipt-generating-state">
       <i class="fa-solid fa-spinner fa-spin"></i>
-      <span>Generating Official Non-Editable Bill Image...</span>
+      <span>Generating Official Verified Bill Image...</span>
     </div>
   `;
 
@@ -1216,90 +1264,163 @@ function openReceiptModal(order, isAdminVerified = false) {
   generateReceiptCanvasBlob(order, (blob, dataUrl) => {
     const fileName = `HomeDelights-Invoice-${order.orderId}.png`;
 
-    receiptBody.innerHTML = `
-      <div class="receipt-card">
-        <div class="admin-verification-banner" style="background: #F0FDF4; border-color: #BBF7D0; color: #15803D;">
-          <i class="fa-solid fa-circle-check"></i>
-          <div>
-            <strong>LOCKED NON-EDITABLE INVOICE IMAGE</strong><br>
-            <span>This verified bill image is locked and cannot be edited in WhatsApp. Tap below to share the photo!</span>
+    if (isAdminVerified) {
+      const totalJars = order.items.reduce((s, it) => s + (parseInt(it.quantity, 10) || 1), 0);
+      receiptBody.innerHTML = `
+        <div class="kitchen-admin-card" style="padding: 4px;">
+          <!-- 1. Authenticity Header -->
+          <div class="admin-verification-banner" style="background: #F0FDF4; border: 2px solid #22C55E; color: #15803D; padding: 14px 16px; border-radius: 12px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px;">
+            <i class="fa-solid fa-circle-check" style="font-size: 2.2rem; color: #16A34A; flex-shrink: 0;"></i>
+            <div>
+              <strong style="font-size: 1.05rem; display: block; margin-bottom: 2px; color: #14532D;">OFFICIAL ORDER VERIFIED (TAMPER-PROOF)</strong>
+              <span style="font-size: 0.85rem; color: #166534; line-height: 1.35; display: block;">Order #${order.orderId} verified from website catalog. Even if customer edited WhatsApp text, THIS slip shows the authentic payable amount.</span>
+            </div>
+          </div>
+
+          <!-- 2. Giant Amount to Collect Card -->
+          <div class="admin-collect-card" style="background: linear-gradient(135deg, #9E2A2B 0%, #7A191A 100%); color: #FFF; padding: 20px 20px; border-radius: 14px; text-align: center; margin-bottom: 16px; box-shadow: 0 6px 20px rgba(158, 42, 43, 0.25);">
+            <span style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; opacity: 0.9; font-weight: 700; display: block; margin-bottom: 6px;">Total Money to Collect from Customer:</span>
+            <div style="font-size: 2.8rem; font-weight: 800; font-family: 'Playfair Display', Georgia, serif; line-height: 1.1; margin-bottom: 8px;">
+              ₹${order.total}
+            </div>
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.2); padding: 5px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">
+              <i class="fa-solid fa-${order.paymentMode.includes('UPI') ? 'mobile-screen-button' : 'hand-holding-dollar'}"></i>
+              <span>${order.paymentMode}</span>
+            </div>
+          </div>
+
+          <!-- 3. Jars to Pack in Box -->
+          <div class="admin-pack-card" style="background: #FAF8F5; border: 1.5px solid #EADBCC; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #EADBCC; padding-bottom: 8px;">
+              <h5 style="margin: 0; font-size: 0.98rem; color: #9E2A2B; font-weight: 700;">
+                <i class="fa-solid fa-jar"></i> Jars to Pack in Box:
+              </h5>
+              <span style="background: #9E2A2B; color: #FFF; font-size: 0.78rem; font-weight: 700; padding: 3px 10px; border-radius: 12px;">
+                ${totalJars} Jars Total
+              </span>
+            </div>
+            <div class="admin-items-list" style="display: flex; flex-direction: column; gap: 8px;">
+              ${order.items.map((item, idx) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #FFF; padding: 10px 12px; border-radius: 8px; border: 1px solid #EFEAE2;">
+                  <div>
+                    <strong style="color: #222; font-size: 0.95rem;">${idx + 1}. ${item.title}</strong>
+                    <span style="color: #666; font-size: 0.82rem; display: block; margin-top: 2px;">Weight: <strong>${item.size}</strong> • Rate: ₹${item.price}</span>
+                  </div>
+                  <div style="text-align: right; flex-shrink: 0; margin-left: 12px;">
+                    <span style="background: #FEF3C7; color: #92400E; font-weight: 800; font-size: 0.85rem; padding: 3px 8px; border-radius: 6px;">Qty: ${item.quantity}</span>
+                    <strong style="display: block; color: #9E2A2B; font-size: 0.92rem; margin-top: 3px;">₹${item.quantity * item.price}</strong>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #D5C7B5; font-size: 0.85rem; color: #555; display: flex; justify-content: space-between;">
+              <span>Subtotal: ₹${order.subtotal} | Delivery: ${order.delivery === 0 ? '<strong style="color:#15803D;">FREE</strong>' : '₹' + order.delivery}</span>
+              <strong style="color: #111;">Grand Total: ₹${order.total}</strong>
+            </div>
+          </div>
+
+          <!-- 4. Customer Details -->
+          <div class="admin-cust-card" style="background: #FFF; border: 1.5px solid #E5E7EB; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;">
+            <h5 style="margin: 0 0 6px; font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Customer Delivery Info:</h5>
+            <div style="font-size: 0.95rem; color: #111;">
+              <strong>${order.customerName}</strong> (<a href="tel:+91${order.phone}" style="color: #9E2A2B; text-decoration: none; font-weight: 700;">+91 ${order.phone}</a>)<br>
+              <span style="color: #444; font-size: 0.9rem; line-height: 1.4; display: block; margin-top: 4px;">📍 ${order.address}</span>
+            </div>
+          </div>
+
+          <!-- 5. 1-Tap Kitchen Actions -->
+          <div class="receipt-actions" style="display: flex; flex-direction: column; gap: 10px;">
+            <a href="https://wa.me/91${order.phone}?text=${encodeURIComponent(`Namaste ${order.customerName} garu! 🙏\n\nYour Ammamma Special Pickles order #${order.orderId} (Rs. ${order.total}) has been verified and confirmed! 🏺\n\nPlease send payment of Rs. ${order.total} to UPI: 9704514247@upi and share the screenshot so we can pack and dispatch your fresh jars today!`)}" target="_blank" class="btn-receipt-wa" style="padding: 14px 18px; font-size: 1rem; border-radius: 12px; justify-content: center; text-decoration: none; display: flex; align-items: center; gap: 8px; background: #25D366; color: #FFF; font-weight: 700; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);">
+              <i class="fa-brands fa-whatsapp" style="font-size: 1.3rem;"></i>
+              <span>Confirm Order with Customer (+91 ${order.phone})</span>
+            </a>
+
+            <div style="display: flex; gap: 10px;">
+              <a href="tel:+91${order.phone}" class="btn-receipt-download" style="flex: 1; padding: 10px; border-radius: 10px; text-decoration: none; display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 700; color: #9E2A2B; border: 1.5px solid #9E2A2B;">
+                <i class="fa-solid fa-phone"></i>
+                <span>Call Customer</span>
+              </a>
+              <button class="btn-receipt-print" onclick="window.print()" style="flex: 1; padding: 10px; border-radius: 10px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 700; background: #FAF5ED; border: 1px solid #D5C7B5;">
+                <i class="fa-solid fa-print"></i>
+                <span>Print Slip</span>
+              </button>
+            </div>
+
+            <details style="margin-top: 10px; text-align: center;">
+              <summary style="font-size: 0.85rem; color: #777; cursor: pointer; text-decoration: underline;">View Locked Digital Invoice Image</summary>
+              <div style="margin-top: 12px;">
+                <img src="${dataUrl}" alt="Official Order Invoice #${order.orderId}" class="generated-invoice-img" style="max-width: 100%; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+              </div>
+            </details>
           </div>
         </div>
+      `;
+    } else {
+      // Customer view on website
+      receiptBody.innerHTML = `
+        <div class="receipt-card">
+          <div class="admin-verification-banner" style="background: #F0FDF4; border-color: #BBF7D0; color: #15803D;">
+            <i class="fa-solid fa-circle-check"></i>
+            <div>
+              <strong>OFFICIAL ORDER INVOICE #${order.orderId}</strong><br>
+              <span>Your bill is locked and verified. Tap below to send this order directly to +91 97045 14247!</span>
+            </div>
+          </div>
 
-        <!-- Rendered Non-Editable Canvas Image Preview -->
-        <div class="receipt-image-preview-card">
-          <img src="${dataUrl}" alt="Official Order Invoice #${order.orderId}" class="generated-invoice-img" id="generatedInvoiceImg">
+          <!-- Rendered Non-Editable Canvas Image Preview -->
+          <div class="receipt-image-preview-card">
+            <img src="${dataUrl}" alt="Official Order Invoice #${order.orderId}" class="generated-invoice-img" id="generatedInvoiceImg">
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="receipt-actions">
+            <button class="btn-receipt-wa" id="receiptShareWaBtn">
+              <i class="fa-brands fa-whatsapp"></i>
+              <span>Send Order to WhatsApp (+91 97045 14247)</span>
+            </button>
+            <a href="${dataUrl}" download="${fileName}" class="btn-receipt-download" id="receiptDownloadBtn">
+              <i class="fa-solid fa-download"></i>
+              <span>Download Bill Image</span>
+            </a>
+            <button class="btn-receipt-print" onclick="window.print()">
+              <i class="fa-solid fa-print"></i>
+              <span>Print</span>
+            </button>
+          </div>
         </div>
+      `;
 
-        <!-- Action Buttons -->
-        <div class="receipt-actions">
-          <button class="btn-receipt-wa" id="receiptShareWaBtn">
-            <i class="fa-brands fa-whatsapp"></i>
-            <span>Send Bill Image to WhatsApp (+91 97045 14247)</span>
-          </button>
-          <a href="${dataUrl}" download="${fileName}" class="btn-receipt-download" id="receiptDownloadBtn">
-            <i class="fa-solid fa-download"></i>
-            <span>Download PNG</span>
-          </a>
-          <button class="btn-receipt-print" onclick="window.print()">
-            <i class="fa-solid fa-print"></i>
-            <span>Print</span>
-          </button>
-        </div>
-      </div>
-    `;
+      const receiptShareWaBtn = document.getElementById("receiptShareWaBtn");
+      if (receiptShareWaBtn) {
+        receiptShareWaBtn.onclick = async () => {
+          // Clear cart once order is dispatched
+          AppState.cart = [];
+          saveCart();
+          updateCartUI();
 
-    const receiptShareWaBtn = document.getElementById("receiptShareWaBtn");
-    if (receiptShareWaBtn) {
-      receiptShareWaBtn.onclick = async () => {
-        const file = new File([blob], fileName, { type: "image/png" });
+          // Auto-log authentic order to private Google Sheet in background
+          logOrderToGoogleSheet(order);
 
-        // Clear cart once order is dispatched
-        AppState.cart = [];
-        saveCart();
-        updateCartUI();
-
-        // 1. Mobile Web Share API (Android & iOS attaches the image directly to WhatsApp!)
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          // 1. Desktop: attempt to copy image to clipboard for easy Ctrl+V pasting
           try {
-            await navigator.share({
-              files: [file],
-              title: `Home Delights Order Bill #${order.orderId}`,
-              text: `Namaste! Here is my official order bill #${order.orderId} (Rs. ${order.total}).`
-            });
-            showToast("Invoice image shared to WhatsApp! 🙏");
-            return;
-          } catch (shareErr) {
-            if (shareErr.name === "AbortError") return; // User cancelled share sheet
-            console.warn("Share sheet fallback:", shareErr);
+            if (navigator.clipboard && window.ClipboardItem && blob) {
+              await navigator.clipboard.write([
+                new ClipboardItem({ "image/png": blob })
+              ]);
+              showToast("📸 Bill image copied to clipboard!");
+            }
+          } catch (clipErr) {
+            // Clipboard write not available on all mobile browsers, safe to ignore
           }
-        }
 
-        // 2. Desktop Fallback: Copy to clipboard & open WhatsApp Web
-        try {
-          if (navigator.clipboard && window.ClipboardItem) {
-            await navigator.clipboard.write([
-              new ClipboardItem({ "image/png": blob })
-            ]);
-            showToast("📸 Bill image copied to clipboard! Paste (Ctrl+V) in WhatsApp!");
-          }
-        } catch (clipErr) {
-          console.warn("Clipboard copy not available:", clipErr);
-        }
+          // 2. Direct 1-tap redirect to the business owner WhatsApp number (no contact picker!)
+          const cleanMsg = constructWhatsAppMessage(order);
+          const waUrl = `https://wa.me/919704514247?text=${encodeURIComponent(cleanMsg)}`;
 
-        // Trigger file download
-        const dl = document.createElement("a");
-        dl.href = dataUrl;
-        dl.download = fileName;
-        document.body.appendChild(dl);
-        dl.click();
-        document.body.removeChild(dl);
-
-        // Open WhatsApp Web with clean text
-        const cleanMsg = constructWhatsAppMessage(order);
-        const waUrl = `https://wa.me/919704514247?text=${encodeURIComponent(cleanMsg)}`;
-        window.open(waUrl, "_blank");
-      };
+          showToast("Opening WhatsApp with +91 97045 14247... 🏺");
+          window.open(waUrl, "_blank") || (window.location.href = waUrl);
+        };
+      }
     }
   });
 }
@@ -1388,6 +1509,9 @@ function setupCartEvents() {
       // Generate Signed Unalterable Receipt URL
       orderData.receiptUrl = createSignedReceiptUrl(orderData);
 
+      // Auto-log authentic order to private Google Sheet in background
+      logOrderToGoogleSheet(orderData);
+
       // Save to localStorage for instant reference
       try {
         localStorage.setItem("homedelights_last_receipt", JSON.stringify(orderData));
@@ -1417,7 +1541,7 @@ function openQuickView(productId) {
   const item = PICKLE_PRODUCTS.find((p) => p.id === productId);
   if (!item || !quickViewModal || !modalContent) return;
 
-  const chiliIcons = Array.from({ length: 3 }, (_, i) => 
+  const chiliIcons = Array.from({ length: 3 }, (_, i) =>
     `<i class="fa-solid fa-pepper-hot" style="opacity: ${i < item.heatScore ? '1' : '0.25'};"></i>`
   ).join("");
 
