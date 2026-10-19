@@ -3651,7 +3651,7 @@ function createSignedReceiptUrl(order) {
   const v = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
   const isLocal = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1");
-  const origin = isLocal ? window.location.origin : "https://pickle-ten-sandy.vercel.app";
+  const origin = isLocal ? window.location.origin : "https://homedelights.vercel.app";
 
   return `${origin}/index.html?v=${v}&s=${sig}`;
 }
@@ -3663,7 +3663,7 @@ function createShortReceiptUrl(order) {
   const sig = new URL(order.receiptUrl).searchParams.get("s");
   const cleanId = (order.orderId || "").replace(/^HD-/, "");
   const isLocal = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1");
-  const origin = isLocal ? window.location.origin : "https://pickle-ten-sandy.vercel.app";
+  const origin = isLocal ? window.location.origin : "https://homedelights.vercel.app";
   return `${origin}/?o=${encodeURIComponent(cleanId)}&k=${sig}`;
 }
 
@@ -4117,7 +4117,7 @@ function generateReceiptCanvasBlob(order, callback) {
     ctx.fillText("Non-editable verified digital bill", padding + contentWidth - 14, y + 20);
     ctx.fillStyle = "#888";
     ctx.font = "9px sans-serif";
-    ctx.fillText("pickle-ten-sandy.vercel.app", padding + contentWidth - 14, y + 38);
+    ctx.fillText("homedelights.vercel.app", padding + contentWidth - 14, y + 38);
 
     // Convert to Blob and DataURL
     canvas.toBlob((blob) => {
