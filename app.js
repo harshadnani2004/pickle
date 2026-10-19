@@ -88,7 +88,7 @@ window.getCleanPhoneNumbers = getCleanPhoneNumbers;
 // -------------------------------------------------------------------
 // Admin Authentication (Phone-Number Gated)
 // -------------------------------------------------------------------
-const ADMIN_PHONE_DIGITS = "9704514247"; // Admin's 10-digit mobile number
+const ADMIN_PHONE_DIGITS = "7036763589"; // Admin's 10-digit mobile number
 
 function isAdminAuthenticated() {
   return sessionStorage.getItem("hd_admin_auth") === ADMIN_PHONE_DIGITS;
@@ -2063,6 +2063,7 @@ const PAIRING_DATA = {
 // 3. Application State & Storage
 // -------------------------------------------------------------------
 const AppState = {
+  currentLang: localStorage.getItem("hd_lang") || "en",
   cart: [],
   selectedCategory: "all",
   selectedHeat: "all",
@@ -2128,10 +2129,19 @@ const custNameInput = document.getElementById("custName");
 const custPhoneInput = document.getElementById("custPhone");
 const custAddressInput = document.getElementById("custAddress");
 const custCityPinInput = document.getElementById("custCityPin");
+const custStateInput = document.getElementById("custState");
 const payModeUpi = document.getElementById("payModeUpi");
-const payModeCod = document.getElementById("payModeCod");
-const payModeUpiLabel = document.getElementById("payModeUpiLabel");
-const payModeCodLabel = document.getElementById("payModeCodLabel");
+
+// Customer Reviews DOM
+const addReviewModal = document.getElementById("addReviewModal");
+const openReviewModalBtn = document.getElementById("openReviewModalBtn");
+const closeReviewModalBtn = document.getElementById("closeReviewModalBtn");
+const addReviewForm = document.getElementById("addReviewForm");
+const customerReviewsGrid = document.getElementById("customerReviewsGrid");
+const starRatingSelect = document.getElementById("starRatingSelect");
+const reviewRatingInput = document.getElementById("reviewRatingInput");
+const ratingFeedbackLabel = document.getElementById("ratingFeedbackLabel");
+const whatsappReviewSendBtn = document.getElementById("whatsappReviewSendBtn");
 
 // Modals & Drawers
 const quickViewModal = document.getElementById("quickViewModal");
@@ -2159,12 +2169,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderCatalog();
     renderPairing(AppState.activeDish);
+    renderCustomerReviews();
     updateCartUI();
+    loadHeroStats();
+    loadPublicReviews();
 
     setupScrollEffects();
     setupFilterEvents();
     setupCartEvents();
     setupModalEvents();
+    setupCustomerReviews();
     setupFAQEvents();
     setupNewsletter();
 
@@ -2176,15 +2190,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const verifySig = urlParams.get("sig");
     const isAdminParam = urlParams.get("admin") === "1" || urlParams.get("role") === "admin" || urlParams.get("a") === "1";
 
-    if ((compactV && compactSig) || (verifyOrderData && verifySig)) {
-      setTimeout(() => {
-        let result;
-        if (compactV && compactSig) {
-          result = decodeCompactOrder(compactV, compactSig);
-        } else {
-          result = verifyAndDecodeOrderUrl(verifyOrderData, verifySig);
-        }
+    // Short link (?o=<orderId>&k=<signature>): fetch the full signed bill link from the Google Sheet
+    const shortOrderId = urlParams.get("o");
+    const shortKey = urlParams.get("k");
 
+    const showVerifiedOrder = (result) => {
         if (result && result.valid) {
           if (isAdminParam) {
             // Admin URL (&a=1): require phone authentication before showing kitchen panel
@@ -2205,7 +2215,23 @@ document.addEventListener("DOMContentLoaded", () => {
           if (tamperAlertMsg) tamperAlertMsg.textContent = result ? result.error : "Verification failed";
           if (tamperAlertModal) tamperAlertModal.classList.add("active");
         }
-      }, 300);
+    };
+
+    if (compactV && compactSig) {
+      setTimeout(() => showVerifiedOrder(decodeCompactOrder(compactV, compactSig)), 300);
+    } else if (verifyOrderData && verifySig) {
+      setTimeout(() => showVerifiedOrder(verifyAndDecodeOrderUrl(verifyOrderData, verifySig)), 300);
+    } else if (shortOrderId && shortKey) {
+      showToast("Loading your official bill... 🧾");
+      fetchSignedReceiptUrl(shortOrderId, shortKey)
+        .then((signedUrl) => {
+          const signed = new URL(signedUrl).searchParams;
+          showVerifiedOrder(decodeCompactOrder(signed.get("v") || "", signed.get("s") || ""));
+        })
+        .catch(() => showVerifiedOrder({
+          valid: false,
+          error: "We couldn't find this bill. Please check the link, or contact us on WhatsApp."
+        }));
     }
   } catch (err) {
     console.error("Initialization caught safe fallback:", err);
@@ -2213,6 +2239,751 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // -------------------------------------------------------------------
+
+// ===================================================================
+// MULTILINGUAL I18N SYSTEM (English, Telugu, Hindi)
+// ===================================================================
+
+const TRANSLATIONS = {
+  en: {
+    heritage_quote: "Food in an Indian home is an emotion of warmth and memory. From sun-matured Avakaya and pure ghee Ariselu to crispy Chekkalu and stone-pounded Kandi Podi, every recipe carries Ammamma's lifelong love.",
+    heritage_author: "— Ammamma (Home Delights - Inti Ruchulu)",
+    heritage_tag: "UNTOUCHED BY FACTORY SHORTCUTS",
+    heritage_title: "Ammamma's 4 Sacred Kitchen Rituals",
+    heritage_intro: "Unlike commercial factory foods that rely on artificial preservatives, palm oils, and industrial machinery, we prepare every delicacy by hand in small batches following sacred traditions.",
+    step_1_title: "Sun-Cured In Porcelain Martabans (Pickles)",
+    step_1_desc: "Farmer-procured raw green mangoes, native sour gongura, and tender country meats matured naturally in stone jars under golden sun with wood-pressed oils.",
+    step_2_title: "Pure Desi Cow Ghee & Bellam (Pindi Vantalu)",
+    step_2_desc: "Our traditional sweets—Ariselu, Sunnundalu, Putharekulu, and Bobbatlu—are crafted with 100% pure desi cow ghee, aged rice flour, and organic sugarcane jaggery.",
+    step_3_title: "Wood-Pressed Oils & Brass Moulds (Hot Snacks)",
+    step_3_desc: "Hand-pressed Jantikalu, Chekkalu, and spiced Masala Nuts fried golden in cold-pressed groundnut oil. Zero palm oil, zero dalda, pure authentic crunch.",
+    step_4_title: "Stone Mortar & Pestle Pounding (Podis & Karams)",
+    step_4_desc: "Dry-roasted country curry leaves, roasted dals, flaxseeds, and whole garlic cloves stone-ground to preserve vital nutrients and explosive natural aroma.",
+    heritage_cta: "Taste Ammamma Special Delicacies",
+    pairing_tag: "TRADITIONAL FLAVOR PAIRINGS",
+    pairing_title: "How Ammamma Pairs Every Dish",
+    pairing_desc: "Click your favorite South Indian comfort meal to see its soulmate pairing of pickles, podis, sweets, and snacks!",
+    dish_1: "Rice, Ghee & Podi",
+    dish_2: "Dosa, Idli & Chutney",
+    dish_3: "Festive Pindi Vantalu",
+    dish_4: "Evening Chai & Snacks",
+    dish_5: "Biryani & Meat Pachadi",
+    pairing_order_btn: "Order This Pairing Item",
+    reviews_tag: "OUR NEW JOURNEY • HONEST EXPERIENCES",
+    reviews_title: "Taste The Tradition & Share Your Review",
+    reviews_desc: "Home Delights is freshly handcrafted in small batches with Ammamma's heritage recipes. Have you tasted our delicacies? Be among the first to share your review!",
+    btn_write_review: "Write a Review / Share Your Experience",
+    stat_pure_ghee: "Pure Desi Cow Ghee (Pindi Vantalu)",
+    stat_small_batch: "Small-Batch Handcrafted on Order",
+    stat_zero_chem: "Chemicals, Palm Oil & Preservatives",
+    stat_cold_pressed: "Cold-Pressed Traditional Oils",
+    faq_tag: "COMMON QUERIES",
+    faq_title: "Everything You Need to Know",
+    faq_desc: "Have questions regarding shelf-life, ingredients, and packaging? We’ve got answers.",
+    faq_q1: "What is the shelf life of our pickles, sweets, snacks, and podis?",
+    faq_a1: "Every category is prepared naturally without chemical preservatives:<br>• <strong>Veg & Non-Veg Pickles:</strong> 6 to 12 Months (sun-cured with natural sea salt and cold-pressed oil; keep clean dry spoon).<br>• <strong>Pindi Vantalu & Sweets:</strong> 25 to 45 Days (Dry Fruits Putharekulu: 30 days in airtight box; Bobbatlu: 7-10 days).<br>• <strong>Hot Snacks:</strong> 45 Days in airtight containers.<br>• <strong>Podis & Karams:</strong> 4 to 6 Months (store in cool dry glass or steel jars).",
+    faq_q2: "What oils and fats do you use in preparation?",
+    faq_a2: "We use <strong>100% Pure Desi Cow Ghee</strong> for Pindi Vantalu (Ariselu, Sunnundalu, Putharekulu, Bobbatlu, Kajjikayalu) and <strong>wood-pressed (Kachi Ghani) sesame and groundnut oils</strong> for our pickles and hot snacks. We NEVER use cheap palm oil, dalda, vanaspati, or artificial food chemicals.",
+    faq_q3: "How are orders safely packed to prevent breakage and maintain freshness?",
+    faq_a3: "Pickles are packed in leak-proof jars with induction seals; Pindi Vantalu and Hot Snacks are heat-sealed in food-grade moisture-barrier pouches and rigid outer boxes; Podis are sealed in aroma-lock packs. Everything is cushioned with biodegradable transit packaging.",
+    faq_q4: "Can I order directly through WhatsApp?",
+    faq_a4: "Yes! Our WhatsApp ordering is the quickest way. Simply click the \"Order on WhatsApp\" button anywhere on our site, or add your favorite delicacies to the cart and click \"Review Official Bill & Order\". Your order list and address will be formatted automatically for one-click confirmation.",
+    faq_q5: "Why do you accept Direct UPI instead of cards or Cash on Delivery?",
+    faq_a5: "To keep our pricing 100% cost-efficient and pass all savings to you! Online card payment gateways charge heavy 2% to 3% transaction commissions. By taking orders directly via WhatsApp, Phone Call, and Direct UPI (Google Pay / PhonePe / Paytm), we keep our operational expenses at ₹0 with transparent pricing. Please note that we do not offer Cash on Delivery (COD) as all our delicacies are freshly prepared and packed on order.",
+    faq_q6: "Do you ship internationally to the USA, UK, UAE, or Canada?",
+    faq_a6: "Yes, we do special international courier consignments via DHL and FedEx Express with vacuum-sealed travel packs and customs clearances. Contact us on WhatsApp for international shipping rates.",
+    news_tag: "NEVER MISS A HARVEST",
+    news_title: "Join Ammamma's Inti Ruchulu Club",
+    news_desc: "Get notified when fresh seasonal batches of festive Ariselu, special seasonal pickles, and stone-ground podis drop.",
+    news_btn: "Join Club",
+    news_disclaimer: "Zero spam. Just delicious homemade food updates once a month.",
+    footer_about: "Restoring pure, nostalgic flavors to modern dining tables. Authentic traditional homemade Veg & Non-Veg Pickles, 100% Pure Ghee Pindi Vantalu, Crispy Hot Snacks, and Stone-Ground Podis crafted with Ammamma's ancestral recipes, cold-pressed oils, and farm-fresh ingredients.",
+    foot_menu_title: "Ammamma Special Menu",
+    foot_link_prawns: "Prawns Pickle",
+    foot_link_dryfruit_laddu: "Dry Fruits Laddu",
+    foot_link_gongura: "Gongura Pickle",
+    foot_link_natukodi: "Natu Kodi Pickle",
+    foot_link_allam: "Allam Pickle",
+    foot_craft_title: "Craft & Heritage",
+    foot_link_rituals: "Ammamma's Kitchen Rituals",
+    foot_link_pairing: "Flavor Pairing Guide",
+    foot_link_reviews: "Customer Stories",
+    foot_link_storage: "Storage & Shelf Life",
+    foot_link_shipping: "Shipping & Returns",
+    foot_contact_title: "Direct Contact",
+    foot_wa_order: "WhatsApp Order",
+    foot_upi: "Direct UPI",
+    foot_copyright: "HOME DELIGHTS - INTI RUCHULU (AMMAMMA SPECIAL). All Rights Reserved.",
+
+    announcement_badge: "FRESH BATCH",
+    announcement_text: "Authentic Pickles, Pure Ghee Pindi Vantalu, Hot Snacks & Podis! <strong>Free Delivery above ₹1199</strong>",
+    nav_home: "Home",
+    nav_menu: "Our Menu (54)",
+    nav_kitchen: "Ammamma's Kitchen",
+    nav_pairing: "Pairing Guide",
+    nav_reviews: "Reviews",
+    nav_faq: "FAQ",
+    order_via_chat: "Order via Chat",
+    brand_sub: "INTI RUCHULU • AMMAMMA SPECIAL",
+    search_placeholder: "Search fish, mutton, avakaya, gongura, ariselu, chekkalu, kandi podi, velluli karam...",
+
+    hero_pill: "HOME DELIGHTS • INTI RUCHULU • AMMAMMA SPECIAL",
+    hero_title: "Authentic Inti Ruchulu. <span class=\"title-highlight\">Pickles, Pure Ghee Pindi Vantalu, Snacks & Podis.</span>",
+    hero_lead: "Handcrafted with Ammamma's ancestral recipes: sun-cured clay jar pickles, 100% pure desi cow ghee pindi vantalu, crispy wood-pressed snacks, and stone-ground podis. Zero preservatives. 100% Homemade love.",
+    hero_btn_menu: "Explore The Menu (54 Delights)",
+    hero_btn_heritage: "Ammamma's Kitchen Secrets",
+    hero_metric_1: "15,800+ Delicacies Delivered",
+    hero_metric_2: "Pure Desi Ghee & Cold-Pressed Oil",
+    hero_metric_3: "Chemical Preservatives",
+
+    trust_1_title: "100% Pure Desi Cow Ghee",
+    trust_1_desc: "Ariselu, Sunnundalu, Putharekulu & Bobbatlu made with pure cow ghee & bellam",
+    trust_2_title: "Sun-Cured In Martabans",
+    trust_2_desc: "Traditional porcelain jars for natural slow fermentation and deep flavor",
+    trust_3_title: "Stone-Pounded Podis",
+    trust_3_desc: "Slow dry-roasted whole spices & herbs pounded in stone mortars",
+    trust_4_title: "Airtight Leak-Proof Transit",
+    trust_4_desc: "Vacuum-sealed pouches, airtight food tins & spill-proof jars",
+
+    catalog_tag: "THE ARTISANAL PANTRY",
+    catalog_title: "Fresh Small-Batch Delights",
+    catalog_desc: "Authentic Veg Pickles, Non-Veg Pickles, Traditional Pindi Vantalu, Hot Snacks, and Stone-Ground Podis. Handcrafted with Ammamma's heritage recipes and delivered fresh to your doorstep.",
+    cat_all: "All Delights (54)",
+    cat_veg: "Veg Pickles (13)",
+    cat_nonveg: "Non-Veg Pickles (10)",
+    cat_sweets: "Pindi Vantalu (18)",
+    cat_snacks: "Hot Snacks (5)",
+    cat_podis: "Podis (8)",
+
+    heat_label: "Heat Level:",
+    heat_any: "Any",
+    heat_mild: "Mild 🌶️",
+    heat_medium: "Medium 🌶️🌶️",
+    heat_fiery: "Fiery 🌶️🌶️🌶️",
+    sort_label: "Sort by:",
+    sort_featured: "Bestsellers",
+    sort_low: "Price: Low to High",
+    sort_high: "Price: High to Low",
+    sort_rating: "Customer Rating",
+    results_count: "Showing {count} of {total} authentic delicacies",
+    no_results_title: "No matching delicacies found!",
+    no_results_desc: "Try searching for \"Chekkalu\", \"Palli Karam\", \"Kandi Podi\", \"Curry Karam\", \"Ariselu\", or \"Chicken\".",
+    reset_filters: "Reset All Filters",
+
+    add_jar: "Add Jar",
+    add_box: "Add Box",
+    add_pack: "Add Pack",
+    quick_view: "Quick View",
+
+    cart_title: "Ammamma's Delights Box",
+    cart_free_delivery: "Free Delivery applied on orders above ₹1199!",
+    cart_add_for_free: "Add ₹{amount} more for FREE Delivery",
+    cart_subtotal: "Delicacies Subtotal:",
+    cart_delivery: "Standard Packing & Delivery:",
+    cart_total: "Total Payable:",
+    state_select: "Select State *",
+    state_ap: "Andhra Pradesh (₹90 Delivery)",
+    state_other: "Other States (₹120 Delivery)",
+    pay_upi_title: "Direct UPI (Google Pay / PhonePe / Paytm / QR)",
+    pay_upi_desc: "100% Safe Merchant Payment • 0% Transaction Fees",
+    btn_review_bill: "Review Official Bill & Order",
+
+    mob_home: "Home",
+    mob_menu: "Menu",
+    mob_pairing: "Pairing",
+    mob_cart: "Cart",
+    mob_order: "Order"
+  },
+
+  te: {
+    heritage_quote: "భారతీయ ఇంట భోజనం అంటే కేవలం ఆకలి తీర్చడం కాదు, అదొక అమూల్యమైన ప్రేమ, జ్ఞాపకం. ఎండలో ఊరిన ఆవకాయ, నెయ్యి అరిసెల నుండి కరకరలాడే చెక్కలు, రోట్లో దంచిన కందిపొడి వరకు ప్రతి వంటకం అమ్మమ్మ తరాల ప్రేమానురాగాలను మోసుకొస్తుంది.",
+    heritage_author: "— అమ్మమ్మ (హోమ్ డిలైట్స్ - ఇంటి రుచులు)",
+    heritage_tag: "ఫ్యాక్టరీ రసాయనాలు లేని పవిత్రత",
+    heritage_title: "అమ్మమ్మ 4 పవిత్ర వంటింటి సూత్రాలు",
+    heritage_intro: "కృత్రిమ రసాయనాలు, పామాయిల్ మరియు యంత్రాలతో తయారు చేసే ఫ్యాక్టరీ ఫుడ్స్ లా కాకుండా, మేము ప్రతి వంటకాన్ని చిన్న చిన్న బ్యాచులలో చేతితోనే సంప్రదాయ పద్ధతిలో తయారుచేస్తాము.",
+    step_1_title: "జాడీలలో సహజంగా ఊరినవి (పచ్చళ్ళు)",
+    step_1_desc: "రైతుల నుండి సేకరించిన పచ్చి మామిడికాయలు, దేశవాళీ గోంగూర, తాజా నాటు మాంసాలు జాడీలలో గానుగ నూనెలతో ఎండలో సహజంగా ఊరబెట్టబడతాయి.",
+    step_2_title: "స్వచ్ఛమైన ఆవు నెయ్యి & తాటి బెల్లం (పిండి వంటలు)",
+    step_2_desc: "మా సంప్రదాయ పిండి వంటలు—అరిసెలు, సున్నుండలు, పూతరేకులు, బొబ్బట్లు—100% స్వచ్ఛమైన ఆవు నెయ్యి, పాత బియ్యప్పిండి మరియు తాటి బెల్లంతో మాత్రమే తయారు చేస్తాము.",
+    step_3_title: "గానుగ నూనె & ఇత్తడి గొట్టాలు (హాట్ స్నాక్స్)",
+    step_3_desc: "చేతితో తిప్పిన జంతికలు, చెక్కలు, మసాలా నట్స్ స్వచ్ఛమైన వేరుశనగ గానుగ నూనెలో వేయిస్తాము. పామాయిల్ లేదు, డాల్డా లేదు, అచ్చమైన కరకరలాడే రుచి.",
+    step_4_title: "రోట్లో దంచిన పొడులు (కారప్పొడులు)",
+    step_4_desc: "దోరగా వేయించిన కరివేపాకు, పప్పులు, అవిసె గింజలు, వెల్లుల్లి రెబ్బలను రోట్లో దంచి సహజ పోషకాలు మరియు ఘుమఘుమలు నిలిచి ఉండేలా చేస్తాము.",
+    heritage_cta: "అమ్మమ్మ చేతివంట రుచులను ఆర్డర్ చేయండి",
+    pairing_tag: "సాంప్రదాయ రుచుల కలయిక",
+    pairing_title: "ఏ వంటకానికి ఏది సరైన జోడీ?",
+    pairing_desc: "మీకు ఇష్టమైన దక్షిణ భారత భోజనాన్ని ఎంచుకుని, దానికి సరిపడే పచ్చళ్ళు, పొడులు మరియు స్నాక్స్ కలయికను తెలుసుకోండి!",
+    dish_1: "అన్నం, నెయ్యి & పొడి",
+    dish_2: "దోశ, ఇడ్లీ & కారం",
+    dish_3: "పండుగ పిండి వంటలు",
+    dish_4: "సాయంత్రం టీ & స్నాక్స్",
+    dish_5: "బిర్యానీ & మాంసం పచ్చడి",
+    pairing_order_btn: "ఈ కాంబినేషన్‌ను ఆర్డర్ చేయండి",
+    reviews_tag: "మా సరికొత్త ప్రయాణం • మీ అనుభవం",
+    reviews_title: "అమ్మమ్మ చేతివంట రుచి చూడండి & మీ సమీక్షను పంచుకోండి",
+    reviews_desc: "హోమ్ డిలైట్స్ అనేది సరికొత్త, స్వచ్ఛమైన ఆరంభం. మా సంప్రదాయ పచ్చళ్ళు, పిండి వంటలు, స్నాక్స్ లేదా పొడులు రుచి చూశారా? మీ నిజమైన సమీక్షను మాతో పంచుకోండి!",
+    btn_write_review: "సమీక్ష రాయండి / మీ అనుభవాన్ని పంచుకోండి",
+    stat_pure_ghee: "100% స్వచ్ఛమైన ఆవు నెయ్యి (పిండి వంటలు)",
+    stat_small_batch: "ఆర్డర్‌పై తాజా చేతివంట",
+    stat_zero_chem: "రసాయనాలు, పామాయిల్ & ప్రిజర్వేటివ్‌లు లేవు",
+    stat_cold_pressed: "చెక్క గానుగ సంప్రదాయ నూనెలు",
+    faq_tag: "తరచుగా అడిగే ప్రశ్నలు",
+    faq_title: "మీకు కావలసిన పూర్తి సమాచారం",
+    faq_desc: "నిల్వ కాలం, పదార్థాలు మరియు ప్యాకింగ్ గురించి సందేహాలు ఉన్నాయా? ఇక్కడ సమాధానాలు ఉన్నాయి.",
+    faq_q1: "పచ్చళ్ళు, పిండి వంటలు, స్నాక్స్ మరియు పొడుల నిల్వ కాలం ఎంత?",
+    faq_a1: "రసాయన ప్రిజర్వేటివ్‌లు లేకుండా సహజ పద్ధతిలో నిల్వ ఉంటాయి:<br>• <strong>శాకాహార & మాంసాహార పచ్చళ్ళు:</strong> 6 నుండి 12 నెలలు (సహజ సముద్రపు ఉప్పు, గానుగ నూనెలో ఊరినవి; ఎల్లప్పుడూ పొడి చెంచా వాడండి).<br>• <strong>పిండి వంటలు & స్వీట్లు:</strong> 25 నుండి 45 రోజులు (పూతరేకులు: గాలి చొరబడని డబ్బాలో 30 రోజులు; బొబ్బట్లు: 7-10 రోజులు).<br>• <strong>హాట్ స్నాక్స్:</strong> గాలి చొరబడని డబ్బాలో 45 రోజులు.<br>• <strong>కారప్పొడులు:</strong> 4 నుండి 6 నెలలు (గాజు లేదా స్టీల్ సీసాలలో నిల్వ చేయండి).",
+    faq_q2: "తయారీలో ఎలాంటి నూనెలు మరియు నెయ్యి ఉపయోగిస్తారు?",
+    faq_a2: "పిండి వంటలకు (అరిసెలు, సున్నుండలు, పూతరేకులు, బొబ్బట్లు, కజ్జికాయలు) <strong>100% స్వచ్ఛమైన దేశీ ఆవు నెయ్యి</strong> మాత్రమే వాడతాము. పచ్చళ్ళు మరియు స్నాక్స్‌కు <strong>చెక్క గానుగ నువ్వుల నూనె మరియు వేరుశనగ నూనె</strong> వాడతాము. పామాయిల్, డాల్డా, వనస్పతి లేదా కృత్రిమ రసాయనాలు అస్సలు ఉపయోగించము.",
+    faq_q3: "పార్సెల్స్ పగలకుండా మరియు తాజాగా ఉండేలా ఎలా ప్యాక్ చేస్తారు?",
+    faq_a3: "పచ్చళ్ళు ఇండక్షన్ సీలింగ్‌తో లీక్-ప్రూఫ్ సీసాలలో ప్యాక్ చేయబడతాయి; పిండి వంటలు మరియు స్నాక్స్ ఫుడ్-గ్రేడ్ మాయిశ్చర్-బారియర్ పౌచ్‌లలో వ్యాక్యూమ్ సీల్ చేయబడతాయి; పొడులు సువాసన నిలిచేలా సీల్ చేయబడతాయి. ప్రయాణంలో దెబ్బతినకుండా బయోడిగ్రేడబుల్ బఫరింగ్ బాక్సులలో భద్రంగా పంపుతాము.",
+    faq_q4: "నేరుగా వాట్సాప్ ద్వారా ఆర్డర్ చేయవచ్చా?",
+    faq_a4: "తప్పకుండా! వాట్సాప్ ద్వారా ఆర్డర్ చేయడం చాలా సులభం. సైట్‌లోని \"Order on WhatsApp\" బటన్‌ను క్లిక్ చేయండి, లేదా మీకు కావలసినవి కార్ట్‌కు జోడించి \"Review Official Bill & Order\" క్లిక్ చేస్తే ఆర్డర్ వివరాలు వాట్సాప్‌లో సిద్ధంగా వస్తాయి.",
+    faq_q5: "కార్డులు లేదా క్యాష్ ఆన్ డెలివరీ లేకుండా డైరెక్ట్ UPI ఎందుకు?",
+    faq_a5: "కస్టమర్లకు అత్యంత చవకైన అసలైన ధరలకే అందించడానికి! గేట్‌వే కమీషన్లు లేకుండా డైరెక్ట్ UPI (GPay / PhonePe / Paytm) మరియు వాట్సాప్ ద్వారా నేరుగా ఆర్డర్లు తీసుకుంటాము. అన్ని రుచులు ఆర్డర్ ఆధారంగా తాజాగా తయారు చేసి పంపడం వల్ల క్యాష్ ఆన్ డెలివరీ (COD) సౌకర్యం ఉండదు.",
+    faq_q6: "అమెరికా, యూకే, యూఏఈ లేదా కెనడా వంటి విదేశాలకు కొరియర్ పంపుతారా?",
+    faq_a6: "అవును! మేము DHL మరియు FedEx ఎక్స్‌ప్రెస్ ద్వారా వాక్యూమ్-సీల్డ్ ట్రావెల్ ప్యాకింగ్‌తో అంతర్జాతీయ కొరియర్ సౌకర్యాన్ని అందిస్తున్నాము. విదేశీ షిప్పింగ్ ఛార్జీల కోసం మాకు వాట్సాప్‌లో సందేశం పంపండి.",
+    news_tag: "తాజా బ్యాచ్ అప్‌డేట్స్",
+    news_title: "అమ్మమ్మ ఇంటి రుచులు క్లబ్‌లో చేరండి",
+    news_desc: "పండుగ అరిసెలు, స్పెషల్ పచ్చళ్ళు మరియు తాజా రోటి పొడులు తయారైన వెంటనే సమాచారం పొందండి.",
+    news_btn: "క్లబ్‌లో చేరండి",
+    news_disclaimer: "ఎలాంటి స్పామ్ ఉండదు. నెలకు ఒకసారి మాత్రమే అమూల్యమైన అప్‌డేట్స్.",
+    footer_about: "తరతరాల నాటి స్వచ్ఛమైన, అమృతతుల్యమైన రుచులను మీ భోజన బల్లపైకి తెస్తున్నాము. 100% ఆవు నెయ్యి పిండి వంటలు, గానుగ నూనె పచ్చళ్ళు, కరకరలాడే స్నాక్స్ మరియు రోట్లో దంచిన పొడులు అమ్మమ్మ చేతివంటతో సిద్ధం.",
+    foot_menu_title: "అమ్మమ్మ స్పెషల్ మెనూ",
+    foot_link_prawns: "రొయ్యల పచ్చడి",
+    foot_link_dryfruit_laddu: "డ్రై ఫ్రూట్స్ లడ్డు",
+    foot_link_gongura: "గోంగూర పచ్చడి",
+    foot_link_natukodi: "నాటు కోడి పచ్చడి",
+    foot_link_allam: "అల్లం పచ్చడి",
+    foot_craft_title: "సంప్రదాయ చేతివంట",
+    foot_link_rituals: "అమ్మమ్మ వంటింటి సూత్రాలు",
+    foot_link_pairing: "రుచుల కలయిక గైడ్",
+    foot_link_reviews: "కస్టమర్ల మాటలు",
+    foot_link_storage: "నిల్వ & జాగ్రత్తలు",
+    foot_link_shipping: "డెలివరీ & రిటర్న్స్",
+    foot_contact_title: "నేరుగా సంప్రదించండి",
+    foot_wa_order: "వాట్సాప్ ఆర్డర్",
+    foot_upi: "డైరెక్ట్ UPI",
+    foot_copyright: "హోమ్ డిలైట్స్ - ఇంటి రుచులు (అమ్మమ్మ స్పెషల్). సర్వ హక్కులు ప్రత్యేకించబడ్డాయి.",
+
+    announcement_badge: "తాజా బ్యాచ్",
+    announcement_text: "సాంప్రదాయ పచ్చళ్ళు, స్వచ్ఛమైన నెయ్యి పిండి వంటలు, హాట్ స్నాక్స్ & పొడులు! <strong>₹1199 పైబడిన ఆర్డర్లపై ఉచిత డెలివరీ</strong>",
+    nav_home: "హోమ్",
+    nav_menu: "మా మెనూ (54)",
+    nav_kitchen: "అమ్మమ్మ వంటిల్లు",
+    nav_pairing: "రుచుల గైడ్",
+    nav_reviews: "సమీక్షలు",
+    nav_faq: "సందేహాలు",
+    order_via_chat: "చాట్ ద్వారా ఆర్డర్",
+    brand_sub: "ఇంటి రుచులు • అమ్మమ్మ స్పెషల్",
+    search_placeholder: "ఆవకాయ, గోంగూర, చికెన్, రొయ్యలు, అరిసెలు, సున్నుండలు, చెక్కలు, కందిపొడి వెతకండి...",
+
+    hero_pill: "హోమ్ డిలైట్స్ • ఇంటి రుచులు • అమ్మమ్మ స్పెషల్",
+    hero_title: "అచ్చమైన ఇంటి రుచులు. <span class=\"title-highlight\">పచ్చళ్ళు, స్వచ్ఛమైన నెయ్యి పిండి వంటలు, స్నాక్స్ & పొడులు.</span>",
+    hero_lead: "అమ్మమ్మ తరాల నాటి చేతివంట: జాడీలలో సహజంగా ఊరిన పచ్చళ్ళు, 100% స్వచ్ఛమైన ఆవు నెయ్యి పిండి వంటలు, గానుగ నూనె కరకరలాడే స్నాక్స్, రోట్లో దంచిన పొడులు. ప్రిజర్వేటివ్‌లు లేని అమృతతుల్యమైన రుచులు.",
+    hero_btn_menu: "మెనూ చూడండి (54 రుచులు)",
+    hero_btn_heritage: "అమ్మమ్మ వంటింటి రహస్యాలు",
+    hero_metric_1: "15,800+ ఆర్డర్లు చేరాయి",
+    hero_metric_2: "స్వచ్ఛమైన ఆవు నెయ్యి & గానుగ నూనె",
+    hero_metric_3: "రసాయన ప్రిజర్వేటివ్‌లు లేవు",
+
+    trust_1_title: "100% స్వచ్ఛమైన ఆవు నెయ్యి",
+    trust_1_desc: "స్వచ్ఛమైన ఆవు నెయ్యి & తాటి బెల్లంతో చేసిన అరిసెలు, సున్నుండలు, పూతరేకులు & బొబ్బట్లు",
+    trust_2_title: "జాడీలలో సహజంగా ఊరినవి",
+    trust_2_desc: "సహజమైన రుచి మరియు నిల్వ కోసం సాంప్రదాయ జాడీలలో చేసిన ఊరగాయలు",
+    trust_3_title: "రోట్లో దంచిన కారప్పొడులు",
+    trust_3_desc: "దోరగా వేయించిన సుగంధ ద్రవ్యాలను రోట్లో దంచి చేసిన అచ్చమైన పొడులు",
+    trust_4_title: "సురక్షితమైన లీక్-ప్రూఫ్ ప్యాకింగ్",
+    trust_4_desc: "వ్యాక్యూమ్ సీల్డ్ పౌచ్‌లు, దృఢమైన డబ్బాలు మరియు లీక్-ప్రూఫ్ జాడీలు",
+
+    catalog_tag: "సాంప్రదాయ వంటిల్లు",
+    catalog_title: "తాజా చేతివంటల రుచులు",
+    catalog_desc: "శాకాహార, మాంసాహార పచ్చళ్ళు, సంప్రదాయ పిండి వంటలు, కరకరలాడే స్నాక్స్, ఘుమఘుమలాడే పొడులు. అమ్మమ్మ చేతివంటతో నేరుగా మీ ఇంటికి.",
+    cat_all: "అన్నీ (54)",
+    cat_veg: "శాకాహార పచ్చళ్ళు (13)",
+    cat_nonveg: "మాంసాహార పచ్చళ్ళు (10)",
+    cat_sweets: "పిండి వంటలు (18)",
+    cat_snacks: "హాట్ స్నాక్స్ (5)",
+    cat_podis: "కారప్పొడులు (8)",
+
+    heat_label: "కారం స్థాయి:",
+    heat_any: "అన్నీ",
+    heat_mild: "తక్కువ కారం 🌶️",
+    heat_medium: "మధ్యస్థం 🌶️🌶️",
+    heat_fiery: "ఘాటైన కారం 🌶️🌶️🌶️",
+    sort_label: "వరుస క్రమం:",
+    sort_featured: "అత్యధికంగా అమ్ముడైనవి",
+    sort_low: "ధర: తక్కువ నుండి ఎక్కువ",
+    sort_high: "ధర: ఎక్కువ నుండి తక్కువ",
+    sort_rating: "కస్టమర్ రేటింగ్",
+    results_count: "మొత్తం {total} రుచులలో {count} కనిపిస్తున్నాయి",
+    no_results_title: "వంటకాలు ఏవీ సరిపోలలేదు!",
+    no_results_desc: "చెక్కలు, పల్లీ కారం, కందిపొడి, అరిసెలు, చికెన్ లేదా ఆవకాయ అని వెతికి ప్రయత్నించండి.",
+    reset_filters: "అన్ని ఫిల్టర్లను రీసెట్ చేయండి",
+
+    add_jar: "జాడీ ఆర్డర్ చేయండి",
+    add_box: "బాక్స్ ఆర్డర్ చేయండి",
+    add_pack: "ప్యాక్ ఆర్డర్ చేయండి",
+    quick_view: "వివరాలు",
+
+    cart_title: "అమ్మమ్మ బుట్ట (కార్ట్)",
+    cart_free_delivery: "₹1199 పైబడిన ఆర్డర్‌లపై ఉచిత డెలివరీ వర్తించింది!",
+    cart_add_for_free: "ఉచిత డెలివరీ కోసం మరో ₹{amount} విలువైనవి జోడించండి",
+    cart_subtotal: "వంటకాల మొత్తం:",
+    cart_delivery: "ప్యాకింగ్ & డెలివరీ ఛార్జీ:",
+    cart_total: "మొత్తం చెల్లించవలసినది:",
+    state_select: "రాష్ట్రం ఎంచుకోండి *",
+    state_ap: "ఆంధ్రప్రదేశ్ (₹90 డెలివరీ)",
+    state_other: "ఇతర రాష్ట్రాలు (₹120 డెలివరీ)",
+    pay_upi_title: "డైరెక్ట్ UPI (Google Pay / PhonePe / Paytm / QR)",
+    pay_upi_desc: "100% సురక్షిత చెల్లింపు • 0% అదనపు ఛార్జీలు",
+    btn_review_bill: "బిల్లు చూసి ఆర్డర్ చేయండి",
+
+    mob_home: "హోమ్",
+    mob_menu: "మెనూ",
+    mob_pairing: "గైడ్",
+    mob_cart: "బుట్ట",
+    mob_order: "ఆర్డర్"
+  },
+
+  hi: {
+    heritage_quote: "भारतीय घर में भोजन केवल पेट भरने का साधन नहीं, बल्कि परिवार के प्यार और यादों का एहसास है। धूप में पके आवकाया और शुद्ध घी के अरिसेलु से लेकर कुरकुरी चेक्कलु और सिलबट्टे पर पिसी कंदी पोडी तक, हर व्यंजन में दादी मां का सच्चा आशीर्वाद शामिल है।",
+    heritage_author: "— दादी मां (होम डिलाइट्स - घर का स्वाद)",
+    heritage_tag: "फैक्ट्री रसायनों से मुक्त शुद्धता",
+    heritage_title: "दादी मां के 4 स्वर्णिम नियम",
+    heritage_intro: "प्रिजर्वेटिव, पाम ऑयल और मशीनों से बने फैक्ट्री खाने के उलट, हम हर व्यंजन पारंपरिक नियमों के अनुसार छोटी-छोटी मात्रा में हाथों से प्यार से तैयार करते हैं।",
+    step_1_title: "चीनी मिट्टी के मर्तबान में धूप में पके (अचार)",
+    step_1_desc: "किसानों से लाए गए कच्चे आम, खट्टी गोंगुरा और ताजा मांस को चीनी मिट्टी के मर्तबान में कच्ची घानी तेल के साथ प्राकृतिक धूप में पकाया जाता है।",
+    step_2_title: "शुद्ध देसी गाय का घी और गुड़ (मिठाइयां)",
+    step_2_desc: "हमारे पारंपरिक व्यंजन—अरिसेलु, सुन्नुंडालु, पूथारेकुलु और बोब्बटलू—100% शुद्ध देसी गाय के घी, पुराने चावल के आटे और देसी गुड़ से ही बनाए जाते हैं।",
+    step_3_title: "कच्ची घानी तेल और पीतल के सांचे (कुरकुरे नमकीन)",
+    step_3_desc: "हाथ से बनी जंतिकालु, चेक्कलु और मसाला नट्स को मूंगफली के कच्ची घानी तेल में तला जाता है। पाम ऑयल और डालडा से पूरी तरह मुक्त।",
+    step_4_title: "सिलबट्टे पर कुटी हुई ताजी पोडी (मसाले)",
+    step_4_desc: "धीमी आंच पर भुने कढ़ी पत्ते, दालें, अलसी और लहसुन को सिलबट्टे पर कूटकर बनाया जाता है ताकि पोषक तत्व और सुगंध बरकरार रहे।",
+    heritage_cta: "दादी के हाथ के बने स्वाद को चखें",
+    pairing_tag: "पारंपरिक भोजन की सही जोड़ी",
+    pairing_title: "किस व्यंजन के साथ क्या है सबसे खास?",
+    pairing_desc: "अपने पसंदीदा दक्षिण भारतीय भोजन पर क्लिक करें और देखें उसके साथ सबसे बेहतरीन अचार, पोडी और स्नैक्स की जोड़ी!",
+    dish_1: "चावल, घी और पोडी",
+    dish_2: "डोसा, इडली और चटनी",
+    dish_3: "त्योहारी पिंडी वंटालु",
+    dish_4: "शाम की चाय और नमकीन",
+    dish_5: "बिरयानी और मांसाहारी अचार",
+    pairing_order_btn: "यह कॉम्बो आइटम ऑर्डर करें",
+    reviews_tag: "हमारी नई शुरुआत • आपका सच्चा अनुभव",
+    reviews_title: "दादी मां का स्वाद चखें और अपनी समीक्षा साझा करें",
+    reviews_desc: "होम डिलाइट्स एक नई शुरुआत है। हमारे प्रामाणिक अचार, शुद्ध घी की मिठाइयां, कुरकुरे स्नैक्स और पोडी का स्वाद लें और अपना सच्चा अनुभव साझा करें!",
+    btn_write_review: "समीक्षा लिखें / अपना अनुभव साझा करें",
+    stat_pure_ghee: "100% शुद्ध देसी गाय का घी (मिठाइयां)",
+    stat_small_batch: "ऑर्डर पर ताजा हाथ से तैयार",
+    stat_zero_chem: "शून्य रसायन, पाम ऑयल व प्रिजर्वेटिव",
+    stat_cold_pressed: "पारंपरिक कच्ची घानी तेल",
+    faq_tag: "अक्सर पूछे जाने वाले सवाल",
+    faq_title: "हर सवाल का सही जवाब",
+    faq_desc: "शेल्फ लाइफ, सामग्री और पैकेजिंग से जुड़े आपके सभी सवालों के जवाब यहां मौजूद हैं।",
+    faq_q1: "अचार, मिठाइयों, नमकीन और पोडी की शेल्फ लाइफ कितनी है?",
+    faq_a1: "सभी उत्पाद बिना किसी रासायनिक प्रिजर्वेटिव के प्राकृतिक रूप से तैयार किए जाते हैं:<br>• <strong>शाकाहारी व मांसाहारी अचार:</strong> 6 से 12 महीने (समुद्री नमक और कच्ची घानी तेल में धूप में पके; हमेशा सूखी चम्मच का उपयोग करें)।<br>• <strong>पारंपरिक मिठाइयां:</strong> 25 से 45 दिन (पूथारेकुलु: एयरटाइट डिब्बे में 30 दिन; बोब्बटलू: 7-10 दिन)।<br>• <strong>कुरकुरे नमकीन:</strong> एयरटाइट डिब्बे में 45 दिन।<br>• <strong>पोडी मसाले:</strong> 4 से 6 महीने (कांच या स्टील के जार में रखें)।",
+    faq_q2: "तैयारी में कौन से तेल और घी का उपयोग किया जाता है?",
+    faq_a2: "मिठाइयों (अरिसेलु, सुन्नुंडालु, पूथारेकुलु, बोब्बटलू, कज्जिकायालु) के लिए हम केवल <strong>100% शुद्ध देसी गाय का घी</strong> उपयोग करते हैं। अचार और नमकीन के लिए <strong>कच्ची घानी तिल और मूंगफली का तेल</strong> इस्तेमाल किया जाता है। पाम ऑयल, डालडा या वनस्पति का उपयोग कभी नहीं किया जाता।",
+    faq_q3: "पार्सल को सुरक्षित और ताजा रखने के लिए कैसे पैक किया जाता है?",
+    faq_a3: "अचारों को इंडक्शन-सील लगे लीक-प्रूफ जार में पैक किया जाता है; मिठाइयों और स्नैक्स को फूड-ग्रेड पाउच में वैक्यूम-सील किया जाता है; पोडी को खुशबू बरकरार रखने वाले पैक में बंद किया जाता है। पूरी पैकेजिंग मजबूत और शॉक-प्रूफ होती है।",
+    faq_q4: "क्या मैं सीधे व्हाट्सएप के जरिए ऑर्डर कर सकता हूं?",
+    faq_a4: "हां! व्हाट्सएप के जरिए ऑर्डर करना सबसे आसान है। वेबसाइट पर \"Order on WhatsApp\" पर क्लिक करें, या कार्ट में सामान जोड़कर \"Review Official Bill & Order\" दबाएं। आपका ऑर्डर तुरंत व्हाट्सएप पर खुल जाएगा।",
+    faq_q5: "कार्ड और कैश ऑन डिलीवरी के बजाय डायरेक्ट यूपीआई से ही क्यों?",
+    faq_a5: "ताकि बिचौलियों का खर्च बचाकर आपको सबसे शुद्ध और सही दाम मिल सके! ऑनलाइन गेटवे 2% से 3% भारी कमीशन लेते हैं। सीधे व्हाट्सएप और डायरेक्ट यूपीआई (GPay / PhonePe / Paytm) से ऑर्डर लेने पर शून्य अतिरिक्त शुल्क लगता है। हमारे सभी व्यंजन ऑर्डर पर ताजे बनाए जाते हैं, इसलिए कैश ऑन डिलीवरी (COD) उपलब्ध नहीं है।",
+    faq_q6: "क्या आप अमेरिका, यूके, यूएई या कनाडा जैसे देशों में अंतरराष्ट्रीय डिलीवरी करते हैं?",
+    faq_a6: "हां! हम DHL और FedEx एक्सप्रेस के जरिए वैक्यूम-सीलबंद पैकिंग में विदेशों में पार्सल भेजते हैं। अंतरराष्ट्रीय शिपिंग दरों के लिए कृपया व्हाट्सएप पर संपर्क करें।",
+    news_tag: "ताजा बैच अपडेट",
+    news_title: "दादी के परिवार (क्लब) से जुड़ें",
+    news_desc: "त्योहारी अरिसेलु, मौसमी अचार और सिलबट्टे पर पिसी ताजी पोडी बनते ही सबसे पहले जानकारी पाएं।",
+    news_btn: "क्लब से जुड़ें",
+    news_disclaimer: "कोई स्पैम नहीं। महीने में केवल एक बार स्वादिष्ट और शुद्ध अपडेट।",
+    footer_about: "पारंपरिक, शुद्ध और घर के बने व्यंजनों को आपके घर तक पहुंचाना हमारा संकल्प है। 100% शुद्ध गाय के घी की मिठाइयां, कच्ची घानी तेल के अचार, कुरकुरे स्नैक्स और ताजी पोडी दादी मां के आशीर्वाद से तैयार।",
+    foot_menu_title: "दादी का स्पेशल मेनू",
+    foot_link_prawns: "झींगा अचार (प्रॉन्स)",
+    foot_link_dryfruit_laddu: "ड्राई फ्रूट्स लड्डू",
+    foot_link_gongura: "गोंगुरा अचार",
+    foot_link_natukodi: "नाटू कोडी अचार",
+    foot_link_allam: "अदरक (अल्लम) अचार",
+    foot_craft_title: "विरासत और परंपरा",
+    foot_link_rituals: "दादी की रसोई के नियम",
+    foot_link_pairing: "पेयरिंग गाइड",
+    foot_link_reviews: "ग्राहकों के अनुभव",
+    foot_link_storage: "शेल्फ लाइफ और देखभाल",
+    foot_link_shipping: "डिलीवरी और रिटर्न",
+    foot_contact_title: "सीधा संपर्क",
+    foot_wa_order: "व्हाट्सएप ऑर्डर",
+    foot_upi: "डायरेक्ट यूपीआई",
+    foot_copyright: "होम डिलाइट्स - घर का स्वाद (दादी का प्यार). सर्वाधिकार सुरक्षित।",
+
+    announcement_badge: "ताजा बैच",
+    announcement_text: "पारंपरिक अचार, शुद्ध घी के पिंडी वंटालु, कुरकुरे स्नैक्स और पोडी! <strong>₹1199 से ऊपर मुफ्त डिलीवरी</strong>",
+    nav_home: "होम",
+    nav_menu: "हमारा मेनू (54)",
+    nav_kitchen: "दादी की रसोई",
+    nav_pairing: "पेयरिंग गाइड",
+    nav_reviews: "समीक्षाएं",
+    nav_faq: "अक्सर पूछे जाने वाले सवाल",
+    order_via_chat: "व्हाट्सएप पर ऑर्डर",
+    brand_sub: "घर का असली स्वाद • दादी का प्यार",
+    search_placeholder: "आम का अचार, गोंगुरा, चिकन, प्रॉन्स, अरिसेलु, सुन्नुंडालु, कंदी पोडी खोजें...",
+
+    hero_pill: "होम डिलाइट्स • घर का स्वाद • दादी का प्यार",
+    hero_title: "घर का असली और पारंपरिक स्वाद। <span class=\"title-highlight\">अचार, शुद्ध देसी घी की मिठाइयां, नमकीन और पोडी मसाले।</span>",
+    hero_lead: "दादी मां की पारंपरिक रेसिपी से तैयार: चीनी मिट्टी के मर्तबान में धूप में पके अचार, 100% शुद्ध देसी गाय के घी से बनी मिठाइयां, कच्ची घानी तेल के स्नैक्स और सिलबट्टे पर पिसे पोडी मसाले। शून्य प्रिजर्वेटिव।",
+    hero_btn_menu: "मेनू देखें (54 व्यंजन)",
+    hero_btn_heritage: "दादी की रसोई के राज",
+    hero_metric_1: "सच्ची शुरुआत • शुद्ध गुणवत्ता",
+    hero_metric_2: "शुद्ध देसी घी और कच्ची घानी तेल",
+    hero_metric_3: "शून्य रसायन, 100% प्राकृतिक",
+
+    trust_1_title: "100% शुद्ध देसी गाय का घी",
+    trust_1_desc: "शुद्ध गाय के घी और देसी गुड़ से बने अरिसेलु, सुन्नुंडालु, पूथारेकुलु और बोब्बटलू",
+    trust_2_title: "मर्तबानों में धूप में पके",
+    trust_2_desc: "पारंपरिक चीनी मिट्टी के मर्तबानों में प्राकृतिक रूप से तैयार स्वादिष्ट अचार",
+    trust_3_title: "सिलबट्टे पर कुटी हुई पोडी",
+    trust_3_desc: "धीमी आंच पर भुने मसालों को पारंपरिक रूप से कूटकर तैयार की गई ताजी पोडी",
+    trust_4_title: "लीक-प्रूफ सुरक्षित पैकेजिंग",
+    trust_4_desc: "वैक्यूम-सीलबंद पाउच और मजबूत डिब्बे ताकि ताजगी और स्वाद बना रहे",
+
+    catalog_tag: "पारंपरिक रसोई",
+    catalog_title: "हाथ से बने ताजा स्वादिष्ट व्यंजन",
+    catalog_desc: "शाकाहारी और मांसाहारी अचार, पारंपरिक पिंडी वंटालु, कुरकुरे स्नैक्स और ताजी पोडी। दादी की ममता से भरपूर, सीधे आपके घर तक।",
+    cat_all: "सभी व्यंजन (54)",
+    cat_veg: "शाकाहारी अचार (13)",
+    cat_nonveg: "मांसाहारी अचार (10)",
+    cat_sweets: "पिंडी वंटालु (18)",
+    cat_snacks: "कुरकुरे नमकीन (5)",
+    cat_podis: "पोडी मसाले (8)",
+
+    heat_label: "तीखापन:",
+    heat_any: "सभी",
+    heat_mild: "कम तीखा 🌶️",
+    heat_medium: "मध्यम 🌶️🌶️",
+    heat_fiery: "ज्यादा तीखा 🌶️🌶️🌶️",
+    sort_label: "क्रमबद्ध करें:",
+    sort_featured: "सर्वाधिक लोकप्रिय",
+    sort_low: "कीमत: कम से ज्यादा",
+    sort_high: "कीमत: ज्यादा से कम",
+    sort_rating: "ग्राहक रेटिंग",
+    results_count: "कुल {total} में से {count} प्रामाणिक व्यंजन दिखाए जा रहे हैं",
+    no_results_title: "कोई मेल खाने वाला व्यंजन नहीं मिला!",
+    no_results_desc: "चेक्कलु, पल्ली कारम, कंदी पोडी, अरिसेलु, चिकन या आम का अचार खोजकर देखें।",
+    reset_filters: "सभी फ़िल्टर रीसेट करें",
+
+    add_jar: "जार जोड़ें",
+    add_box: "डिब्बा जोड़ें",
+    add_pack: "पैक जोड़ें",
+    quick_view: "विवरण",
+
+    cart_title: "दादी की टोकरी (कार्ट)",
+    cart_free_delivery: "₹1199 से अधिक के ऑर्डर पर मुफ्त डिलीवरी लागू!",
+    cart_add_for_free: "मुफ्त डिलीवरी के लिए ₹{amount} और जोड़ें",
+    cart_subtotal: "व्यंजनों का योग:",
+    cart_delivery: "पैकिंग व डिलीवरी शुल्क:",
+    cart_total: "कुल देय राशि:",
+    state_select: "राज्य चुनें *",
+    state_ap: "आंध्र प्रदेश (₹90 डिलीवरी)",
+    state_other: "अन्य राज्य (₹120 डिलीवरी)",
+    pay_upi_title: "डायरेक्ट यूपीआई (GPay / PhonePe / Paytm / QR)",
+    pay_upi_desc: "100% सुरक्षित भुगतान • 0% अतिरिक्त शुल्क",
+    btn_review_bill: "बिल देखें और ऑर्डर करें",
+
+    mob_home: "होम",
+    mob_menu: "मेनू",
+    mob_pairing: "गाइड",
+    mob_cart: "टोकरी",
+    mob_order: "ऑर्डर"
+  }
+};
+
+const PRODUCT_TRANSLATIONS = {
+  "mango-pickle": {
+    te: { title: "మామిడికాయ ఆవకాయ", badge: "సంప్రదాయ స్పెషల్" },
+    hi: { title: "आम का असली आवकाया अचार", badge: "बेस्टसेलर" }
+  },
+  "gongura-pickle": {
+    te: { title: "గోంగూర పచ్చడి", badge: "ఆంధ్ర స్పెషల్" },
+    hi: { title: "आंध्रा गोंगुरा अचार", badge: "सिग्नेचर" }
+  },
+  "garlic-cashew-pickle": {
+    te: { title: "జీడిపప్పు వెల్లుల్లి పచ్చడి", badge: "రాచరిక రుచి" },
+    hi: { title: "काजू और लहसुन का शाही अचार", badge: "शाही पसंद" }
+  },
+  "garlic-pickle": {
+    te: { title: "వెల్లుల్లి పచ్చడి", badge: "ఆరోగ్యకరం" },
+    hi: { title: "देसी लहसुन का अचार", badge: "गुणकारी" }
+  },
+  "usirikaya-pickle": {
+    te: { title: "ఉసిరికాయ పచ్చడి", badge: "విటమిన్ సి భరితం" },
+    hi: { title: "धूप में पका आंवला अचार", badge: "स्वास्थ्यवर्धक" }
+  },
+  "pandumirchi-pickle": {
+    te: { title: "పండుమిర్చి పచ్చడి", badge: "ఘాటైన కారం" },
+    hi: { title: "तीखी लाल मिर्च का अचार", badge: "पारंपरिक तीखा" }
+  },
+  "curry-leaves-pickle": {
+    te: { title: "కరివేపాకు పచ్చడి", badge: "సువాసన భరితం" },
+    hi: { title: "कढ़ी पत्ता हर्बल अचार", badge: "पौष्टिक" }
+  },
+  "allam-pickle": {
+    te: { title: "అల్లం పచ్చడి", badge: "పెసరట్టు స్పెషల్" },
+    hi: { title: "अदरक और गुड़ का अचार", badge: "पाचनवर्धक" }
+  },
+  "lemon-pickle": {
+    te: { title: "నిమ్మకాయ పచ్చడి", badge: "ఎండలో ఊరినది" },
+    hi: { title: "धूप में पका नींबू का अचार", badge: "पाचक" }
+  },
+  "tomato-pickle": {
+    te: { title: "టమాటా పచ్చడి", badge: "ఎల్లప్పుడూ ప్రియం" },
+    hi: { title: "देसी टमाटर का तीखा अचार", badge: "लोकप्रिय" }
+  },
+  "cauliflower-pickle": {
+    te: { title: "కాలీఫ్లవర్ పచ్చడి", badge: "కరకరలాడే రుచి" },
+    hi: { title: "कुरकुरी गोभी का अचार", badge: "स्पेशल" }
+  },
+  "magaya-pickle": {
+    te: { title: "మాగాయ పచ్చడి", badge: "గోదావరి స్పెషల్" },
+    hi: { title: "पारंपरिक मागाया अचार", badge: "क्लासिक" }
+  },
+  "bellam-avakaya-pickle": {
+    te: { title: "బెల్లం ఆవకాయ", badge: "తీపి & కారం" },
+    hi: { title: "गुड़ आम का खट्टा-मीठा अचार", badge: "शाही स्वाद" }
+  },
+  "chicken-bone": {
+    te: { title: "చికెన్ పచ్చడి (బోన్)", badge: "నాన్-వెజ్ స్పెషల్" },
+    hi: { title: "चिकन अचार (हड्डी सहित)", badge: "स्पेशल" }
+  },
+  "chicken-boneless": {
+    te: { title: "చికెన్ బోన్‌లెస్ పచ్చడి", badge: "రాయల్ చికెన్" },
+    hi: { title: "चिकन बोनलेस अचार", badge: "बेस्टसेलर" }
+  },
+  "gongura-chicken": {
+    te: { title: "గోంగూర చికెన్ పచ్చడి", badge: "ఆంధ్రా స్పెషల్" },
+    hi: { title: "गोंगुरा चिकन अचार", badge: "स्पेशल" }
+  },
+  "prawns-pickle": {
+    te: { title: "రొయ్యల పచ్చడి", badge: "తాజా రొయ్యలు" },
+    hi: { title: "झींगा (प्रॉन्स) अचार", badge: "तटीय स्वाद" }
+  },
+  "gongura-prawns": {
+    te: { title: "గోంగూర రొయ్యల పచ్చడి", badge: "ప్రత్యేక రుచి" },
+    hi: { title: "गोंगुरा प्रॉन्स अचार", badge: "सिग्नेचर" }
+  },
+  "fish-pickle": {
+    te: { title: "చేపల పచ్చడి", badge: "బోన్‌లెస్ ఫిష్" },
+    hi: { title: "मछली का बोनलेस अचार", badge: "स्वादिष्ट" }
+  },
+  "mutton-pickle": {
+    te: { title: "మటన్ పచ్చడి", badge: "రాయల్ మటన్" },
+    hi: { title: "शाही मटन अचार", badge: "शाही पसंद" }
+  },
+  "mutton-keema": {
+    te: { title: "మటన్ ఖీమా పచ్చడి", badge: "చేతితో కొట్టిన ఖీమా" },
+    hi: { title: "मटन कीमा अचार", badge: "लाजवाब" }
+  },
+  "natu-kodi-boneless": {
+    te: { title: "నాటుకోడి బోన్‌లెస్ పచ్చడి", badge: "పల్లెటూరి రుచి" },
+    hi: { title: "देसी मुर्गा बोनलेस अचार", badge: "देसी स्वाद" }
+  },
+  "natu-kodi-pickle": {
+    te: { title: "నాటుకోడి పచ్చడి", badge: "సంప్రదాయ నాటుకోడి" },
+    hi: { title: "पारंपरिक देसी मुर्गा अचार", badge: "गांव का स्वाद" }
+  },
+  "jantikalu": {
+    te: { title: "కరకరలాడే జంతికలు", badge: "సంప్రదాయ కరకర" },
+    hi: { title: "कुरकुरी जंतिकालु (मुरुक्कू)", badge: "खस्ता नमकीन" }
+  },
+  "ghee-ariselu": {
+    te: { title: "స్వచ్ఛమైన నెయ్యి అరిసెలు", badge: "100% ఆవు నెయ్యి" },
+    hi: { title: "शुद्ध देसी घी अरिसेलु", badge: "100% गाय का घी" }
+  },
+  "nuvvulu-ariselu": {
+    te: { title: "నువ్వుల అరిసెలు", badge: "నువ్వుల ఘుమఘుమ" },
+    hi: { title: "तिल अरिसेलु", badge: "तिल की खुशबू" }
+  },
+  "ariselu": {
+    te: { title: "సంప్రదాయ అరిసెలు", badge: "బెల్లం అరిసెలు" },
+    hi: { title: "पारंपरिक अरिसेलु", badge: "गुड़ का स्वाद" }
+  },
+  "kobbari-ariselu": {
+    te: { title: "కొబ్బరి అరిసెలు", badge: "తాజా కొబ్బరి" },
+    hi: { title: "नारियल अरिसेलु", badge: "ताजा नारियल" }
+  },
+  "bellam-sunnundalu": {
+    te: { title: "బెల్లం సున్నుండలు", badge: "బలం & ఆరోగ్యం" },
+    hi: { title: "गुड़ सुन्नुंडालु (उड़द लड्डू)", badge: "ताकत और स्वाद" }
+  },
+  "sugar-sunnundalu": {
+    te: { title: "పంచదార సున్నుండలు", badge: "నోట్లో కరిగిపోయేలా" },
+    hi: { title: "शक्कर सुन्नुंडालु", badge: "मुंह में घुलने वाला" }
+  },
+  "gavvalu": {
+    te: { title: "తీపి గవ్వలు", badge: "సాంప్రదాయ తీపి" },
+    hi: { title: "पारंपरिक मीठी गव्वालु", badge: "कुरकुरी मिठाई" }
+  },
+  "bellam-gavvalu": {
+    te: { title: "బెల్లం గవ్వలు", badge: "తాటి బెల్లం పాకం" },
+    hi: { title: "गुड़ की रसीली गव्वालु", badge: "गुड़ चाशनी" }
+  },
+  "kajjikayalu-kova": {
+    te: { title: "కోవా కజ్జికాయలు", badge: "కోవా & డ్రై ఫ్రూట్స్" },
+    hi: { title: "खोया और मेवे की कज्जिकायालु", badge: "शाही गुजिया" }
+  },
+  "kajjikayalu-coconut": {
+    te: { title: "కొబ్బరి కజ్జికాయలు", badge: "కొబ్బరి పౌడర్" },
+    hi: { title: "नारियल कज्जिकायालु", badge: "कुरकुरी गुजिया" }
+  },
+  "nuvvula-laddu": {
+    te: { title: "నువ్వుల లడ్డు", badge: "ఐరన్ & క్యాల్షియం" },
+    hi: { title: "तिल और गुड़ के लड्डू", badge: "कैल्शियम युक्त" }
+  },
+  "pokundalu": {
+    te: { title: "పోకుండలు", badge: "అరుదైన ఆంధ్ర తీపి" },
+    hi: { title: "पारंपरिक पोकुंदालु", badge: "दुर्लभ मिठाई" }
+  },
+  "kobbari-vundalu": {
+    te: { title: "కొబ్బరి ఉండలు", badge: "తాజా కొబ్బరి & బెల్లం" },
+    hi: { title: "नारियल और गुड़ के लड्डू", badge: "ताजा नारियल" }
+  },
+  "special-dry-fruits-laddu": {
+    te: { title: "స్పెషల్ డ్రై ఫ్రూట్స్ లడ్డు", badge: "షుగర్ లెస్ • 100% నట్స్" },
+    hi: { title: "स्पेशल ड्राई फ्रूट्स लड्डू", badge: "बिना चीनी • 100% मेवे" }
+  },
+  "mix-seeds-laddu": {
+    te: { title: "మిక్స్డ్ సీడ్స్ లడ్డు", badge: "సూపర్‌ఫుడ్ బలం" },
+    hi: { title: "सुपरफूड सीड्स लड्डू", badge: "ओमेगा 3 युक्त" }
+  },
+  "dry-fruits-putharekulu": {
+    te: { title: "డ్రై ఫ్రూట్స్ పూతరేకులు", badge: "ఆత్రేయపురం పేపర్ స్వీట్" },
+    hi: { title: "ड्राई फ्रूट्स पूथारेकुलु", badge: "विश्वप्रसिद्ध पेपर स्वीट" }
+  },
+  "ghee-bobbatlu": {
+    te: { title: "నెయ్యి బొబ్బట్లు / భక్ష్యాలు", badge: "వేడి వేడి నెయ్యి బొబ్బట్లు" },
+    hi: { title: "शुद्ध घी बोब्बटलू (पूरन पोली)", badge: "गरमा-गरम स्वाद" }
+  },
+  "masala-cashew": {
+    te: { title: "నెయ్యి మసాలా జీడిపప్పు", badge: "జంబో జీడిపప్పు" },
+    hi: { title: "घी रोस्टेड मसाला काजू", badge: "जंबो काजू" }
+  },
+  "masala-palli": {
+    te: { title: "మసాలా పల్లీలు", badge: "కరకరలాడే పల్లీలు" },
+    hi: { title: "कुरकुरी मसाला मूंगफली", badge: "चटपटा स्नैक" }
+  },
+  "karam-sanagapappu": {
+    te: { title: "కారం శనగపప్పు", badge: "హై-ప్రోటీన్ స్నాక్" },
+    hi: { title: "नमकीन चना दाल", badge: "प्रोटीन युक्त" }
+  },
+  "chekkalu": {
+    te: { title: "కరకరలాడే చెక్కలు", badge: "గోదావరి చెక్కలు" },
+    hi: { title: "कुरकुरी चेक्कलु पापड़ी", badge: "पारंपरिक नमकीन" }
+  },
+  "nuvvulu-chekkalu": {
+    te: { title: "నువ్వుల చెక్కలు", badge: "నువ్వుల క్రంచ్" },
+    hi: { title: "तिल वाली खस्ता चेक्कलु", badge: "तिल स्वाद" }
+  },
+  "karivepaku-podi": {
+    te: { title: "కరివేపాకు పొడి", badge: "కంటికి & జుట్టుకు మంచిది" },
+    hi: { title: "कढ़ी पत्ता मसाला पोडी", badge: "स्वास्थ्यवर्धक" }
+  },
+  "kandi-podi": {
+    te: { title: "కందిపొడి (గన్ పౌడర్)", badge: "నెయ్యి అన్నం స్పెషల్" },
+    hi: { title: "कंदी पोडी (गनपाउडर)", badge: "घी-चावल स्पेशल" }
+  },
+  "velluli-karam": {
+    te: { title: "వెల్లుల్లి కారం", badge: "ఇడ్లీ, దోశ స్పెషల్" },
+    hi: { title: "लहसुन मसाला पोडी", badge: "इडली-डोसा स्पेशल" }
+  },
+  "palli-karam-podi": {
+    te: { title: "పల్లీ కారం పొడి", badge: "వేరుశనగ పొడి" },
+    hi: { title: "मूंगफली मसाला पोडी", badge: "चटपटी पोडी" }
+  },
+  "nuvvulu-karampodi": {
+    te: { title: "నువ్వుల కారం పొడి", badge: "క్యాల్షియం భరితం" },
+    hi: { title: "तिल मसाला पोडी", badge: "कैल्शियम रिच" }
+  },
+  "avisa-ginjala-podi": {
+    te: { title: "అవిసె గింజల పొడి (ఫ్లాక్స్ సీడ్స్)", badge: "గుండెకు మంచిది" },
+    hi: { title: "अलसी (फ्लैक्स सीड) पोडी", badge: "हार्ट-हेल्दी" }
+  },
+  "curry-karam": {
+    te: { title: "కూర కారం", badge: "అమ్మమ్మ కూరల మసాలా" },
+    hi: { title: "सब्जी मसाला पोडी", badge: "घर का मसाला" }
+  },
+  "pachadi-karam-podi": {
+    te: { title: "పచ్చడి కారం పొడి", badge: "గుంటూరు మిర్చి ఘాటు" },
+    hi: { title: "अचार मसाला पोडी", badge: "गुंटूर तीखा" }
+  }
+};
+
+function applyLanguage(lang) {
+  if (!lang || !TRANSLATIONS[lang]) lang = "en";
+  AppState.currentLang = lang;
+  localStorage.setItem("hd_lang", lang);
+  document.documentElement.lang = lang;
+
+  // Toggle body classes for typography adjustments
+  document.body.classList.toggle("lang-te", lang === "te");
+  document.body.classList.toggle("lang-hi", lang === "hi");
+
+  // Update switcher button active state
+  document.querySelectorAll(".lang-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.lang === lang);
+  });
+
+  // Update static UI elements
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.dataset.i18n;
+    if (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) {
+      el.innerHTML = TRANSLATIONS[lang][key];
+    } else if (TRANSLATIONS.en[key]) {
+      el.innerHTML = TRANSLATIONS.en[key];
+    }
+  });
+
+  // Update placeholder inputs
+  const searchInput = document.getElementById("globalSearchInput");
+  if (searchInput && TRANSLATIONS[lang].search_placeholder) {
+    searchInput.placeholder = TRANSLATIONS[lang].search_placeholder;
+  }
+
+  // Re-render product catalog so titles, badges, and button labels update
+  if (typeof renderCatalog === "function") {
+    renderCatalog();
+  }
+
+  // Update Cart UI if open
+  if (typeof updateCartUI === "function") {
+    updateCartUI();
+  }
+
+  // Update Customer Reviews section
+  if (typeof renderCustomerReviews === "function") {
+    renderCustomerReviews();
+  }
+}
+
+// Global hook
+window.applyLanguage = applyLanguage;
+
+// Delegate click listener on document for language buttons
+document.addEventListener("click", function(e) {
+  const btn = e.target.closest(".lang-btn");
+  if (btn && btn.dataset.lang) {
+    applyLanguage(btn.dataset.lang);
+  }
+});
+
+// Auto-initialize language on page load
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", function() {
+    const saved = localStorage.getItem("hd_lang") || "en";
+    applyLanguage(saved);
+  });
+} else {
+  const saved = localStorage.getItem("hd_lang") || "en";
+  applyLanguage(saved);
+}
+
 // 6. Catalog Rendering & Filtering
 // -------------------------------------------------------------------
 function renderCatalog() {
@@ -2280,6 +3051,10 @@ function renderCatalog() {
   }
 
   productsGrid.innerHTML = filtered.map((item) => {
+    const lang = AppState.currentLang || "en";
+    const pTrans = PRODUCT_TRANSLATIONS[item.id]?.[lang];
+    const displayTitle = pTrans?.title || item.title;
+    const displayBadge = pTrans?.badge || item.badge;
     const defaultWeight = item.weights[1] || item.weights[0]; // default to 500g or 250g
     const isPindiVantalu = item.category === "pindi-vantalu" || item.category === "sweets";
     const isHotSnacks = item.category === "hot-snacks" || item.category === "snacks";
@@ -2299,7 +3074,7 @@ function renderCatalog() {
       <article class="product-card" id="card-${item.id}" data-id="${item.id}">
         <div class="product-thumb-wrap">
           <img src="${item.image}" onerror="handleImgError(this)" alt="${item.title}" class="product-thumb" loading="lazy">
-          ${item.badge ? `<span class="product-badge-corner">${item.badge}</span>` : ""}
+          ${displayBadge ? `<span class="product-badge-corner">${displayBadge}</span>` : ""}
           <button class="quick-view-trigger" data-action="quickview" data-id="${item.id}" title="Quick View">
             <i class="fa-solid fa-eye"></i>
           </button>
@@ -2315,7 +3090,7 @@ function renderCatalog() {
             ${indicatorHtml}
           </div>
 
-          <h3 class="product-title">${item.title}</h3>
+          <h3 class="product-title">${displayTitle}</h3>
           <p class="product-desc">${item.shortDesc}</p>
 
           <!-- Weight Pills -->
@@ -2338,7 +3113,13 @@ function renderCatalog() {
 
             <button class="add-jar-btn" data-action="add-cart" data-id="${item.id}">
               <i class="fa-solid fa-plus"></i>
-              <span>${isPindiVantalu || isHotSnacks ? 'Add Box' : isPodi ? 'Add Pack' : 'Add Jar'}</span>
+              <span>${
+    lang === 'te' 
+      ? (isPindiVantalu || isHotSnacks ? 'బాక్స్ ఆర్డర్' : isPodi ? 'ప్యాక్ ఆర్డర్' : 'జాడీ ఆర్డర్') 
+      : lang === 'hi' 
+      ? (isPindiVantalu || isHotSnacks ? 'डिब्बा जोड़ें' : isPodi ? 'पैक जोड़ें' : 'जार जोड़ें') 
+      : (isPindiVantalu || isHotSnacks ? 'Add Box' : isPodi ? 'Add Pack' : 'Add Jar')
+  }</span>
             </button>
           </div>
         </div>
@@ -2538,13 +3319,25 @@ function removeCartItem(index) {
   showToast(`Removed ${item.title} (${item.size}) from box`);
 }
 
+// Delivery pricing: free above threshold, otherwise charged by state (null = state not chosen yet)
+const FREE_DELIVERY_THRESHOLD = 1199;
+const STATE_DELIVERY_CHARGES = { "Andhra Pradesh": 90, "Other States": 120 };
+
+function getDeliveryCharge(subtotal) {
+  if (subtotal === 0 || subtotal >= FREE_DELIVERY_THRESHOLD) return 0;
+  const charge = STATE_DELIVERY_CHARGES[custStateInput?.value];
+  return charge === undefined ? null : charge;
+}
+
+custStateInput?.addEventListener("change", () => updateCartUI());
+
 function updateCartUI() {
   const totalCount = AppState.cart.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = AppState.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const freeThreshold = 599;
+  const freeThreshold = FREE_DELIVERY_THRESHOLD;
   const isFreeDelivery = subtotal >= freeThreshold || subtotal === 0;
-  const deliveryCharge = isFreeDelivery ? 0 : 50;
-  const total = subtotal > 0 ? subtotal + deliveryCharge : 0;
+  const deliveryCharge = getDeliveryCharge(subtotal);
+  const total = subtotal > 0 ? subtotal + (deliveryCharge || 0) : 0;
 
   // Header counters
   if (cartCounter) cartCounter.textContent = totalCount;
@@ -2570,7 +3363,7 @@ function updateCartUI() {
 
   // Subtotal & Total
   if (cartSubtotal) cartSubtotal.textContent = `₹${subtotal}`;
-  if (cartDeliveryCharge) cartDeliveryCharge.textContent = isFreeDelivery ? "FREE" : `₹${deliveryCharge}`;
+  if (cartDeliveryCharge) cartDeliveryCharge.textContent = isFreeDelivery ? "FREE" : deliveryCharge === null ? "Select State" : `₹${deliveryCharge}`;
   if (cartTotal) cartTotal.textContent = `₹${total}`;
 
   const cartFooterTotal = document.getElementById("cartFooterTotal");
@@ -2579,7 +3372,7 @@ function updateCartUI() {
   const footerDeliveryStatus = document.getElementById("footerDeliveryStatus");
   if (footerDeliveryStatus) {
     if (subtotal === 0) {
-      footerDeliveryStatus.textContent = "₹50 Delivery";
+      footerDeliveryStatus.textContent = "₹90 AP / ₹120 Other States";
       footerDeliveryStatus.className = "footer-delivery-status";
     } else if (isFreeDelivery) {
       footerDeliveryStatus.innerHTML = '<i class="fa-solid fa-circle-check"></i> FREE Delivery';
@@ -2693,7 +3486,93 @@ function generateOrderSecurityHash(order) {
 // Google Sheets Order Auto-Logger (Option 2: 100% Free & Tamper-Proof)
 // Follow GOOGLE_SHEET_SETUP_GUIDE.md to deploy your private Google Sheet
 // -------------------------------------------------------------------
-const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyOEq8pHbA5A2nFTEqu4KuF2W1jY7aw1sii2jdtg14lCwKCfDI_8-nuS3lB_JMVxvvy/exec";
+const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzFhiZ7G8ez-pHk7k0VxPTgabY7ZDiJbUXtjsKD02KtKqM5_gilXSIB7Ql28DH37J8G/exec";
+
+// -------------------------------------------------------------------
+// Live Hero Stats (real order count + average review rating)
+// Starts "idle" (New / Be Our First Customer) and grows with every real customer.
+// -------------------------------------------------------------------
+const HERO_STATS_CACHE_KEY = "hd_hero_stats";
+let heroStats = { orders: 0, reviews: 0, rating: 0 };
+
+function renderHeroStats() {
+  const ratingEl = document.getElementById("heroRatingValue");
+  const labelEl = document.getElementById("heroStatsLabel");
+  if (!ratingEl || !labelEl) return;
+
+  const { orders, reviews, rating } = heroStats;
+  ratingEl.textContent = reviews > 0 ? rating.toFixed(1) : "New";
+
+  const parts = [];
+  if (orders > 0) parts.push(`${orders.toLocaleString("en-IN")} ${orders === 1 ? "Order" : "Orders"} Placed`);
+  if (reviews > 0) parts.push(`${reviews} ${reviews === 1 ? "Review" : "Reviews"}`);
+  labelEl.textContent = parts.length ? parts.join(" • ") : "Fresh Kitchen • Be Our First Customer";
+}
+
+function setHeroStats(stats) {
+  heroStats = {
+    orders: Math.max(0, parseInt(stats.orders, 10) || 0),
+    reviews: Math.max(0, parseInt(stats.reviews, 10) || 0),
+    rating: Math.min(5, Math.max(0, parseFloat(stats.rating) || 0))
+  };
+  renderHeroStats();
+  try {
+    localStorage.setItem(HERO_STATS_CACHE_KEY, JSON.stringify(heroStats));
+  } catch (e) { /* storage unavailable */ }
+}
+
+function loadHeroStats() {
+  // Show last known numbers instantly, then refresh from the sheet
+  try {
+    const cached = JSON.parse(localStorage.getItem(HERO_STATS_CACHE_KEY) || "null");
+    if (cached) setHeroStats(cached);
+  } catch (e) { /* ignore bad cache */ }
+  renderHeroStats();
+
+  if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("REPLACE_WITH_YOUR_DEPLOYED_URL")) return;
+
+  fetch(`${GOOGLE_SHEET_WEBAPP_URL}?action=stats`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data && data.status === "success") setHeroStats(data);
+    })
+    .catch((e) => console.warn("Hero stats unavailable:", e));
+}
+
+// Count a just-placed order / just-posted review right away, without waiting for a refetch
+function bumpHeroStats({ order = false, reviewRating = null } = {}) {
+  const next = { ...heroStats };
+  if (order) next.orders += 1;
+  if (reviewRating !== null) {
+    next.rating = (next.rating * next.reviews + reviewRating) / (next.reviews + 1);
+    next.reviews += 1;
+  }
+  setHeroStats(next);
+}
+
+// No cookies: sendBeacon/credentialed requests carry the visitor's Google login,
+// which makes Apps Script reject the POST when they're signed in to Google.
+function postToGoogleSheet(payload) {
+  return fetch(GOOGLE_SHEET_WEBAPP_URL, {
+    method: "POST",
+    mode: "no-cors",
+    credentials: "omit",
+    keepalive: true,
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: payload
+  }).catch((e) => console.warn("Google Sheet log failed:", e));
+}
+
+function logReviewToGoogleSheet(review) {
+  if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("REPLACE_WITH_YOUR_DEPLOYED_URL")) return;
+  try {
+    // Refresh the shared list once the sheet has it, so the card switches from local to public
+    postToGoogleSheet(JSON.stringify({ type: "review", ...review }))
+      .then(() => setTimeout(loadPublicReviews, 1500));
+  } catch (err) {
+    console.warn("Google Sheet review logger exception:", err);
+  }
+}
 
 function logOrderToGoogleSheet(order) {
   if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("REPLACE_WITH_YOUR_DEPLOYED_URL")) {
@@ -2717,17 +3596,8 @@ function logOrderToGoogleSheet(order) {
       receiptUrl: order.receiptUrl
     });
 
-    if (navigator.sendBeacon) {
-      const blob = new Blob([payload], { type: "text/plain;charset=utf-8" });
-      navigator.sendBeacon(GOOGLE_SHEET_WEBAPP_URL, blob);
-    } else {
-      fetch(GOOGLE_SHEET_WEBAPP_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: payload
-      }).catch((e) => console.warn("Google Sheet log fallback:", e));
-    }
+    postToGoogleSheet(payload);
+    bumpHeroStats({ order: true });
     console.log("✅ Genuine order logged to Google Sheet:", order.orderId);
   } catch (err) {
     console.warn("Google Sheet logger exception:", err);
@@ -2775,6 +3645,28 @@ function createSignedReceiptUrl(order) {
   const origin = isLocal ? window.location.origin : "https://pickle-ten-sandy.vercel.app";
 
   return `${origin}/index.html?v=${v}&s=${sig}`;
+}
+
+// Short WhatsApp-friendly bill link: ?o=<order id>&k=<6-char signature>.
+// The full signed link is already saved in the Google Sheet with the order; the key
+// must match its signature, so order IDs alone can't be used to open someone's bill.
+function createShortReceiptUrl(order) {
+  const sig = new URL(order.receiptUrl).searchParams.get("s");
+  const cleanId = (order.orderId || "").replace(/^HD-/, "");
+  const isLocal = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1");
+  const origin = isLocal ? window.location.origin : "https://pickle-ten-sandy.vercel.app";
+  return `${origin}/?o=${encodeURIComponent(cleanId)}&k=${sig}`;
+}
+
+function fetchSignedReceiptUrl(shortOrderId, key) {
+  const id = shortOrderId.startsWith("HD-") ? shortOrderId : "HD-" + shortOrderId;
+  const url = `${GOOGLE_SHEET_WEBAPP_URL}?action=order&id=${encodeURIComponent(id)}&k=${encodeURIComponent(key)}`;
+  return fetch(url)
+    .then((res) => res.json())
+    .then((data) => {
+      if (!data || data.status !== "success" || !data.receiptUrl) throw new Error("Order not found");
+      return data.receiptUrl;
+    });
 }
 
 // Decode Compact Order URL (?v=...&s=...)
@@ -2900,9 +3792,10 @@ function constructWhatsAppMessage(order) {
   message += `*Date:* ${order.date}\n`;
   message += `*Security Token:* [SEC: ${order.securityCode}]\n`;
   if (order.receiptUrl) {
-    const adminUrl = `${order.receiptUrl}&a=1`;
-    message += `👉 *OFFICIAL VERIFIED BILL (Image):*\n${order.receiptUrl}\n\n`;
-    message += `👨‍🍳 *KITCHEN ADMIN (1-Tap WhatsApp Reply & Dispatch):*\n${adminUrl}\n`;
+    // Prefer the short link; emojis are avoided here because some WhatsApp apps garble them (shown as "�")
+    const billUrl = order.shortUrl || order.receiptUrl;
+    message += `*Customer Bill:*\n${billUrl}\n\n`;
+    message += `*Kitchen Admin Bill:*\n${billUrl}&a=1\n`;
   }
   message += `----------------------------------------\n\n`;
   message += `*Customer Details:*\n`;
@@ -2934,7 +3827,7 @@ function generateReceiptCanvasBlob(order, callback) {
   // Dynamic height based on number of items with balanced spacing
   const rowHeight = 36;
   const itemsCount = (order.items && order.items.length) || 1;
-  const height = 646 + (itemsCount * rowHeight);
+  const height = 668 + (itemsCount * rowHeight);
 
   const canvas = document.createElement("canvas");
   canvas.width = width * scale;
@@ -2990,7 +3883,8 @@ function generateReceiptCanvasBlob(order, callback) {
       ctx.arc(width / 2, y + (logoSize / 2), (logoSize / 2) + 1, 0, Math.PI * 2);
       ctx.stroke();
 
-      y += logoSize + 14;
+      // Title is drawn on its baseline, so leave room for the gap (~14px) plus the 21px font's ascent
+      y += logoSize + 36;
     }
 
     ctx.fillStyle = "#9E2A2B";
@@ -3254,7 +4148,7 @@ function openReceiptModal(order, isAdminVerified = false, isFromUrl = false) {
       // ----------------------------------------------------
       // ADMIN KITCHEN DISPATCH & 1-TAP CUSTOMER REPLY VIEW
       // ----------------------------------------------------
-      const confirmReplyMsg = `Namaste ${order.customerName} garu! 🙏\n\nYour Ammamma Special Delicacies order #${order.orderId} (Rs. ${order.total}) has been verified and confirmed! 🍯\n\nPlease send payment of Rs. ${order.total} to UPI: 9704514247@upi and share the screenshot so we can pack and dispatch your fresh order today!`;
+      const confirmReplyMsg = `Namaste ${order.customerName} garu! 🙏\n\nYour Ammamma Special Delicacies order #${order.orderId} (Rs. ${order.total}) has been verified and confirmed! 🍯\n\nPlease send payment of Rs. ${order.total} to UPI: 7036763589@upi and share the screenshot so we can pack and dispatch your fresh order today!`;
       const waDirectUrl = `https://wa.me/${phoneInfo.clean}?text=${encodeURIComponent(confirmReplyMsg)}`;
       const waWebDirectUrl = `https://web.whatsapp.com/send?phone=${phoneInfo.clean}&text=${encodeURIComponent(confirmReplyMsg)}`;
 
@@ -3364,7 +4258,7 @@ function openReceiptModal(order, isAdminVerified = false, isFromUrl = false) {
             <i class="fa-solid fa-circle-check"></i>
             <div>
               <strong>OFFICIAL VERIFIED ORDER BILL #${order.orderId}</strong><br>
-              <span>${isFromUrl ? 'Authentic digital invoice verified by Home Delights - Ammamma Special Kitchen.' : 'Your bill is locked and verified. Tap below to send this order directly to +91 97045 14247!'}</span>
+              <span>${isFromUrl ? 'Authentic digital invoice verified by Home Delights - Ammamma Special Kitchen.' : 'Your bill is locked and verified. Tap below to send this order directly to Aditya Gurlinka (+91 70367 63589)!'}</span>
             </div>
           </div>
 
@@ -3378,15 +4272,18 @@ function openReceiptModal(order, isAdminVerified = false, isFromUrl = false) {
             ${!isFromUrl ? `
               <button class="btn-receipt-wa" id="receiptShareWaBtn">
                 <i class="fa-brands fa-whatsapp"></i>
-                <span>Send Order to WhatsApp (+91 97045 14247)</span>
+                <span class="btn-receipt-wa-text">
+                  <strong>Send Order on WhatsApp</strong>
+                  <small>Aditya Gurlinka · +91 70367 63589</small>
+                </span>
               </button>
             ` : ''}
-            <div style="display: flex; gap: 10px; width: 100%;">
-              <a href="${dataUrl}" download="${fileName}" class="btn-receipt-download" id="receiptDownloadBtn" style="flex: 1; justify-content: center;">
+            <div class="receipt-secondary-actions">
+              <a href="${dataUrl}" download="${fileName}" class="btn-receipt-download" id="receiptDownloadBtn">
                 <i class="fa-solid fa-download"></i>
-                <span>Download Bill Image</span>
+                <span>Download Bill</span>
               </a>
-              <button class="btn-receipt-print" onclick="window.print()" style="flex: 1; justify-content: center;">
+              <button class="btn-receipt-print" onclick="window.print()">
                 <i class="fa-solid fa-print"></i>
                 <span>Print</span>
               </button>
@@ -3422,9 +4319,9 @@ function openReceiptModal(order, isAdminVerified = false, isFromUrl = false) {
 
           // 2. Direct 1-tap redirect to the business owner WhatsApp number (no contact picker!)
           const cleanMsg = constructWhatsAppMessage(order);
-          const waUrl = `https://wa.me/919704514247?text=${encodeURIComponent(cleanMsg)}`;
+          const waUrl = `https://wa.me/917036763589?text=${encodeURIComponent(cleanMsg)}`;
 
-          showToast("Opening WhatsApp with +91 97045 14247... 🛍️");
+          showToast("Opening WhatsApp with Aditya Gurlinka (+91 70367 63589)... 🛍️");
           window.open(waUrl, "_blank") || (window.location.href = waUrl);
         };
       }
@@ -3436,18 +4333,6 @@ function setupCartEvents() {
   if (cartTrigger) cartTrigger.addEventListener("click", openCart);
   if (closeCartBtn) closeCartBtn.addEventListener("click", closeCart);
   if (cartOverlay) cartOverlay.addEventListener("click", closeCart);
-
-  // Payment Mode toggle active cards
-  if (payModeUpi && payModeCod && payModeUpiLabel && payModeCodLabel) {
-    payModeUpi.addEventListener("change", () => {
-      payModeUpiLabel.classList.add("active");
-      payModeCodLabel.classList.remove("active");
-    });
-    payModeCod.addEventListener("change", () => {
-      payModeCodLabel.classList.add("active");
-      payModeUpiLabel.classList.remove("active");
-    });
-  }
 
   // WhatsApp Checkout Generator with Tamper-Proof Protection
   if (whatsappCheckoutBtn) {
@@ -3489,10 +4374,17 @@ function setupCartEvents() {
         custCityPinInput?.focus();
         return;
       }
+      const state = custStateInput?.value || "";
+      if (!state) {
+        showToast("Please select your state for delivery charges! 🚚");
+        custStateInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+        custStateInput?.focus();
+        return;
+      }
 
-      const paymentMode = payModeCod?.checked ? "Cash on Delivery (COD)" : "Direct UPI (GPay / PhonePe / Paytm)";
+      const paymentMode = "Direct UPI (GPay / PhonePe / Paytm / QR)";
       const subtotal = AppState.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      const delivery = subtotal >= 599 ? 0 : 50;
+      const delivery = getDeliveryCharge(subtotal);
       const total = subtotal + delivery;
       const orderDate = new Date();
       const dateStr = orderDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
@@ -3504,7 +4396,7 @@ function setupCartEvents() {
         date: `${dateStr}, ${timeStr}`,
         customerName: name,
         phone: phoneInfo.clean, // strictly sanitized digits (e.g. 916301060151)
-        address: `${address}, ${cityPin}`,
+        address: `${address}, ${cityPin}, ${state}`,
         paymentMode,
         items: [...AppState.cart],
         subtotal,
@@ -3517,6 +4409,7 @@ function setupCartEvents() {
 
       // Generate Signed Unalterable Receipt URL
       orderData.receiptUrl = createSignedReceiptUrl(orderData);
+      orderData.shortUrl = createShortReceiptUrl(orderData);
 
       // Auto-log authentic order to private Google Sheet in background
       logOrderToGoogleSheet(orderData);
@@ -3716,30 +4609,152 @@ function renderPairing(dishKey) {
   const data = PAIRING_DATA[dishKey];
   if (!data || !pairingDisplayCard) return;
 
+  const lang = AppState.currentLang || "en";
+  const pTrans = TRANSLATIONS[lang] || TRANSLATIONS.en;
+
+  const PAIRING_I18N = {
+    "rice-ghee": {
+      te: {
+        badge: "దివ్యమైన మొదటి ముద్ద",
+        title: "వేడి వేడి అన్నం, ఆవు నెయ్యి & కందిపొడి",
+        quote: "దక్షిణ భారతీయ విందు భోజనంలో మొదటి ముద్ద ఎల్లప్పుడూ పవిత్రమైనది. వేడి సోనా మసూరి అన్నంపై రోట్లో దంచిన కందిపొడి, స్వచ్ఛమైన ఆవు నెయ్యి మరియు ఘాటైన ఆవకాయ.",
+        features: [
+          "సిగ్నేచర్ కాంబో: కందిపొడి & మామిడికాయ ఆవకాయ",
+          "రుచి: వేయించిన పప్పులు, జీలకర్ర ఘుమఘుమ & కరిగిన ఆవు నెయ్యి",
+          "చిట్కా: వేడి ఆవు నెయ్యి కలుపుకుంటే అమృతంలా ఉంటుంది"
+        ]
+      },
+      hi: {
+        badge: "पहला दिव्य निवाला",
+        title: "गरमा-गरम चावल, शुद्ध घी और कंदी पोडी",
+        quote: "दक्षिण भारतीय दावत का सबसे प्रतिष्ठित पहला निवाला। गरमा-गरम चावल पर सिलबट्टे पर पिसी कंदी पोडी, शुद्ध गाय का घी और तीखा आवकाया आम का अचार।",
+        features: [
+          "सिग्नेचर जोड़ी: कंदी पोडी और आम का आवकाया अचार",
+          "स्वाद: भुनी हुई दालें, जीरे की महक और शुद्ध गाय का घी",
+          "टिप: ऊपर से एक चम्मच पिघला हुआ घी स्वाद को स्वर्ग जैसा बना देता है"
+        ]
+      }
+    },
+    "dosa-idli": {
+      te: {
+        badge: "టిఫిన్ స్పెషల్",
+        title: "కరకరలాడే నెయ్యి రోస్ట్ దోశ & కరివేపాకు పొడి",
+        quote: "బంగారు రంగులో కాలిన దోశ లేదా మల్లెపూవు లాంటి ఇడ్లీలపై స్వచ్ఛమైన ఆవు నెయ్యి మరియు ఘుమఘుమలాడే కరివేపాకు లేదా వెల్లుల్లి కారం.",
+        features: [
+          "సిగ్నేచర్ కాంబో: కరివేపాకు పొడి & వెల్లుల్లి కారం",
+          "రుచి: కరకరలాడే రోస్ట్ దోశ, పచ్చి కరివేపాకు సువాసన & ఘాటైన వెల్లుల్లి",
+          "చిట్కా: వేడి ఇడ్లీలపై నేరుగా పొడి చల్లి నెయ్యి వేయండి"
+        ]
+      },
+      hi: {
+        badge: "नाश्ता स्पेशल",
+        title: "कुरकुरा घी रोस्ट डोसा और कढ़ी पत्ता पोडी",
+        quote: "तवे से उतरा कुरकुरा सुनहरा डोसा या फूली हुई इडली, उस पर शुद्ध देसी घी और ताजी कुटी हुई कढ़ी पत्ता या लहसुन पोडी।",
+        features: [
+          "सिग्नेचर जोड़ी: कढ़ी पत्ता पोडी और लहसुन मसाला पोडी",
+          "स्वाद: कुरकुरा डोसा, खुशबूदार कढ़ी पत्ता और तीखा लहसुन",
+          "टिप: इडली के ऊपर पोडी छिड़क कर गरमा-गरम घी डालें"
+        ]
+      }
+    },
+    "festive-thali": {
+      te: {
+        badge: "పండుగ సంప్రదాయం",
+        title: "పండుగ విందు & స్వచ్ఛమైన నెయ్యి అరిసెలు",
+        quote: "అమ్మమ్మ నేతి అరిసెలు మరియు సున్నుండలు లేకుండా ఏ పండుగ సంపూర్ణం కాదు. స్వచ్ఛమైన ఆవు నెయ్యి మరియు తాటి బెల్లం నోట్లో కరిగిపోతాయి.",
+        features: [
+          "సిగ్నేచర్ కాంబో: నేతి అరిసెలు & బెల్లం సున్నుండలు",
+          "రుచి: స్వచ్ఛమైన ఆవు నెయ్యి, బెల్లం తీపి & యాలకుల సువాసన",
+          "చిట్కా: పండుగ రోజుల్లో కొబ్బరి అరిసెలు మరియు సున్నుండలతో స్వాగతం పలకండి"
+        ]
+      },
+      hi: {
+        badge: "त्योहारी परंपरा",
+        title: "त्योहारी दावत और शुद्ध देसी घी अरिसेलु",
+        quote: "दादी मां के नेती अरिसेलु और सुन्नुंडालु के बिना कोई भी त्योहार अधूरा है। भरपूर गाय का घी और देसी गुड़ मुंह में घुल जाते हैं।",
+        features: [
+          "सिग्नेचर जोड़ी: नेती अरिसेलु और गुड़ सुन्नुंडालु",
+          "स्वाद: शुद्ध गाय का घी, देसी गुड़ की मिठास और इलायची की महक",
+          "टिप: मेहमानों को गरमा-गरम चाय के साथ अरिसेलु परोसें"
+        ]
+      }
+    },
+    "tea-crunch": {
+      te: {
+        badge: "సాయంత్రం స్నాక్స్",
+        title: "మసాలా చాయ్ & కరకరలాడే చెక్కలు",
+        quote: "సాయంత్రం వేడి అల్లం చాయ్‌తో పాటు కరకరలాడే పప్పు చెక్కలు, జంతికలు లేదా నేతి మసాలా జీడిపప్పు తినడం ఒక అనిర్వచనీయమైన అనుభూతి.",
+        features: [
+          "సిగ్నేచర్ కాంబో: పప్పు చెక్కలు, జంతికలు & మసాలా జీడిపప్పు",
+          "రుచి: గానుగ నూనె కరకర, వాము మరియు తాజా కరివేపాకు సువాసన",
+          "చిట్కా: గాలి చొరబడని డబ్బాలో 45 రోజుల పాటు తాజాగా ఉంటాయి"
+        ]
+      },
+      hi: {
+        badge: "शाम का नाश्ता",
+        title: "अदरक वाली कड़क चाय और कुरकुरी चेक्कलु",
+        quote: "शाम की गरमा-गरम चाय के साथ हाथ से बनी खस्ता चेक्कलु, जंतिकालु और घी में भुने मसाला काजू का स्वाद दिनभर की थकान मिटा देता है।",
+        features: [
+          "सिग्नेचर जोड़ी: चेक्कलु, जंतिकालु और मसाला काजू",
+          "स्वाद: कच्ची घानी तेल का कुरकुरापन और अजवाइन की महक",
+          "टिप: एयरटाइट जार में 45 दिनों तक पूरी तरह कुरकुरे रहते हैं"
+        ]
+      }
+    },
+    "biryani-nonveg": {
+      te: {
+        badge: "రాయల్ నాన్-వెజ్ విందు",
+        title: "దమ్ బిర్యానీ & గోంగూర నాటుకోడి పచ్చడి",
+        quote: "సుగంధ భరితమైన బాస్మతి దమ్ బిర్యానీతో పాటు ఘాటైన గోంగూర చికెన్ లేదా గోంగూర రొయ్యల పచ్చడి కలిపి తింటే ఆ రుచే వేరు.",
+        features: [
+          "సిగ్నేచర్ కాంబో: గోంగూర చికెన్ & రొయ్యల పచ్చడి",
+          "రుచి: పుల్లని ఎర్ర గోంగూర, ఘాటైన గుంటూరు కారం & లేత నాటుకోడి",
+          "చిట్కా: బిర్యానీ లేదా బగారా రైస్‌తో తింటే అద్భుతంగా ఉంటుంది"
+        ]
+      },
+      hi: {
+        badge: "शाही नॉन-वेज दावत",
+        title: "दम बिरयानी और आंध्रा गोंगुरा चिकन अचार",
+        quote: "खुशबूदार बासमती दम बिरयानी के साथ तीखा और खट्टा गोंगुरा चिकन या गोंगुरा प्रॉन्स अचार का संगम हर निवाले को खास बना देता है।",
+        features: [
+          "सिग्नेचर जोड़ी: गोंगुरा चिकन और प्रॉन्स अचार",
+          "स्वाद: खट्टी लाल गोंगुरा, तीखी गुंटूर मिर्च और रसीला चिकन",
+          "टिप: बिरयानी या बघारा राइस के साथ लाजवाब लगता है"
+        ]
+      }
+    }
+  };
+
+  const currentPairing = PAIRING_I18N[dishKey]?.[lang];
+  const badge = currentPairing?.badge || data.badge;
+  const title = currentPairing?.title || data.title;
+  const quote = currentPairing?.quote || data.quote;
+  const features = currentPairing?.features || data.features;
+  const orderBtnText = pTrans.pairing_order_btn || "Order This Pairing Item";
+
   pairingDisplayCard.innerHTML = `
     <div class="pairing-img-box">
-      <img src="${data.img}" onerror="handleImgError(this)" alt="${data.title}">
+      <img src="${data.img}" onerror="handleImgError(this)" alt="${title}">
     </div>
 
     <div class="pairing-details-col">
-      <span class="pairing-badge">${data.badge}</span>
-      <h3 class="pairing-dish-title">${data.title}</h3>
-      <p class="pairing-quote">“${data.quote}”</p>
+      <span class="pairing-badge">${badge}</span>
+      <h3 class="pairing-dish-title">${title}</h3>
+      <p class="pairing-quote">“${quote}”</p>
 
       <ul class="pairing-features-list">
-        ${data.features.map((f) => `<li><i class="fa-solid fa-circle-check"></i> ${f}</li>`).join("")}
+        ${features.map((f) => `<li><i class="fa-solid fa-circle-check"></i> ${f}</li>`).join("")}
       </ul>
 
       <div>
         <button class="btn btn-primary" onclick="quickOrderPairing('${data.productId}')">
           <i class="fa-solid fa-basket-shopping"></i>
-          <span>Order This Pairing Item</span>
+          <span>${orderBtnText}</span>
         </button>
       </div>
     </div>
   `;
 }
-
 function quickOrderPairing(productId) {
   const product = PICKLE_PRODUCTS.find((p) => p.id === productId);
   if (!product) return;
@@ -3844,7 +4859,7 @@ function setupNewsletter() {
     const emailInput = document.getElementById("newsletterEmail");
     const email = emailInput ? emailInput.value.trim() : "";
     if (email) {
-      showToast(`Welcome to Home Delights - Inti Ruchulu! Use promo DESI15 for 15% OFF.`);
+      showToast(`Welcome to Home Delights - Inti Ruchulu! We'll keep you posted on fresh batches.`);
       newsletterForm.reset();
     }
   });
@@ -3868,3 +4883,313 @@ function showToast(message) {
   }, 4000);
 }
 window.showToast = showToast;
+
+// -------------------------------------------------------------------
+// 14. Customer Reviews Management (New Beginning System)
+// -------------------------------------------------------------------
+function safeEscape(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// Reviews shared by everyone (loaded from the Google Sheet "Reviews" tab)
+let publicReviews = [];
+
+// This browser's own reviews: shown instantly, dropped once the sheet returns them.
+// Old key held pre-launch test reviews that only lived in the browser — clear it everywhere.
+const REVIEWS_STORAGE_KEY = "hd_customer_reviews_v2";
+try { localStorage.removeItem("hd_customer_reviews"); } catch (e) { /* storage unavailable */ }
+
+function getStoredReviews() {
+  try {
+    const raw = localStorage.getItem(REVIEWS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function getAllReviews() {
+  const publicIds = new Set(publicReviews.map((r) => r.id));
+  const pendingOwn = getStoredReviews().filter((r) => !publicIds.has(r.id));
+  return [...pendingOwn, ...publicReviews];
+}
+
+function loadPublicReviews() {
+  if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("REPLACE_WITH_YOUR_DEPLOYED_URL")) return;
+
+  fetch(`${GOOGLE_SHEET_WEBAPP_URL}?action=reviews`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (!data || data.status !== "success" || !Array.isArray(data.reviews)) return;
+      publicReviews = data.reviews;
+
+      // Forget own reviews the sheet already has, plus any older than 10 minutes that never
+      // reached it (or were deleted from the sheet) — the sheet is the source of truth.
+      const publicIds = new Set(publicReviews.map((r) => r.id));
+      const cutoff = Date.now() - 10 * 60 * 1000;
+      try {
+        const remaining = getStoredReviews().filter((r) => {
+          const createdAt = parseInt(String(r.id || "").replace("REV-", ""), 10) || 0;
+          return !publicIds.has(r.id) && createdAt > cutoff;
+        });
+        localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(remaining));
+      } catch (e) { /* storage unavailable */ }
+
+      renderCustomerReviews();
+    })
+    .catch((e) => console.warn("Public reviews unavailable:", e));
+}
+
+function saveCustomerReview(review) {
+  try {
+    const reviews = getStoredReviews();
+    reviews.unshift(review);
+    localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews));
+    return true;
+  } catch (e) {
+    console.error("Failed to save review", e);
+    return false;
+  }
+}
+
+function openReviewModal() {
+  if (!addReviewModal) return;
+  addReviewModal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+window.openReviewModal = openReviewModal;
+
+function closeReviewModal() {
+  if (!addReviewModal) return;
+  addReviewModal.classList.remove("active");
+  document.body.style.overflow = "";
+}
+window.closeReviewModal = closeReviewModal;
+
+function renderCustomerReviews() {
+  const grid = document.getElementById("customerReviewsGrid");
+  if (!grid) return;
+
+  const reviews = getAllReviews();
+
+  if (reviews.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-reviews-card" style="grid-column: 1 / -1; text-align: center; padding: 48px 24px; background: #FFFDF9; border: 1.5px dashed #D4A373; border-radius: 16px; margin: 12px 0;">
+        <div style="width: 68px; height: 68px; border-radius: 50%; background: #FAF0E6; color: #9E2A2B; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 16px auto;">
+          <i class="fa-solid fa-seedling"></i>
+        </div>
+        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.4rem; color: #4A1516; margin-bottom: 8px;">A Fresh, Pure Beginning!</h3>
+        <p style="color: #6C584C; max-width: 560px; margin: 0 auto 20px auto; font-size: 0.95rem; line-height: 1.6;">
+          Welcome to Home Delights - Inti Ruchulu! We prepare every single delicacy fresh by hand upon order using Ammamma's ancestral kitchen rituals, 100% pure desi cow ghee, and wood-pressed oils. As a newly started business, we invite you to taste our authentic creations and be the first to share your review!
+        </p>
+        <button type="button" class="btn btn-primary" onclick="openReviewModal()" style="display: inline-flex; align-items: center; gap: 8px; margin: 0 auto; padding: 12px 24px;">
+          <i class="fa-solid fa-pen-nib"></i>
+          <span>Write The First Customer Review</span>
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  const cardsHtml = reviews.map((rev) => {
+    const starCount = Math.max(1, Math.min(5, parseInt(rev.rating, 10) || 5));
+    const fullStars = '<i class="fa-solid fa-star"></i>'.repeat(starCount);
+    const emptyStars = '<i class="fa-regular fa-star"></i>'.repeat(5 - starCount);
+    const name = String(rev.name || "Foodie").trim();
+    // Sheets may return a full date string ("Mon Oct 19 2026 00:00:00 GMT+0530 ..."); show it short
+    let date = String(rev.date || "Recent");
+    if (/GMT|T\d\d:/.test(date) && !isNaN(Date.parse(date))) {
+      date = new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+    }
+
+    return `
+      <article class="live-review-card">
+        <div class="live-review-top">
+          <div class="live-review-stars" aria-label="${starCount} out of 5 stars">${fullStars}${emptyStars}</div>
+          <span class="live-review-badge"><i class="fa-solid fa-heart"></i> Tasted & Reviewed</span>
+        </div>
+        ${rev.dish ? `<span class="live-review-dish"><i class="fa-solid fa-utensils"></i>${safeEscape(rev.dish)}</span>` : ""}
+        <p class="live-review-comment">“${safeEscape(rev.comment)}”</p>
+        <div class="live-review-footer">
+          <span class="live-review-avatar" aria-hidden="true">${safeEscape(name.charAt(0).toUpperCase())}</span>
+          <div class="live-review-person">
+            <strong>${safeEscape(name)}</strong>
+            ${rev.city ? `<span>${safeEscape(rev.city)}</span>` : ""}
+          </div>
+          <span class="live-review-date">${safeEscape(date)}</span>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  // 3+ reviews: endless left-to-right marquee (cards duplicated so the loop is seamless).
+  // Fewer: a calm centered row.
+  const useMarquee = reviews.length >= 3;
+  grid.classList.toggle("is-marquee", useMarquee);
+  if (useMarquee) {
+    grid.innerHTML = `
+      <div class="reviews-marquee-track" style="--marquee-duration: ${Math.max(30, reviews.length * 8)}s;">
+        <div class="reviews-marquee-set">${cardsHtml}</div>
+        <div class="reviews-marquee-set" aria-hidden="true">${cardsHtml}</div>
+      </div>
+    `;
+  } else {
+    grid.innerHTML = `<div class="reviews-static-row">${cardsHtml}</div>`;
+  }
+}
+window.renderCustomerReviews = renderCustomerReviews;
+
+function setupCustomerReviews() {
+  if (openReviewModalBtn) {
+    openReviewModalBtn.addEventListener("click", openReviewModal);
+  }
+
+  if (closeReviewModalBtn) {
+    closeReviewModalBtn.addEventListener("click", closeReviewModal);
+  }
+
+  if (addReviewModal) {
+    addReviewModal.addEventListener("click", (e) => {
+      if (e.target === addReviewModal) {
+        closeReviewModal();
+      }
+    });
+  }
+
+  // Star Rating Interaction
+  const starBtns = document.querySelectorAll("#starRatingSelect .star-btn");
+  const ratingInput = document.getElementById("reviewRatingInput");
+  const feedbackLabel = document.getElementById("ratingFeedbackLabel");
+
+  const ratingPhrases = {
+    1: "1.0 / 5.0 - Needs Improvement",
+    2: "2.0 / 5.0 - Decent Traditional Flavor",
+    3: "3.0 / 5.0 - Good Homemade Quality 👍",
+    4: "4.0 / 5.0 - Very Delicious & Fresh! 😋",
+    5: "5.0 / 5.0 - Exceptional Ammamma Taste! ⭐"
+  };
+
+  starBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const selectedRating = parseInt(btn.dataset.rating, 10) || 5;
+      if (ratingInput) ratingInput.value = selectedRating;
+
+      starBtns.forEach((b) => {
+        const r = parseInt(b.dataset.rating, 10);
+        if (r <= selectedRating) {
+          b.classList.add("active");
+        } else {
+          b.classList.remove("active");
+        }
+      });
+
+      if (feedbackLabel && ratingPhrases[selectedRating]) {
+        feedbackLabel.textContent = ratingPhrases[selectedRating];
+      }
+    });
+  });
+
+  // Submit Review Form
+  if (addReviewForm) {
+    addReviewForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("reviewCustName")?.value.trim();
+      const city = document.getElementById("reviewCustCity")?.value.trim();
+      const dish = document.getElementById("reviewDishTasted")?.value || "Ammamma Delicacies";
+      const comment = document.getElementById("reviewComment")?.value.trim();
+      const rating = parseInt(document.getElementById("reviewRatingInput")?.value || "5", 10);
+
+      if (!name) {
+        showToast("Please enter your name ✍️");
+        return;
+      }
+      if (!city) {
+        showToast("Please enter your city/town 📍");
+        return;
+      }
+      if (!comment || comment.length < 10) {
+        showToast("Please share a few words about the taste (at least 10 characters) 💬");
+        return;
+      }
+
+      const orderDate = new Date();
+      const dateStr = orderDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
+      const newReview = {
+        id: "REV-" + Date.now(),
+        name,
+        city,
+        dish,
+        comment,
+        rating,
+        date: dateStr
+      };
+
+      saveCustomerReview(newReview);
+      logReviewToGoogleSheet(newReview);
+      bumpHeroStats({ reviewRating: rating });
+      renderCustomerReviews();
+      closeReviewModal();
+      addReviewForm.reset();
+
+      // Reset stars to 5
+      starBtns.forEach((b) => b.classList.add("active"));
+      if (ratingInput) ratingInput.value = "5";
+      if (feedbackLabel) feedbackLabel.textContent = ratingPhrases[5];
+
+      showToast(`Thank you ${name}! Your review has been published. 🙏`);
+    });
+  }
+
+  // Share via WhatsApp option in Review Form
+  if (whatsappReviewSendBtn) {
+    whatsappReviewSendBtn.addEventListener("click", () => {
+      const name = document.getElementById("reviewCustName")?.value.trim() || "A Foodie Friend";
+      const city = document.getElementById("reviewCustCity")?.value.trim() || "";
+      const dish = document.getElementById("reviewDishTasted")?.value || "Ammamma Delicacies";
+      const comment = document.getElementById("reviewComment")?.value.trim();
+      const rating = parseInt(document.getElementById("reviewRatingInput")?.value || "5", 10);
+
+      if (!comment) {
+        showToast("Please write a few words about the taste first! ✍️");
+        return;
+      }
+
+      const starsVisual = "⭐".repeat(rating);
+      const waMsg = `*Namaste Home Delights - Customer Review* 🌸\n\n` +
+        `*Name:* ${name}\n` +
+        (city ? `*Location:* ${city}\n` : "") +
+        `*Delicacy Tasted:* ${dish}\n` +
+        `*Rating:* ${starsVisual} (${rating}/5)\n\n` +
+        `*Review & Experience:*\n"${comment}"\n\n` +
+        `_Sent from Home Delights Website_`;
+
+      const orderDate = new Date();
+      const dateStr = orderDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
+      // Save locally as well
+      saveCustomerReview({
+        id: "REV-" + Date.now(),
+        name,
+        city: city || "India",
+        dish,
+        comment,
+        rating,
+        date: dateStr
+      });
+      renderCustomerReviews();
+      closeReviewModal();
+      if (addReviewForm) addReviewForm.reset();
+
+      const waUrl = `https://wa.me/917036763589?text=${encodeURIComponent(waMsg)}`;
+      window.open(waUrl, "_blank") || (window.location.href = waUrl);
+    });
+  }
+}

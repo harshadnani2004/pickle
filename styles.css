@@ -1663,6 +1663,226 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 2px;
 }
 
+/* Reviews Action Bar */
+.reviews-action-bar {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.add-review-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  padding: 12px 28px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 16px rgba(158, 42, 43, 0.25);
+  transition: all var(--transition-normal);
+}
+
+.add-review-trigger-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(158, 42, 43, 0.35);
+}
+
+/* Empty Reviews State (New Journey Welcome Card) */
+.empty-reviews-card {
+  grid-column: 1 / -1;
+  background: var(--bg-surface);
+  border-radius: 24px;
+  padding: 48px 32px;
+  text-align: center;
+  border: 1.5px dashed rgba(217, 119, 6, 0.4);
+  box-shadow: var(--shadow-sm);
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.empty-reviews-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--color-gold-soft);
+  color: var(--color-gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 18px;
+}
+
+.empty-reviews-card h3 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  color: var(--color-primary-dark);
+  margin-bottom: 10px;
+}
+
+.empty-reviews-card p {
+  color: var(--text-muted);
+  font-size: 0.94rem;
+  line-height: 1.6;
+  max-width: 580px;
+  margin: 0 auto 12px;
+}
+
+.empty-reviews-sub {
+  color: var(--color-primary) !important;
+  font-weight: 700;
+  font-size: 0.88rem !important;
+}
+
+.empty-reviews-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+/* Review Card Enhancements */
+.review-dish-tag {
+  display: inline-block;
+  background: var(--bg-warm-tint);
+  color: var(--color-primary-dark);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  margin-bottom: 12px;
+  border: 1px solid rgba(158, 42, 43, 0.1);
+}
+
+.reviewer-meta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.review-date-badge {
+  font-size: 0.72rem;
+  color: var(--text-light);
+}
+
+/* Customer Add Review Modal */
+.review-modal-container {
+  max-width: 540px;
+  padding: 32px 28px;
+}
+
+.review-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.review-modal-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--color-gold-soft);
+  color: var(--color-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.review-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.review-star-picker-group {
+  text-align: center;
+  background: #FAF8F4;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+}
+
+.form-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.star-rating-select {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 6px 0 8px;
+}
+
+.star-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  color: #D1D5DB;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+
+.star-btn:hover {
+  transform: scale(1.2);
+}
+
+.star-btn.active {
+  color: #F59E0B;
+}
+
+.rating-feedback-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.review-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-submit-review {
+  flex: 1;
+  min-width: 160px;
+  justify-content: center;
+}
+
+.btn-whatsapp-review {
+  background: #25D366;
+  color: #FFF;
+  border: none;
+  padding: 12px 18px;
+  border-radius: var(--radius-full);
+  font-size: 0.86rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-whatsapp-review:hover {
+  background: #1EBE5D;
+  transform: translateY(-2px);
+}
+
 /* Stats Banner */
 .stats-banner {
   background: var(--bg-dark);
@@ -3220,9 +3440,6 @@ h1, h2, h3, h4, h5, h6 {
   .receipt-card { padding: 20px 16px; }
   .receipt-header { flex-direction: column; align-items: flex-start; gap: 10px; }
   .receipt-meta-grid { grid-template-columns: 1fr 1fr; }
-  .receipt-actions { flex-direction: column; }
-  .btn-receipt-wa { flex: none; width: 100%; }
-  .btn-receipt-download { flex: none; width: 100%; }
   .generated-invoice-img { max-width: 100%; }
   .receipt-total-row { width: 100%; }
 }
@@ -3362,9 +3579,6 @@ h1, h2, h3, h4, h5, h6 {
   .receipt-card { padding: 16px 14px; }
   .receipt-title { font-size: 1rem; }
   .receipt-status-pill { font-size: 0.7rem; padding: 5px 10px; }
-  .btn-receipt-wa { padding: 12px 14px; font-size: 0.85rem; }
-  .btn-receipt-download { padding: 10px 14px; font-size: 0.82rem; }
-  .btn-receipt-print { padding: 10px 14px; font-size: 0.82rem; }
   .security-tamper-box { flex-direction: column; align-items: flex-start; gap: 8px; }
   .sec-hash-code { font-size: 0.88rem; }
 }
@@ -3435,55 +3649,45 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 0 0 2px var(--color-primary-soft);
 }
 
-.payment-mode-selector {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.pay-radio-card {
+.pay-single-banner {
   display: flex;
   align-items: center;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: #FFF;
-  border: 1.5px solid var(--border-subtle);
-  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(158, 42, 43, 0.04);
+  border: 1.5px solid rgba(158, 42, 43, 0.22);
+  margin-top: 6px;
   transition: all var(--transition-fast);
 }
 
-.pay-radio-card input {
-  display: none;
-}
-
-.pay-radio-card.active {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
+.pay-single-banner:hover {
+  background: rgba(158, 42, 43, 0.07);
+  border-color: rgba(158, 42, 43, 0.4);
 }
 
 .pay-card-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .pay-card-content i {
-  font-size: 1.1rem;
+  font-size: 1.35rem;
   color: var(--color-primary);
 }
 
 .pay-card-content strong {
   display: block;
-  font-size: 0.76rem;
-  color: var(--text-main);
-  line-height: 1.1;
+  font-size: 0.84rem;
+  color: var(--color-primary-dark);
+  line-height: 1.2;
 }
 
 .pay-card-content span {
   display: block;
-  font-size: 0.65rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
+  margin-top: 2px;
 }
 
 /* -------------------------------------------------------------------
@@ -3707,9 +3911,17 @@ h1, h2, h3, h4, h5, h6 {
 /* Receipt Actions */
 .receipt-actions {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
-  flex-wrap: wrap;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.receipt-secondary-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
 .receipt-image-preview-card {
@@ -3745,21 +3957,44 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-receipt-wa {
-  flex: 1 1 240px;
+  width: 100%;
   background: #25D366;
   color: #FFF;
-  padding: 12px 16px;
-  border-radius: var(--radius-full);
+  padding: 11px 18px;
+  border-radius: 14px;
   font-weight: 700;
   font-size: 0.88rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   text-decoration: none;
   cursor: pointer;
   border: none;
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3);
   transition: all var(--transition-fast);
+}
+
+.btn-receipt-wa i {
+  font-size: 1.45rem;
+}
+
+.btn-receipt-wa-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.25;
+  text-align: left;
+}
+
+.btn-receipt-wa-text strong {
+  font-size: 0.95rem;
+}
+
+.btn-receipt-wa-text small {
+  font-size: 0.74rem;
+  font-weight: 500;
+  opacity: 0.92;
 }
 
 .btn-receipt-wa:hover {
@@ -3779,6 +4014,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  white-space: nowrap;
   cursor: pointer;
   transition: all var(--transition-fast);
   text-decoration: none;
@@ -3799,7 +4035,9 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  white-space: nowrap;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
@@ -3848,3 +4086,425 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 2px;
 }
 
+/* ===================================================================
+   LUXURY LANGUAGE SWITCHER (EN | తె | हि) - Matches Reference Design
+   =================================================================== */
+.lang-switcher {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(180deg, #183022 0%, #102117 100%);
+  border: 1.5px solid #C59B63;
+  border-radius: 999px;
+  padding: 3px;
+  box-shadow: 0 3px 10px rgba(16, 33, 23, 0.16), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  user-select: none;
+  flex-shrink: 0;
+  margin: 0 10px 0 16px;
+  height: 36px;
+  box-sizing: border-box;
+}
+
+.lang-btn {
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  height: 28px;
+  min-width: 36px;
+  padding: 0 9px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #E7DDCD;
+  border-radius: 999px;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  box-sizing: border-box;
+}
+
+/* Hairline dividers between segments */
+.lang-btn:not(:first-child) {
+  border-left: 1px solid rgba(197, 155, 99, 0.35);
+}
+
+.lang-btn:hover:not(.active) {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.lang-btn.active {
+  background: linear-gradient(180deg, #DCB17A 0%, #C8995E 100%);
+  color: #1A140B;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-weight: 800;
+  border-left-color: transparent !important;
+}
+
+.lang-btn.active + .lang-btn {
+  border-left-color: transparent !important;
+}
+
+/* Mobile Drawer Language Switcher */
+.mobile-lang-switcher {
+  margin: 0 8px 0 0;
+  background: linear-gradient(180deg, #1E3728 0%, #13241A 100%);
+}
+
+/* Language Font Tuning */
+body.lang-te {
+  font-family: 'Noto Sans Telugu', 'Plus Jakarta Sans', sans-serif;
+}
+
+body.lang-te .hero-title,
+body.lang-te .section-title,
+body.lang-te .brand-name {
+  font-family: 'Noto Sans Telugu', 'Playfair Display', serif;
+  letter-spacing: normal;
+  line-height: 1.3;
+}
+
+body.lang-hi {
+  font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif;
+}
+
+body.lang-hi .hero-title,
+body.lang-hi .section-title,
+body.lang-hi .brand-name {
+  font-family: 'Noto Sans Devanagari', 'Playfair Display', serif;
+  letter-spacing: normal;
+  line-height: 1.3;
+}
+
+@media (max-width: 1024px) {
+  .lang-switcher {
+    margin: 0 6px 0 10px;
+    height: 34px;
+    padding: 2px;
+  }
+  .lang-btn {
+    height: 26px;
+    min-width: 32px;
+    font-size: 0.78rem;
+    padding: 0 7px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-actions {
+    gap: 8px;
+  }
+  .lang-switcher {
+    margin: 0 4px;
+    height: 32px;
+    padding: 2px;
+  }
+  .lang-btn {
+    height: 24px;
+    min-width: 28px;
+    padding: 0 6px;
+    font-size: 0.74rem;
+  }
+  .whatsapp-nav-btn {
+    display: none;
+  }
+}
+
+/* Receipt buttons on small phones (kept last so it overrides the base button styles) */
+@media (max-width: 480px) {
+  .btn-receipt-wa { padding: 10px 14px; }
+  .btn-receipt-wa i { font-size: 1.3rem; }
+  .btn-receipt-wa-text strong { font-size: 0.88rem; }
+  .btn-receipt-wa-text small { font-size: 0.7rem; }
+  .btn-receipt-download, .btn-receipt-print { padding: 9px 12px; font-size: 0.8rem; }
+}
+
+/* -------------------------------------------------------------------
+   Live Customer Reviews (from Google Sheet) — static row or marquee
+   Kept at the end so it overrides the older .reviews-grid rules.
+------------------------------------------------------------------- */
+.reviews-grid {
+  display: block;
+  margin-top: 40px;
+  margin-bottom: 56px;
+}
+
+.reviews-static-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+}
+
+.reviews-grid.is-marquee {
+  overflow: hidden;
+  padding: 12px 0 18px;
+  /* Soft fade at both edges so cards glide in and out */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+}
+
+.reviews-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: reviews-marquee-ltr var(--marquee-duration, 40s) linear infinite;
+}
+
+.reviews-grid.is-marquee:hover .reviews-marquee-track,
+.reviews-grid.is-marquee:focus-within .reviews-marquee-track,
+.reviews-grid.is-marquee:active .reviews-marquee-track {
+  animation-play-state: paused;
+}
+
+.reviews-marquee-set {
+  display: flex;
+}
+
+/* Spacing via margin (not gap) so both halves are identical and the loop never jumps */
+.reviews-marquee-set .live-review-card {
+  margin-right: 24px;
+}
+
+/* Left → right: start shifted one full set to the left, glide back to 0 */
+@keyframes reviews-marquee-ltr {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+.live-review-card {
+  width: 340px;
+  flex-shrink: 0;
+  background: var(--bg-surface, #FFF);
+  border: 1px solid var(--border-subtle, #E8DFCF);
+  border-radius: 18px;
+  padding: 22px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 6px 22px rgba(74, 21, 22, 0.06);
+  transition: transform var(--transition-fast, 0.2s), box-shadow var(--transition-fast, 0.2s);
+  box-sizing: border-box;
+}
+
+.live-review-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(74, 21, 22, 0.1);
+}
+
+.live-review-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-review-stars {
+  color: #D4A373;
+  font-size: 0.92rem;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.live-review-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #9E2A2B;
+  background: #F8EDE0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.live-review-dish {
+  align-self: flex-start;
+  max-width: 100%;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #8C2526;
+  background: #FAF3EA;
+  border: 1px solid #EAD8C3;
+  border-radius: 8px;
+  padding: 3px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-review-dish i {
+  font-size: 0.68rem;
+}
+
+.live-review-comment {
+  flex: 1;
+  margin: 0;
+  font-size: 0.93rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: #3A322D;
+  overflow-wrap: anywhere;
+  /* Long reviews stay tidy: max 5 lines, so every card keeps the same height */
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: calc(1.6em * 3);
+}
+
+.live-review-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid #F0E8DC;
+  padding-top: 14px;
+}
+
+.live-review-avatar {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #9E2A2B, #C99A45);
+  color: #FFF;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.live-review-person {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.live-review-person strong {
+  font-size: 0.93rem;
+  color: #2B2118;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-review-person span {
+  font-size: 0.78rem;
+  color: #8A7B70;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-review-date {
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 40%;
+  font-size: 0.72rem;
+  color: #A09489;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 600px) {
+  .reviews-grid { margin-top: 28px; margin-bottom: 40px; }
+  .live-review-card { width: 280px; padding: 18px 16px 14px; }
+  .reviews-marquee-set .live-review-card { margin-right: 16px; }
+  .reviews-static-row { gap: 16px; }
+  .reviews-static-row .live-review-card { width: 100%; max-width: 360px; }
+}
+
+/* Motion-sensitive visitors get a swipeable row instead of auto-scroll */
+@media (prefers-reduced-motion: reduce) {
+  .reviews-grid.is-marquee {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .reviews-marquee-track { animation: none; }
+  .reviews-marquee-set[aria-hidden="true"] { display: none; }
+}
+
+/* Instagram handle links in footer contact + mobile menu: match surrounding text */
+.contact-col p a,
+.mobile-helpline a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.contact-col p a:hover,
+.mobile-helpline a:hover {
+  text-decoration: underline;
+}
+
+/* -------------------------------------------------------------------
+   Single-line desktop header: brand left, nav centre, actions right.
+   Nothing wraps; it tightens step by step until the mobile drawer (≤768px).
+------------------------------------------------------------------- */
+@media (min-width: 769px) {
+  .header-container {
+    max-width: 1480px;
+    gap: 20px;
+  }
+  .brand-logo { flex-shrink: 0; }
+  .brand-name,
+  .brand-sub,
+  .nav-item,
+  .whatsapp-nav-btn span {
+    white-space: nowrap;
+  }
+  .nav-links {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: center;
+    gap: 26px;
+    /* Safety net for very long translated labels: scroll instead of wrapping */
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .header-actions { flex-shrink: 0; }
+}
+
+@media (min-width: 769px) and (max-width: 1360px) {
+  .nav-links { gap: 18px; }
+  .nav-item { font-size: 0.86rem; }
+  .header-actions { gap: 10px; }
+  /* WhatsApp button becomes a round icon */
+  .whatsapp-nav-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+    font-size: 1.15rem;
+  }
+  .whatsapp-nav-btn span { display: none; }
+}
+
+@media (min-width: 769px) and (max-width: 1140px) {
+  .brand-sub { display: none; }
+  .brand-name { font-size: 1.15rem; }
+  .brand-logo-img { width: 44px; height: 44px; }
+  .nav-links { gap: 14px; }
+  .nav-item { font-size: 0.8rem; }
+  .header-container { padding: 10px 16px; gap: 14px; }
+}
+
+@media (min-width: 769px) and (max-width: 960px) {
+  /* Logo alone carries the brand here so all six links still fit */
+  .brand-logo .logo-text { display: none; }
+  .nav-links { gap: 12px; }
+  .nav-item { font-size: 0.78rem; }
+  .header-actions { gap: 6px; }
+}

@@ -32,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@600;700&family=Noto+Sans+Telugu:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
 
   <!-- Font Awesome Icons -->
@@ -47,15 +47,6 @@
 
 <body>
 
-  <!-- Top Announcement Bar -->
-  <div class="announcement-bar" id="announcementBar">
-    <div class="announcement-content">
-      <span class="announcement-badge"><i class="fa-solid fa-fire-flame-curved"></i> FRESH BATCH</span>
-      <span>Authentic Pickles, Pure Ghee Pindi Vantalu, Hot Snacks & Podis! <strong>Use code DESI15 for 15% OFF</strong> on First
-        Order • Free Express Delivery above ₹599</span>
-    </div>
-    <button class="announcement-close" id="closeAnnouncement" aria-label="Close Announcement">&times;</button>
-  </div>
 
   <!-- Main Navigation Header -->
   <header class="site-header" id="siteHeader">
@@ -79,33 +70,48 @@
               <span class="brand-sub">INTI RUCHULU • AMMAMMA SPECIAL</span>
             </div>
           </div>
+          
+          <div class="lang-switcher mobile-lang-switcher" id="mobileLangSwitcher" role="group" aria-label="Mobile Language Selector">
+            <button type="button" class="lang-btn active" data-lang="en" onclick="applyLanguage('en')">EN</button>
+            <button type="button" class="lang-btn" data-lang="te" onclick="applyLanguage('te')">తె</button>
+            <button type="button" class="lang-btn" data-lang="hi" onclick="applyLanguage('hi')">हि</button>
+          </div>
           <button class="mobile-nav-close" id="closeMobileNav" aria-label="Close menu">&times;</button>
         </div>
-        <a href="#hero" class="nav-item active">Home</a>
-        <a href="#shop" class="nav-item">Our Menu (54)</a>
-        <a href="#heritage" class="nav-item">Ammamma's Kitchen</a>
-        <a href="#pairing" class="nav-item">Pairing Guide</a>
-        <a href="#reviews" class="nav-item">Reviews</a>
-        <a href="#faq" class="nav-item">FAQ</a>
+        <a href="#hero" class="nav-item active" data-i18n="nav_home">Home</a>
+        <a href="#shop" class="nav-item" data-i18n="nav_menu">Our Menu (54)</a>
+        <a href="#heritage" class="nav-item" data-i18n="nav_kitchen">Ammamma's Kitchen</a>
+        <a href="#pairing" class="nav-item" data-i18n="nav_pairing">Pairing Guide</a>
+        <a href="#reviews" class="nav-item" data-i18n="nav_reviews">Reviews</a>
+        <a href="#faq" class="nav-item" data-i18n="nav_faq">FAQ</a>
         <div class="mobile-nav-footer">
-          <a href="https://wa.me/919704514247?text=Hello%20Home%20Delights%20-%20Inti%20Ruchulu,%20I%20would%20like%20to%20order%20Ammamma%20Special%20delicacies"
+          <a href="https://wa.me/917036763589?text=Hello%20Home%20Delights%20-%20Inti%20Ruchulu,%20I%20would%20like%20to%20order%20Ammamma%20Special%20delicacies"
             target="_blank" class="btn btn-whatsapp-checkout">
             <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp
           </a>
-          <p class="mobile-helpline"><i class="fa-solid fa-phone"></i> +91 97045 14247</p>
+          <p class="mobile-helpline"><i class="fa-solid fa-phone"></i> Aditya Gurlinka: +91 70367 63589</p>
+          <p class="mobile-helpline"><i class="fa-solid fa-phone"></i> Bunny Gurlinka: +91 63021 39789</p>
+          <p class="mobile-helpline"><i class="fa-brands fa-instagram"></i> <a href="https://www.instagram.com/home_delights_amalapuram/" target="_blank" rel="noopener">@home_delights_amalapuram</a></p>
         </div>
       </nav>
 
       <!-- Header Actions -->
       <div class="header-actions">
+        <!-- Luxury Language Switcher (EN | తె | हि) -->
+        <div class="lang-switcher" id="langSwitcher" role="group" aria-label="Language Selector">
+          <button type="button" class="lang-btn active" data-lang="en" onclick="applyLanguage('en')" title="English">EN</button>
+          <button type="button" class="lang-btn" data-lang="te" onclick="applyLanguage('te')" title="తెలుగు">తె</button>
+          <button type="button" class="lang-btn" data-lang="hi" onclick="applyLanguage('hi')" title="हिन्दी">हि</button>
+        </div>
+
         <button class="icon-btn search-toggle" id="searchToggle" aria-label="Search Delicacies">
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
 
-        <a href="https://wa.me/919704514247?text=Hello%20Home%20Delights%20-%20Inti%20Ruchulu,%20I%20would%20like%20to%20order%20Ammamma%20Special%20delicacies"
+        <a href="https://wa.me/917036763589?text=Hello%20Home%20Delights%20-%20Inti%20Ruchulu,%20I%20would%20like%20to%20order%20Ammamma%20Special%20delicacies"
           target="_blank" class="whatsapp-nav-btn" title="Chat on WhatsApp">
           <i class="fa-brands fa-whatsapp"></i>
-          <span>Order via Chat</span>
+          <span data-i18n="order_via_chat">Order via Chat</span>
         </a>
 
         <!-- Cart Trigger Button -->
@@ -145,44 +151,40 @@
         <div class="hero-content">
           <div class="hero-pill animate-fade-in">
             <img src="./logo.jpg" alt="Home Delights Logo" class="hero-pill-logo" onerror="handleImgError(this)">
-            <span class="pill-text">HOME DELIGHTS • INTI RUCHULU • AMMAMMA SPECIAL</span>
+            <span class="pill-text" data-i18n="hero_pill">HOME DELIGHTS • INTI RUCHULU • AMMAMMA SPECIAL</span>
           </div>
 
-          <h1 class="hero-title animate-fade-up">
-            Authentic Inti Ruchulu.
-            <span class="title-highlight">Pickles, Pure Ghee Pindi Vantalu, Snacks & Podis.</span>
-          </h1>
+          <h1 class="hero-title animate-fade-up" data-i18n="hero_title">Authentic Inti Ruchulu. <span class="title-highlight">Pickles, Pure Ghee Pindi Vantalu, Snacks & Podis.</span></h1>
 
-          <p class="hero-lead animate-fade-up delay-1">
-            Handcrafted with Ammamma's ancestral recipes: sun-cured clay jar pickles, 100% pure desi cow ghee pindi vantalu, crispy wood-pressed snacks, and stone-ground podis. Zero preservatives. 100% Homemade love.
-          </p>
+          <p class="hero-lead animate-fade-up delay-1" data-i18n="hero_lead">Handcrafted with Ammamma's ancestral recipes: sun-cured clay jar pickles, 100% pure desi cow ghee pindi vantalu, crispy wood-pressed snacks, and stone-ground podis. Zero preservatives. 100% Homemade love.</p>
 
           <div class="hero-actions animate-fade-up delay-2">
             <a href="#shop" class="btn btn-primary pulse-btn">
-              <span>Explore The Menu (54 Delights)</span>
+              <span data-i18n="hero_btn_menu">Explore The Menu (54 Delights)</span>
               <i class="fa-solid fa-arrow-right"></i>
             </a>
             <a href="#heritage" class="btn btn-secondary">
               <i class="fa-solid fa-fire-burner"></i>
-              <span>Ammamma's Kitchen Secrets</span>
+              <span data-i18n="hero_btn_heritage">Ammamma's Kitchen Secrets</span>
             </a>
           </div>
 
           <!-- Trust Badges & Metrics -->
           <div class="hero-metrics animate-fade-up delay-3">
             <div class="metric-item">
-              <div class="metric-number">4.9 <span class="stars"><i class="fa-solid fa-star"></i></span></div>
-              <div class="metric-label">15,800+ Delicacies Delivered</div>
+              <!-- Live stats: filled by loadHeroStats() from real orders & reviews in the Google Sheet -->
+              <div class="metric-number"><span id="heroRatingValue">New</span> <span class="stars"><i class="fa-solid fa-star"></i></span></div>
+              <div class="metric-label" id="heroStatsLabel">Fresh Kitchen • Be Our First Customer</div>
             </div>
             <div class="metric-divider"></div>
             <div class="metric-item">
               <div class="metric-number">100%</div>
-              <div class="metric-label">Pure Desi Ghee & Cold-Pressed Oil</div>
+              <div class="metric-label" data-i18n="hero_metric_2">Pure Desi Ghee & Cold-Pressed Oil</div>
             </div>
             <div class="metric-divider"></div>
             <div class="metric-item">
               <div class="metric-number">0%</div>
-              <div class="metric-label">Chemical Preservatives</div>
+              <div class="metric-label" data-i18n="hero_metric_3">Chemical Preservatives</div>
             </div>
           </div>
         </div>
@@ -227,29 +229,29 @@
         <div class="trust-card">
           <div class="trust-icon"><i class="fa-solid fa-cookie-bite"></i></div>
           <div class="trust-text">
-            <h4>100% Pure Desi Cow Ghee</h4>
-            <p>Ariselu, Sunnundalu, Putharekulu & Bobbatlu made with pure cow ghee & bellam</p>
+            <h4 data-i18n="trust_1_title">100% Pure Desi Cow Ghee</h4>
+            <p data-i18n="trust_1_desc">Ariselu, Sunnundalu, Putharekulu & Bobbatlu made with pure cow ghee & bellam</p>
           </div>
         </div>
         <div class="trust-card">
           <div class="trust-icon"><i class="fa-solid fa-jar"></i></div>
           <div class="trust-text">
-            <h4>Sun-Cured In Martabans</h4>
-            <p>Traditional porcelain jars for natural slow fermentation and deep flavor</p>
+            <h4 data-i18n="trust_2_title">Sun-Cured In Martabans</h4>
+            <p data-i18n="trust_2_desc">Traditional porcelain jars for natural slow fermentation and deep flavor</p>
           </div>
         </div>
         <div class="trust-card">
           <div class="trust-icon"><i class="fa-solid fa-mortar-pestle"></i></div>
           <div class="trust-text">
-            <h4>Stone-Pounded Podis</h4>
-            <p>Slow dry-roasted whole spices & herbs pounded in stone mortars</p>
+            <h4 data-i18n="trust_3_title">Stone-Pounded Podis</h4>
+            <p data-i18n="trust_3_desc">Slow dry-roasted whole spices & herbs pounded in stone mortars</p>
           </div>
         </div>
         <div class="trust-card">
           <div class="trust-icon"><i class="fa-solid fa-box-open"></i></div>
           <div class="trust-text">
-            <h4>Airtight Leak-Proof Transit</h4>
-            <p>Vacuum-sealed pouches, airtight food tins & spill-proof jars</p>
+            <h4 data-i18n="trust_4_title">Airtight Leak-Proof Transit</h4>
+            <p data-i18n="trust_4_desc">Vacuum-sealed pouches, airtight food tins & spill-proof jars</p>
           </div>
         </div>
       </div>
@@ -261,11 +263,9 @@
 
         <!-- Section Header -->
         <div class="section-header text-center">
-          <span class="section-tag">THE ARTISANAL PANTRY</span>
-          <h2 class="section-title">Fresh Small-Batch Delights</h2>
-          <p class="section-desc">
-            Authentic Veg Pickles, Non-Veg Pickles, Traditional Pindi Vantalu, Hot Snacks, and Stone-Ground Podis. Handcrafted with Ammamma's heritage recipes and delivered fresh to your doorstep.
-          </p>
+          <span class="section-tag" data-i18n="catalog_tag">THE ARTISANAL PANTRY</span>
+          <h2 class="section-title" data-i18n="catalog_title">Fresh Small-Batch Delights</h2>
+          <p class="section-desc" data-i18n="catalog_desc">Authentic Veg Pickles, Non-Veg Pickles, Traditional Pindi Vantalu, Hot Snacks, and Stone-Ground Podis. Handcrafted with Ammamma's heritage recipes and delivered fresh to your doorstep.</p>
         </div>
 
         <!-- Filter Controls -->
@@ -273,44 +273,44 @@
           <!-- Category Tabs -->
           <div class="category-tabs" id="categoryTabs">
             <button class="cat-btn active" data-category="all">
-              <i class="fa-solid fa-border-all"></i> All Delights (54)
+              <i class="fa-solid fa-border-all"></i> <span data-i18n="cat_all">All Delights (54)</span>
             </button>
             <button class="cat-btn" data-category="veg-pickles">
-              <i class="fa-solid fa-leaf"></i> Veg Pickles (13)
+              <i class="fa-solid fa-leaf"></i> <span data-i18n="cat_veg">Veg Pickles (13)</span>
             </button>
             <button class="cat-btn" data-category="nonveg-pickles">
-              <i class="fa-solid fa-drumstick-bite"></i> Non-Veg Pickles (10)
+              <i class="fa-solid fa-drumstick-bite"></i> <span data-i18n="cat_nonveg">Non-Veg Pickles (10)</span>
             </button>
             <button class="cat-btn" data-category="pindi-vantalu">
-              <i class="fa-solid fa-cookie-bite"></i> Pindi Vantalu (18)
+              <i class="fa-solid fa-cookie-bite"></i> <span data-i18n="cat_sweets">Pindi Vantalu (18)</span>
             </button>
             <button class="cat-btn" data-category="hot-snacks">
-              <i class="fa-solid fa-bowl-food"></i> Hot Snacks (5)
+              <i class="fa-solid fa-bowl-food"></i> <span data-i18n="cat_snacks">Hot Snacks (5)</span>
             </button>
             <button class="cat-btn" data-category="podis">
-              <i class="fa-solid fa-mortar-pestle"></i> Podis (8)
+              <i class="fa-solid fa-mortar-pestle"></i> <span data-i18n="cat_podis">Podis (8)</span>
             </button>
           </div>
 
           <!-- Heat / Spice Filter & Sorter -->
           <div class="secondary-filters">
             <div class="spice-filter-group">
-              <span class="filter-label"><i class="fa-solid fa-pepper-hot"></i> Heat Level:</span>
+              <span class="filter-label"><i class="fa-solid fa-pepper-hot"></i> <span data-i18n="heat_label">Heat Level:</span></span>
               <div class="spice-buttons" id="spiceFilters">
-                <button class="spice-btn active" data-heat="all">Any</button>
-                <button class="spice-btn" data-heat="mild">Mild 🌶️</button>
-                <button class="spice-btn" data-heat="medium">Medium 🌶️🌶️</button>
-                <button class="spice-btn" data-heat="fiery">Fiery 🌶️🌶️🌶️</button>
+                <button class="spice-btn active" data-heat="all" data-i18n="heat_any">Any</button>
+                <button class="spice-btn" data-heat="mild" data-i18n="heat_mild">Mild 🌶️</button>
+                <button class="spice-btn" data-heat="medium" data-i18n="heat_medium">Medium 🌶️🌶️</button>
+                <button class="spice-btn" data-heat="fiery" data-i18n="heat_fiery">Fiery 🌶️🌶️🌶️</button>
               </div>
             </div>
 
             <div class="sort-group">
-              <label for="productSort" class="filter-label">Sort by:</label>
+              <label for="productSort" class="filter-label" data-i18n="sort_label">Sort by:</label>
               <select id="productSort" class="sort-select">
-                <option value="featured">Bestsellers</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="rating">Customer Rating</option>
+                <option value="featured" data-i18n="sort_featured">Bestsellers</option>
+                <option value="price-low" data-i18n="sort_low">Price: Low to High</option>
+                <option value="price-high" data-i18n="sort_high">Price: High to Low</option>
+                <option value="rating" data-i18n="sort_rating">Customer Rating</option>
               </select>
             </div>
           </div>
@@ -340,55 +340,53 @@
                 alt="HOME DELIGHTS - INTI RUCHULU | AMMAMMA SPECIAL Official Brand Logo" class="craft-img">
               <div class="craft-overlay-card">
                 <div class="card-quote-mark">“</div>
-                <p>Food in an Indian home is an emotion of warmth and memory. From sun-matured Avakaya and pure ghee Ariselu to crispy Chekkalu and stone-pounded Kandi Podi, every recipe carries Ammamma's lifelong love.</p>
-                <span class="quote-author">— Ammamma (Home Delights - Inti Ruchulu)</span>
+                <p data-i18n="heritage_quote">Food in an Indian home is an emotion of warmth and memory. From sun-matured Avakaya and pure ghee Ariselu to crispy Chekkalu and stone-pounded Kandi Podi, every recipe carries Ammamma's lifelong love.</p>
+                <span class="quote-author" data-i18n="heritage_author">— Ammamma (Home Delights - Inti Ruchulu)</span>
               </div>
             </div>
           </div>
 
           <div class="heritage-content">
-            <span class="section-tag">UNTOUCHED BY FACTORY SHORTCUTS</span>
-            <h2 class="section-title">Ammamma's 4 Sacred Kitchen Rituals</h2>
-            <p class="heritage-intro">
-              Unlike commercial factory foods that rely on artificial preservatives, palm oils, and industrial machinery, we prepare every delicacy by hand in small batches following sacred traditions.
-            </p>
+            <span class="section-tag" data-i18n="heritage_tag">UNTOUCHED BY FACTORY SHORTCUTS</span>
+            <h2 class="section-title" data-i18n="heritage_title">Ammamma's 4 Sacred Kitchen Rituals</h2>
+            <p class="heritage-intro" data-i18n="heritage_intro">Unlike commercial factory foods that rely on artificial preservatives, palm oils, and industrial machinery, we prepare every delicacy by hand in small batches following sacred traditions.</p>
 
             <div class="ritual-steps">
               <div class="ritual-step">
                 <div class="step-num">01</div>
                 <div class="step-detail">
-                  <h4>Sun-Cured In Porcelain Martabans (Pickles)</h4>
-                  <p>Farmer-procured raw green mangoes, native sour gongura, and tender country meats matured naturally in stone jars under golden sun with wood-pressed oils.</p>
+                  <h4 data-i18n="step_1_title">Sun-Cured In Porcelain Martabans (Pickles)</h4>
+                  <p data-i18n="step_1_desc">Farmer-procured raw green mangoes, native sour gongura, and tender country meats matured naturally in stone jars under golden sun with wood-pressed oils.</p>
                 </div>
               </div>
 
               <div class="ritual-step">
                 <div class="step-num">02</div>
                 <div class="step-detail">
-                  <h4>Pure Desi Cow Ghee & Bellam (Pindi Vantalu)</h4>
-                  <p>Our traditional sweets—Ariselu, Sunnundalu, Putharekulu, and Bobbatlu—are crafted with 100% pure desi cow ghee, aged rice flour, and organic sugarcane jaggery.</p>
+                  <h4 data-i18n="step_2_title">Pure Desi Cow Ghee & Bellam (Pindi Vantalu)</h4>
+                  <p data-i18n="step_2_desc">Our traditional sweets—Ariselu, Sunnundalu, Putharekulu, and Bobbatlu—are crafted with 100% pure desi cow ghee, aged rice flour, and organic sugarcane jaggery.</p>
                 </div>
               </div>
 
               <div class="ritual-step">
                 <div class="step-num">03</div>
                 <div class="step-detail">
-                  <h4>Wood-Pressed Oils & Brass Moulds (Hot Snacks)</h4>
-                  <p>Hand-pressed Jantikalu, Chekkalu, and spiced Masala Nuts fried golden in cold-pressed groundnut oil. Zero palm oil, zero dalda, pure authentic crunch.</p>
+                  <h4 data-i18n="step_3_title">Wood-Pressed Oils & Brass Moulds (Hot Snacks)</h4>
+                  <p data-i18n="step_3_desc">Hand-pressed Jantikalu, Chekkalu, and spiced Masala Nuts fried golden in cold-pressed groundnut oil. Zero palm oil, zero dalda, pure authentic crunch.</p>
                 </div>
               </div>
 
               <div class="ritual-step">
                 <div class="step-num">04</div>
                 <div class="step-detail">
-                  <h4>Stone Mortar & Pestle Pounding (Podis & Karams)</h4>
-                  <p>Dry-roasted country curry leaves, roasted dals, flaxseeds, and whole garlic cloves stone-ground to preserve vital nutrients and explosive natural aroma.</p>
+                  <h4 data-i18n="step_4_title">Stone Mortar & Pestle Pounding (Podis & Karams)</h4>
+                  <p data-i18n="step_4_desc">Dry-roasted country curry leaves, roasted dals, flaxseeds, and whole garlic cloves stone-ground to preserve vital nutrients and explosive natural aroma.</p>
                 </div>
               </div>
             </div>
 
             <div class="heritage-cta">
-              <a href="#shop" class="btn btn-primary">Taste Ammamma Special Delicacies</a>
+              <a href="#shop" class="btn btn-primary" data-i18n="heritage_cta">Taste Ammamma Special Delicacies</a>
             </div>
           </div>
         </div>
@@ -400,32 +398,32 @@
     <section class="pairing-section" id="pairing">
       <div class="pairing-container">
         <div class="section-header text-center">
-          <span class="section-tag">TRADITIONAL FLAVOR PAIRINGS</span>
-          <h2 class="section-title">How Ammamma Pairs Every Dish</h2>
-          <p class="section-desc">Click your favorite South Indian comfort meal to see its soulmate pairing of pickles, podis, sweets, and snacks!</p>
+          <span class="section-tag" data-i18n="pairing_tag">TRADITIONAL FLAVOR PAIRINGS</span>
+          <h2 class="section-title" data-i18n="pairing_title">How Ammamma Pairs Every Dish</h2>
+          <p class="section-desc" data-i18n="pairing_desc">Click your favorite South Indian comfort meal to see its soulmate pairing of pickles, podis, sweets, and snacks!</p>
         </div>
 
         <!-- Dish Selector Buttons -->
         <div class="dish-selector" id="dishSelector">
           <button class="dish-btn active" data-dish="rice-ghee">
             <span class="dish-emoji">🍚</span>
-            <span class="dish-name">Rice, Ghee & Podi</span>
+            <span class="dish-name" data-i18n="dish_1">Rice, Ghee & Podi</span>
           </button>
           <button class="dish-btn" data-dish="dosa-idli">
             <span class="dish-emoji">🥞</span>
-            <span class="dish-name">Dosa, Idli & Chutney</span>
+            <span class="dish-name" data-i18n="dish_2">Dosa, Idli & Chutney</span>
           </button>
           <button class="dish-btn" data-dish="festive-thali">
             <span class="dish-emoji">🍯</span>
-            <span class="dish-name">Festive Pindi Vantalu</span>
+            <span class="dish-name" data-i18n="dish_3">Festive Pindi Vantalu</span>
           </button>
           <button class="dish-btn" data-dish="tea-crunch">
             <span class="dish-emoji">☕</span>
-            <span class="dish-name">Evening Chai & Snacks</span>
+            <span class="dish-name" data-i18n="dish_4">Evening Chai & Snacks</span>
           </button>
           <button class="dish-btn" data-dish="biryani-nonveg">
             <span class="dish-emoji">🍲</span>
-            <span class="dish-name">Biryani & Meat Pachadi</span>
+            <span class="dish-name" data-i18n="dish_5">Biryani & Meat Pachadi</span>
           </button>
         </div>
 
@@ -440,96 +438,40 @@
     <section class="reviews-section" id="reviews">
       <div class="reviews-container">
         <div class="section-header text-center">
-          <span class="section-tag">HONEST WORD OF MOUTH</span>
-          <h2 class="section-title">Loved by Generations of Foodies</h2>
-          <p class="section-desc">Over 8,500 homes across India and abroad trust us for their daily nostalgia.</p>
+          <span class="section-tag" data-i18n="reviews_tag">OUR NEW JOURNEY • HONEST EXPERIENCES</span>
+          <h2 class="section-title" data-i18n="reviews_title">Taste The Tradition & Share Your Review</h2>
+          <p class="section-desc" data-i18n="reviews_desc">Home Delights is freshly handcrafted in small batches with Ammamma's heritage recipes. Have you tasted our delicacies? Be among the first to share your review!</p>
+          
+          <div class="reviews-action-bar">
+            <button class="btn btn-primary add-review-trigger-btn" id="openReviewModalBtn">
+              <i class="fa-solid fa-pen-nib"></i>
+              <span data-i18n="btn_write_review">Write a Review / Share Your Experience</span>
+            </button>
+          </div>
         </div>
 
-        <div class="reviews-grid">
-
-          <div class="review-card">
-            <div class="review-rating">
-              <i class="fa-solid fa-star"></i>
-              <i class="fa-solid fa-star"></i>
-              <i class="fa-solid fa-star"></i>
-              <i class="fa-solid fa-star"></i>
-              <i class="fa-solid fa-star"></i>
-            </div>
-            <p class="review-text">
-              "The Chicken with Bone and Kandi Podi brought tears of joy. Steaming hot rice with golden cow ghee, stone-ground podi, and spicy chicken gravy tastes exactly like Ammamma cooked it back home in Vijayawada!"
-            </p>
-            <div class="reviewer-meta">
-              <div class="reviewer-avatar">SP</div>
-              <div class="reviewer-info">
-                <strong>Srinivas Prasad</strong>
-                <span>Software Architect, Bengaluru</span>
-                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Buyer</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="review-card highlighted-review">
-            <div class="review-badge-top">Top Rated Review</div>
-            <div class="review-rating">
-              <i class="fa-solid fa-star"></i>
-              <i class="fa-solid fa-star"></i>
-              <i class="fa-solid fa-star"></i>
-              <i class="fa-solid fa-star"></i>
-              <i class="fa-solid fa-star"></i>
-            </div>
-            <p class="review-text">
-              "The Neti Ariselu and Dry Fruits Putharekulu are pure culinary perfection! Lavish aroma of pure desi cow ghee, perfect bellam sweetness, and melt-in-mouth freshness. Best festival delicacies we've ever tasted!"
-            </p>
-            <div class="reviewer-meta">
-              <div class="reviewer-avatar">RK</div>
-              <div class="reviewer-info">
-                <strong>Radhika Kapoor</strong>
-                <span>Home Chef & Food Blogger, Mumbai</span>
-                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Buyer</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="review-card">
-            <div class="review-rating">
-              <i class="fa-solid fa-star"></i>
-              <i class="fa-solid fa-star"></i>
-              <i class="fa-solid fa-star"></i>
-              <i class="fa-solid fa-star"></i>
-              <i class="fa-solid fa-star"></i>
-            </div>
-            <p class="review-text">
-              "Ordered an assorted box of Gongura Prawns, Pappu Chekkalu, and Palli Karam to Delhi. The Chekkalu have that authentic Sankranti crunch, the podi is sensational on morning idlis, and everything arrived completely fresh and intact!"
-            </p>
-            <div class="reviewer-meta">
-              <div class="reviewer-avatar">VM</div>
-              <div class="reviewer-info">
-                <strong>Varun Menon</strong>
-                <span>Delhi NCR</span>
-                <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Buyer</span>
-              </div>
-            </div>
-          </div>
-
+        <!-- Dynamic Customer Reviews Grid (Populated via app.js) -->
+        <div class="reviews-grid" id="customerReviewsGrid">
+          <!-- Populated dynamically via renderCustomerReviews() -->
         </div>
 
-        <!-- Social Proof Stats Banner -->
-        <div class="stats-banner">
-          <div class="stat-box">
-            <h3>98.4%</h3>
-            <p>Repeat Order Rate</p>
-          </div>
-          <div class="stat-box">
-            <h3>50,000+</h3>
-            <p>Kg Handcrafted Seasonally</p>
-          </div>
+        <!-- Brand Values & Quality Promises -->
+        <div class="stats-banner brand-promises-banner">
           <div class="stat-box">
             <h3>100%</h3>
-            <p>Pure Desi Ghee & Wood-Pressed Oil</p>
+            <p data-i18n="stat_pure_ghee">Pure Desi Cow Ghee (Pindi Vantalu)</p>
           </div>
           <div class="stat-box">
-            <h3>4.9★</h3>
-            <p>Average Customer Rating</p>
+            <h3>Fresh</h3>
+            <p data-i18n="stat_small_batch">Small-Batch Handcrafted on Order</p>
+          </div>
+          <div class="stat-box">
+            <h3>0%</h3>
+            <p data-i18n="stat_zero_chem">Chemicals, Palm Oil & Preservatives</p>
+          </div>
+          <div class="stat-box">
+            <h3>Wood Ghani</h3>
+            <p data-i18n="stat_cold_pressed">Cold-Pressed Traditional Oils</p>
           </div>
         </div>
 
@@ -540,92 +482,70 @@
     <section class="faq-section" id="faq">
       <div class="faq-container">
         <div class="section-header text-center">
-          <span class="section-tag">COMMON QUERIES</span>
-          <h2 class="section-title">Everything You Need to Know</h2>
-          <p class="section-desc">Have questions regarding shelf-life, ingredients, and packaging? We’ve got answers.</p>
+          <span class="section-tag" data-i18n="faq_tag">COMMON QUERIES</span>
+          <h2 class="section-title" data-i18n="faq_title">Everything You Need to Know</h2>
+          <p class="section-desc" data-i18n="faq_desc">Have questions regarding shelf-life, ingredients, and packaging? We’ve got answers.</p>
         </div>
 
         <div class="faq-accordion" id="faqAccordion">
 
           <div class="faq-item active">
             <button class="faq-question">
-              <span>What is the shelf life of our pickles, sweets, snacks, and podis?</span>
+              <span data-i18n="faq_q1">What is the shelf life of our pickles, sweets, snacks, and podis?</span>
               <i class="fa-solid fa-chevron-down"></i>
             </button>
             <div class="faq-answer">
-              <p>
-                Every category is prepared naturally without chemical preservatives:
-                <br>• <strong>Veg & Non-Veg Pickles:</strong> 6 to 12 Months (sun-cured with natural sea salt and cold-pressed oil; keep clean dry spoon).
-                <br>• <strong>Pindi Vantalu & Sweets:</strong> 25 to 45 Days (Dry Fruits Putharekulu: 30 days in airtight box; Bobbatlu: 7-10 days).
-                <br>• <strong>Hot Snacks:</strong> 45 Days in airtight containers.
-                <br>• <strong>Podis & Karams:</strong> 4 to 6 Months (store in cool dry glass or steel jars).
-              </p>
+              <p data-i18n="faq_a1">Every category is prepared naturally without chemical preservatives:<br>• <strong>Veg & Non-Veg Pickles:</strong> 6 to 12 Months (sun-cured with natural sea salt and cold-pressed oil; keep clean dry spoon).<br>• <strong>Pindi Vantalu & Sweets:</strong> 25 to 45 Days (Dry Fruits Putharekulu: 30 days in airtight box; Bobbatlu: 7-10 days).<br>• <strong>Hot Snacks:</strong> 45 Days in airtight containers.<br>• <strong>Podis & Karams:</strong> 4 to 6 Months (store in cool dry glass or steel jars).</p>
             </div>
           </div>
 
           <div class="faq-item">
             <button class="faq-question">
-              <span>What oils and fats do you use in preparation?</span>
+              <span data-i18n="faq_q2">What oils and fats do you use in preparation?</span>
               <i class="fa-solid fa-chevron-down"></i>
             </button>
             <div class="faq-answer">
-              <p>
-                We use <strong>100% Pure Desi Cow Ghee</strong> for Pindi Vantalu (Ariselu, Sunnundalu, Putharekulu, Bobbatlu, Kajjikayalu) and <strong>wood-pressed (Kachi Ghani) sesame and groundnut oils</strong> for our pickles and hot snacks. We NEVER use cheap palm oil, dalda, vanaspati, or artificial food chemicals.
-              </p>
+              <p data-i18n="faq_a2">We use <strong>100% Pure Desi Cow Ghee</strong> for Pindi Vantalu (Ariselu, Sunnundalu, Putharekulu, Bobbatlu, Kajjikayalu) and <strong>wood-pressed (Kachi Ghani) sesame and groundnut oils</strong> for our pickles and hot snacks. We NEVER use cheap palm oil, dalda, vanaspati, or artificial food chemicals.</p>
             </div>
           </div>
 
           <div class="faq-item">
             <button class="faq-question">
-              <span>How are orders safely packed to prevent breakage and maintain freshness?</span>
+              <span data-i18n="faq_q3">How are orders safely packed to prevent breakage and maintain freshness?</span>
               <i class="fa-solid fa-chevron-down"></i>
             </button>
             <div class="faq-answer">
-              <p>
-                Pickles are packed in leak-proof jars with induction seals; Pindi Vantalu and Hot Snacks are heat-sealed in food-grade moisture-barrier pouches and rigid outer boxes; Podis are sealed in aroma-lock packs. Everything is cushioned with biodegradable transit packaging.
-              </p>
+              <p data-i18n="faq_a3">Pickles are packed in leak-proof jars with induction seals; Pindi Vantalu and Hot Snacks are heat-sealed in food-grade moisture-barrier pouches and rigid outer boxes; Podis are sealed in aroma-lock packs. Everything is cushioned with biodegradable transit packaging.</p>
             </div>
           </div>
 
           <div class="faq-item">
             <button class="faq-question">
-              <span>Can I order directly through WhatsApp?</span>
+              <span data-i18n="faq_q4">Can I order directly through WhatsApp?</span>
               <i class="fa-solid fa-chevron-down"></i>
             </button>
             <div class="faq-answer">
-              <p>
-                Yes! Our WhatsApp ordering is the quickest way. Simply click the "Order on WhatsApp" button anywhere on
-                our site, or add your favorite delicacies to the cart and click "Review Official Bill & Order". Your order list and
-                address will be formatted automatically for one-click confirmation.
-              </p>
+              <p data-i18n="faq_a4">Yes! Our WhatsApp ordering is the quickest way. Simply click the "Order on WhatsApp" button anywhere on our site, or add your favorite delicacies to the cart and click "Review Official Bill & Order". Your order list and address will be formatted automatically for one-click confirmation.</p>
             </div>
           </div>
 
           <div class="faq-item">
             <button class="faq-question">
-              <span>Why do you take orders via WhatsApp and Direct UPI instead of cards?</span>
+              <span data-i18n="faq_q5">Why do you take orders via WhatsApp and Direct UPI instead of cards?</span>
               <i class="fa-solid fa-chevron-down"></i>
             </button>
             <div class="faq-answer">
-              <p>
-                To keep our pricing 100% cost-efficient and pass all savings to you! Online card payment gateways charge
-                heavy 2% to 3% transaction commissions, setup fees, and hidden maintenance costs. By taking orders
-                directly via WhatsApp, Phone Call, Direct UPI (Google Pay / PhonePe / Paytm), and Cash on Delivery
-                (COD), we keep our operational expenses at ₹0 with 100% transparent pricing and personalized order care.
-              </p>
+              <p data-i18n="faq_a5">To keep our pricing 100% cost-efficient and pass all savings to you! Online card payment gateways charge heavy 2% to 3% transaction commissions, setup fees, and hidden maintenance costs. By taking orders directly via WhatsApp, Phone Call, and Direct UPI (Google Pay / PhonePe / Paytm), we keep our operational expenses at ₹0 with 100% transparent pricing and personalized order care. Please note that we do not offer Cash on Delivery (COD) as all delicacies are prepared fresh on order.</p>
             </div>
           </div>
 
           <div class="faq-item">
             <button class="faq-question">
-              <span>Do you ship internationally to the USA, UK, UAE, or Canada?</span>
+              <span data-i18n="faq_q6">Do you ship internationally to the USA, UK, UAE, or Canada?</span>
               <i class="fa-solid fa-chevron-down"></i>
             </button>
             <div class="faq-answer">
-              <p>
-                Yes, we do special international courier consignments via DHL and FedEx Express with vacuum-sealed
-                travel packs and customs clearances. Contact us on WhatsApp for international shipping rates.
-              </p>
+              <p data-i18n="faq_a6">Yes, we do special international courier consignments via DHL and FedEx Express with vacuum-sealed travel packs and customs clearances. Contact us on WhatsApp for international shipping rates.</p>
             </div>
           </div>
 
@@ -637,17 +557,16 @@
     <section class="newsletter-section">
       <div class="newsletter-card">
         <div class="newsletter-content">
-          <span class="section-tag light">NEVER MISS A HARVEST</span>
-          <h2>Join Ammamma's Inti Ruchulu Club</h2>
-          <p>Get notified when fresh seasonal batches of festive Ariselu, special seasonal pickles, and stone-ground podis drop. Plus, get 15% off your first order!
-          </p>
+          <span class="section-tag light" data-i18n="news_tag">NEVER MISS A HARVEST</span>
+          <h2 data-i18n="news_title">Join Ammamma's Inti Ruchulu Club</h2>
+          <p data-i18n="news_desc">Get notified when fresh seasonal batches of festive Ariselu, special seasonal pickles, and stone-ground podis drop.</p>
 
           <form class="newsletter-form" id="newsletterForm">
             <div class="form-group">
               <input type="email" id="newsletterEmail" placeholder="Enter your email address" required>
-              <button type="submit" class="btn btn-primary">Join Club</button>
+              <button type="submit" class="btn btn-primary" data-i18n="news_btn">Join Club</button>
             </div>
-            <small class="form-disclaimer">Zero spam. Just delicious homemade food updates once a month.</small>
+            <small class="form-disclaimer" data-i18n="news_disclaimer">Zero spam. Just delicious homemade food updates once a month.</small>
           </form>
         </div>
       </div>
@@ -667,49 +586,46 @@
             <span class="footer-brand-sub">INTI RUCHULU • AMMAMMA SPECIAL</span>
           </div>
         </div>
-        <p class="footer-about">
-          Restoring pure, nostalgic flavors to modern dining tables. Authentic traditional homemade Veg & Non-Veg Pickles, 100% Pure Ghee Pindi Vantalu, Crispy Hot Snacks, and Stone-Ground Podis crafted with Ammamma's ancestral recipes, cold-pressed oils, and farm-fresh ingredients.
-        </p>
+        <p class="footer-about" data-i18n="footer_about">Restoring pure, nostalgic flavors to modern dining tables. Authentic traditional homemade Veg & Non-Veg Pickles, 100% Pure Ghee Pindi Vantalu, Crispy Hot Snacks, and Stone-Ground Podis crafted with Ammamma's ancestral recipes, cold-pressed oils, and farm-fresh ingredients.</p>
         <div class="footer-socials">
-          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
-          <a href="#" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-          <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          <a href="https://www.instagram.com/home_delights_amalapuram/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://wa.me/917036763589" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
         </div>
       </div>
 
       <div class="footer-col">
-        <h4>Ammamma Special Menu</h4>
+        <h4 data-i18n="foot_menu_title">Ammamma Special Menu</h4>
         <ul class="footer-links">
-          <li><a href="#shop" data-filter="veg-pickles">Veg Pickles (Avakaya, Gongura, Cashew)</a></li>
-          <li><a href="#shop" data-filter="nonveg-pickles">Non-Veg Pickles (Chicken, Prawns, Mutton)</a></li>
-          <li><a href="#shop" data-filter="pindi-vantalu">Pindi Vantalu (Ariselu, Sunnundalu, Putharekulu)</a></li>
-          <li><a href="#shop" data-filter="hot-snacks">Hot Snacks (Masala Cashew, Chekkalu)</a></li>
-          <li><a href="#shop" data-filter="podis">Podis (Karivepaku, Kandi, Curry Karam)</a></li>
+          <li><a href="#shop" data-filter="nonveg-pickles" data-i18n="foot_link_prawns">Prawns Pickle</a></li>
+          <li><a href="#shop" data-filter="pindi-vantalu" data-i18n="foot_link_dryfruit_laddu">Dry Fruits Laddu</a></li>
+          <li><a href="#shop" data-filter="veg-pickles" data-i18n="foot_link_gongura">Gongura Pickle</a></li>
+          <li><a href="#shop" data-filter="nonveg-pickles" data-i18n="foot_link_natukodi">Natu Kodi Pickle</a></li>
+          <li><a href="#shop" data-filter="veg-pickles" data-i18n="foot_link_allam">Allam Pickle</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h4>Craft & Heritage</h4>
+        <h4 data-i18n="foot_craft_title">Craft & Heritage</h4>
         <ul class="footer-links">
-          <li><a href="#heritage">Ammamma's Kitchen Rituals</a></li>
-          <li><a href="#pairing">Flavor Pairing Guide</a></li>
-          <li><a href="#reviews">Customer Stories</a></li>
-          <li><a href="#faq">Storage & Shelf Life</a></li>
-          <li><a href="#faq">Shipping & Returns</a></li>
+          <li><a href="#heritage" data-i18n="foot_link_rituals">Ammamma's Kitchen Rituals</a></li>
+          <li><a href="#pairing" data-i18n="foot_link_pairing">Flavor Pairing Guide</a></li>
+          <li><a href="#reviews" data-i18n="foot_link_reviews">Customer Stories</a></li>
+          <li><a href="#faq" data-i18n="foot_link_storage">Storage & Shelf Life</a></li>
+          <li><a href="#faq" data-i18n="foot_link_shipping">Shipping & Returns</a></li>
         </ul>
       </div>
 
       <div class="footer-col contact-col">
-        <h4>Direct Contact</h4>
-        <p><i class="fa-solid fa-location-dot"></i> Traditional Kitchens, Old Heritage Lane, Rajahmundry & Hyderabad,
-          India</p>
-        <p><i class="fa-solid fa-phone"></i> +91 97045 14247</p>
+        <h4 data-i18n="foot_contact_title">Direct Contact</h4>
+        <p><i class="fa-solid fa-location-dot"></i> Kamanagaruvu Road, Reddipalli, Konaseema District, Andhra Pradesh
+          533213</p>
+        <p><i class="fa-solid fa-phone"></i> Aditya Gurlinka: +91 70367 63589</p>
+        <p><i class="fa-solid fa-phone"></i> Bunny Gurlinka: +91 63021 39789</p>
+        <p><i class="fa-brands fa-instagram"></i> <a href="https://www.instagram.com/home_delights_amalapuram/" target="_blank" rel="noopener">@home_delights_amalapuram</a></p>
         <p><i class="fa-solid fa-envelope"></i> orders@homedelights.com</p>
         <div class="payment-methods">
-          <span><i class="fa-brands fa-whatsapp"></i> WhatsApp Order</span>
-          <span><i class="fa-brands fa-google-pay"></i> Direct UPI</span>
-          <span><i class="fa-solid fa-money-bill-wave"></i> Cash on Delivery</span>
+          <span><i class="fa-brands fa-whatsapp"></i> <span data-i18n="foot_wa_order">WhatsApp Order</span></span>
+          <span><i class="fa-brands fa-google-pay"></i> <span data-i18n="foot_upi">Direct UPI</span></span>
         </div>
       </div>
 
@@ -717,7 +633,7 @@
 
     <div class="footer-bottom">
       <div class="footer-bottom-container">
-        <p>&copy; <span id="currentYear"></span> HOME DELIGHTS - INTI RUCHULU (AMMAMMA SPECIAL). All Rights Reserved.
+        <p>&copy; <span id="currentYear"></span> <span data-i18n="foot_copyright">HOME DELIGHTS - INTI RUCHULU (AMMAMMA SPECIAL). All Rights Reserved.</span>
         </p>
         <div class="footer-legal">
           <a href="#">Privacy Policy</a>
@@ -745,7 +661,7 @@
     <div class="free-shipping-bar" id="freeShippingBar">
       <div class="shipping-info">
         <i class="fa-solid fa-truck-ramp-box"></i>
-        <span id="shippingProgressText">Add ₹599 for FREE Delivery</span>
+        <span id="shippingProgressText" data-i18n="cart_free_delivery">Add ₹1199 for FREE Delivery</span>
       </div>
       <div class="progress-track">
         <div class="progress-fill" id="shippingProgressFill" style="width: 0%;"></div>
@@ -766,11 +682,11 @@
           <span class="subtotal-val" id="cartSubtotal">₹0</span>
         </div>
         <div class="cart-shipping-row">
-          <span>Standard Packing & Fragile Delivery:</span>
-          <span id="cartDeliveryCharge">₹50</span>
+          <span data-i18n="cart_delivery">Standard Packing & Fragile Delivery:</span>
+          <span id="cartDeliveryCharge">Select State</span>
         </div>
         <div class="cart-total-row">
-          <span>Total:</span>
+          <span data-i18n="cart_total">Total:</span>
           <span class="total-val" id="cartTotal">₹0</span>
         </div>
       </div>
@@ -791,35 +707,27 @@
           required autocomplete="street-address">
         <input type="text" id="custCityPin" class="cart-form-input"
           placeholder="City & Pincode (e.g. Hyderabad - 500034) *" required>
+        <select id="custState" class="cart-form-input" required>
+          <option value="" selected disabled data-i18n="state_select">Select State *</option>
+          <option value="Andhra Pradesh" data-i18n="state_ap">Andhra Pradesh (₹90 Delivery)</option>
+          <option value="Other States" data-i18n="state_other">Other States (₹120 Delivery)</option>
+        </select>
 
-        <div class="payment-mode-selector">
-          <label class="pay-radio-card active" id="payModeUpiLabel">
-            <input type="radio" name="orderPaymentMode" value="Direct UPI (GPay / PhonePe / Paytm)" checked
-              id="payModeUpi">
-            <div class="pay-card-content">
-              <i class="fa-solid fa-qrcode"></i>
-              <div>
-                <strong>Direct UPI</strong>
-                <span>GPay / PhonePe / Paytm (0% Fee)</span>
-              </div>
+        <div class="pay-single-banner" id="paySingleBanner">
+          <input type="hidden" name="orderPaymentMode" value="Direct UPI (GPay / PhonePe / Paytm)" id="payModeUpi">
+          <div class="pay-card-content single-payment">
+            <i class="fa-solid fa-qrcode"></i>
+            <div>
+              <strong data-i18n="pay_upi_title">Direct UPI (Google Pay / PhonePe / Paytm / QR)</strong>
+              <span data-i18n="pay_upi_desc">100% Safe Merchant Payment • 0% Transaction Fees</span>
             </div>
-          </label>
-          <label class="pay-radio-card" id="payModeCodLabel">
-            <input type="radio" name="orderPaymentMode" value="Cash on Delivery (COD)" id="payModeCod">
-            <div class="pay-card-content">
-              <i class="fa-solid fa-money-bill-wave"></i>
-              <div>
-                <strong>Cash on Delivery</strong>
-                <span>Pay when order arrives</span>
-              </div>
-            </div>
-          </label>
+          </div>
         </div>
       </div>
 
       <!-- Warranty Badge -->
       <div class="cart-safe-badge" id="cartSafeBadge">
-        <i class="fa-solid fa-shield-halved"></i> 100% Spill-Proof Break-Proof Transit Warranty &bull; Pay via UPI or COD
+        <i class="fa-solid fa-shield-halved"></i> 100% Spill-Proof Break-Proof Transit Warranty &bull; Direct UPI (0% Fee)
       </div>
     </div>
 
@@ -836,12 +744,12 @@
       <div class="cart-actions-column">
         <button class="btn btn-whatsapp-checkout" id="whatsappCheckoutBtn">
           <i class="fa-solid fa-file-invoice"></i>
-          <span>Review Official Bill & Order</span>
+          <span data-i18n="btn_review_bill">Review Official Bill & Order</span>
         </button>
 
-        <a href="tel:+919704514247" class="btn btn-call-order" id="callOrderBtn">
+        <a href="tel:+917036763589" class="btn btn-call-order" id="callOrderBtn">
           <i class="fa-solid fa-phone"></i>
-          <span>Call to Order: +91 97045 14247</span>
+          <span>Call Aditya Gurlinka: +91 70367 63589</span>
         </a>
       </div>
     </div>
@@ -854,6 +762,81 @@
       <div class="modal-content" id="modalContent">
         <!-- Rendered dynamically -->
       </div>
+    </div>
+  </div>
+
+  <!-- WRITE A CUSTOMER REVIEW MODAL -->
+  <div class="modal-overlay" id="addReviewModal">
+    <div class="modal-container review-modal-container">
+      <button class="modal-close" id="closeReviewModalBtn" aria-label="Close Review Form">&times;</button>
+      
+      <div class="review-modal-header">
+        <div class="review-modal-icon">
+          <i class="fa-solid fa-star"></i>
+        </div>
+        <div>
+          <h3 class="modal-title" style="margin-bottom: 2px;">Share Your Review</h3>
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin: 0;">Be one of the first foodies to review our fresh authentic batch!</p>
+        </div>
+      </div>
+
+      <form id="addReviewForm" class="review-form-content">
+        <div class="form-group review-star-picker-group">
+          <label class="form-label">Your Rating *</label>
+          <div class="star-rating-select" id="starRatingSelect">
+            <button type="button" class="star-btn active" data-rating="1" aria-label="1 star"><i class="fa-solid fa-star"></i></button>
+            <button type="button" class="star-btn active" data-rating="2" aria-label="2 stars"><i class="fa-solid fa-star"></i></button>
+            <button type="button" class="star-btn active" data-rating="3" aria-label="3 stars"><i class="fa-solid fa-star"></i></button>
+            <button type="button" class="star-btn active" data-rating="4" aria-label="4 stars"><i class="fa-solid fa-star"></i></button>
+            <button type="button" class="star-btn active" data-rating="5" aria-label="5 stars"><i class="fa-solid fa-star"></i></button>
+          </div>
+          <span class="rating-feedback-label" id="ratingFeedbackLabel">5.0 / 5.0 - Exceptional Ammamma Taste! ⭐</span>
+          <input type="hidden" id="reviewRatingInput" value="5">
+        </div>
+
+        <div class="cart-input-grid">
+          <div>
+            <label class="form-label" for="reviewCustName">Your Full Name *</label>
+            <input type="text" id="reviewCustName" class="cart-form-input" placeholder="e.g. Sailaja Rao" maxlength="60" required>
+          </div>
+          <div>
+            <label class="form-label" for="reviewCustCity">City / Location *</label>
+            <input type="text" id="reviewCustCity" class="cart-form-input" placeholder="e.g. Hyderabad / Bengaluru" maxlength="60" required>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label" for="reviewDishTasted">Delicacy You Tasted *</label>
+          <select id="reviewDishTasted" class="cart-form-input" required>
+            <option value="Chicken Pickle (Bone / Boneless)">Chicken Pickle (Bone / Boneless)</option>
+            <option value="Gongura Chicken / Gongura Prawns">Gongura Chicken / Gongura Prawns</option>
+            <option value="Mutton / Natu Kodi Pickle">Mutton / Natu Kodi Pickle</option>
+            <option value="Avakaya / Magaya Pickle">Avakaya / Magaya Pickle</option>
+            <option value="Garlic & Cashew Pickle">Garlic & Cashew Pickle</option>
+            <option value="Neti Ariselu / Sunnundalu (Pure Ghee)">Neti Ariselu / Sunnundalu (Pure Ghee)</option>
+            <option value="Dry Fruits Putharekulu / Bobbatlu">Dry Fruits Putharekulu / Bobbatlu</option>
+            <option value="Chekkalu / Jantikalu / Hot Snacks">Chekkalu / Jantikalu / Hot Snacks</option>
+            <option value="Kandi Podi / Karivepaku / Garlic Karam">Kandi Podi / Karivepaku / Garlic Karam</option>
+            <option value="Assorted Box of Delights">Assorted Box of Delights</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" for="reviewComment">Your Review & Taste Experience *</label>
+          <textarea id="reviewComment" class="cart-form-input" rows="3" placeholder="Tell us about the aroma, pure cow ghee taste, crunch, spice level, or nostalgic flavors..." minlength="10" maxlength="600" required></textarea>
+        </div>
+
+        <div class="review-form-actions">
+          <button type="submit" class="btn btn-primary btn-submit-review">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Publish Review</span>
+          </button>
+          <button type="button" class="btn btn-whatsapp-review" id="whatsappReviewSendBtn">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span>Share via WhatsApp</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -887,7 +870,7 @@
   </div>
 
   <!-- FLOATING QUICK WHATSAPP BUTTON -->
-  <a href="https://wa.me/919704514247?text=Hello%20Home%20Delights%20-%20Inti%20Ruchulu,%20I%20have%20a%20question%20about%20your%20Ammamma%20Special%20delicacies"
+  <a href="https://wa.me/917036763589?text=Hello%20Home%20Delights%20-%20Inti%20Ruchulu,%20I%20have%20a%20question%20about%20your%20Ammamma%20Special%20delicacies"
     class="floating-whatsapp" target="_blank" rel="noopener" title="Ask on WhatsApp">
     <div class="pulse-ring"></div>
     <i class="fa-brands fa-whatsapp"></i>
@@ -901,11 +884,11 @@
   <nav class="mobile-bottom-bar" id="mobileBottomBar" aria-label="Mobile Navigation">
     <a href="#hero" class="mob-bar-item active" id="mobNavHome">
       <i class="fa-solid fa-house"></i>
-      <span>Home</span>
+      <span data-i18n="mob_home">Home</span>
     </a>
     <a href="#shop" class="mob-bar-item" id="mobNavShop">
       <i class="fa-solid fa-utensils"></i>
-      <span>Menu</span>
+      <span data-i18n="mob_menu">Menu</span>
     </a>
     <a href="#pairing" class="mob-bar-item" id="mobNavPairing">
       <i class="fa-solid fa-utensils"></i>
@@ -916,12 +899,12 @@
         <i class="fa-solid fa-basket-shopping"></i>
         <span class="mob-cart-badge" id="mobCartBadge">0</span>
       </div>
-      <span>Cart</span>
+      <span data-i18n="mob_cart">Cart</span>
     </button>
-    <a href="https://wa.me/919704514247?text=Hello%20Home%20Delights%20-%20Inti%20Ruchulu,%20I%20would%20like%20to%20order%20Ammamma%20Special%20delicacies"
+    <a href="https://wa.me/917036763589?text=Hello%20Home%20Delights%20-%20Inti%20Ruchulu,%20I%20would%20like%20to%20order%20Ammamma%20Special%20delicacies"
       target="_blank" class="mob-bar-item mob-wa" id="mobNavWa">
       <i class="fa-brands fa-whatsapp"></i>
-      <span>Order</span>
+      <span data-i18n="mob_order">Order</span>
     </a>
   </nav>
 
