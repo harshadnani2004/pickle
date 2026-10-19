@@ -15,21 +15,38 @@ window.addEventListener("unhandledrejection", (e) => {
 // Universal Safe Image Error Handler (Prevents broken image icons)
 function handleImgError(img) {
   if (!img) return;
-  const rawFilename = img.src.split("/").pop();
+  const src = img.getAttribute('src') || img.src || '';
+  const rawFilename = src.split('/').pop().split('?')[0].split('#')[0];
   const filename = decodeURIComponent(rawFilename);
-  if (!img.dataset.hasRetried) {
-    img.dataset.hasRetried = "1";
-    img.src = "./assets/images/" + filename;
-  } else if (img.dataset.hasRetried === "1") {
-    img.dataset.hasRetried = "2";
-    img.src = "./Pickles_and_Snacks_Images/" + filename;
-  } else if (img.dataset.hasRetried === "2") {
-    img.dataset.hasRetried = "3";
-    img.src = "./Traditional_Sweets_and_Snacks_Images/" + filename;
-  } else {
-    img.onerror = null;
-    img.src = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20400%20400'%20fill='%23FAF8F4'%3E%3Crect%20width='400'%20height='400'%20fill='%23FAF8F4'/%3E%3Ctext%20x='50%25'%20y='50%25'%20dominant-baseline='middle'%20text-anchor='middle'%20font-family='sans-serif'%20font-size='32'%20fill='%239E2A2B'%3E%F0%9F%8F%BA%20Home%20Delights%3C/text%3E%3C/svg%3E";
+  const encodedFilename = encodeURIComponent(filename).replace(/%2F/g, '/');
+
+  const candidates = [
+    './' + filename,
+    './' + encodedFilename,
+    './' + filename,
+    './' + encodedFilename,
+    './' + filename,
+    './' + encodedFilename,
+    './assets/images/' + filename,
+    './' + filename.toLowerCase().replace(/\s+/g, '_'),
+    './' + filename.toLowerCase().replace(/\s+/g, '_').replace(/\.png$/, '.jpg'),
+    './' + filename.toLowerCase().replace(/\s+/g, '_').replace(/\.jpg$/, '.png')
+  ];
+
+  let retryIdx = parseInt(img.dataset.retryIndex || '0', 10);
+  while (retryIdx < candidates.length) {
+    const candidate = candidates[retryIdx];
+    retryIdx++;
+    const cleanCand = candidate.replace(/^\.\//, '');
+    if (!img.src.endsWith(cleanCand)) {
+      img.dataset.retryIndex = retryIdx.toString();
+      img.src = candidate;
+      return;
+    }
   }
+
+  img.onerror = null;
+  img.src = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20400%20400'%20fill='%23FAF8F4'%3E%3Crect%20width='400'%20height='400'%20fill='%23FAF8F4'/%3E%3Ctext%20x='50%25'%20y='50%25'%20dominant-baseline='middle'%20text-anchor='middle'%20font-family='sans-serif'%20font-size='32'%20fill='%239E2A2B'%3E%F0%9F%8F%BA%20Home%20Delights%3C/text%3E%3C/svg%3E";
 }
 window.handleImgError = handleImgError;
 
@@ -148,7 +165,7 @@ const PICKLE_PRODUCTS = [
     "rating": 5,
     "reviewsCount": 620,
     "badge": "Heritage Bestseller",
-    "image": "./Pickles_and_Snacks_Images/Mango Pickle.png",
+    "image": "./Mango Pickle.png",
     "shortDesc": "The undisputed king of Andhra pickles. Hand-cut raw sour mangoes, stone-ground Guntur mustard (aava pindi), and cold-pressed oil sun-matured in authentic ceramic jars.",
     "oilType": "Cold-Pressed Groundnut & Gingelly Oil",
     "ingredients": "Raw Sour Farm Mangoes, Cold-Pressed Groundnut Oil, Stone-Ground Mustard Seeds (Aava Pindi), Guntur Red Chilli, Fenugreek, Rock Salt.",
@@ -182,7 +199,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 540,
     "badge": "Andhra Signature",
-    "image": "./Pickles_and_Snacks_Images/Gongura Pickle.png",
+    "image": "./Gongura Pickle.png",
     "shortDesc": "Freshly plucked tangy red sorrel leaves slow-cooked on low flame with roasted garlic, red chillies, and aromatic hing tadka. Tangy, spicy, and deeply nostalgic.",
     "oilType": "Wood-Pressed Gingelly (Sesame) Oil",
     "ingredients": "Fresh Red Gongura Leaves, Wood-Pressed Sesame Oil, Roasted Garlic, Dried Guntur Chillies, Mustard, Fenugreek, Asafoetida (Hing), Salt.",
@@ -216,7 +233,7 @@ const PICKLE_PRODUCTS = [
     "rating": 5,
     "reviewsCount": 380,
     "badge": "Royal Delicacy",
-    "image": "./Pickles_and_Snacks_Images/Garlic & Cashew Pickle.png",
+    "image": "./Garlic & Cashew Pickle.png",
     "shortDesc": "Plump, buttery whole cashews and roasted desi garlic pods slow-steeped in a spicy, tangy, and rich mustard-fenugreek pickle gravy. A royal dining experience.",
     "oilType": "Cold-Pressed Groundnut Oil",
     "ingredients": "Premium Whole Cashews (Kaju), Desi Garlic Pods, Cold-Pressed Oil, Red Chilli Powder, Mustard Powder, Fenugreek, Lemon Extract, Rock Salt.",
@@ -250,7 +267,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.8,
     "reviewsCount": 410,
     "badge": "Aromatic & Healthy",
-    "image": "./Pickles_and_Snacks_Images/Garlic Pickle.png",
+    "image": "./Garlic Pickle.png",
     "shortDesc": "Peeled country garlic cloves slow-simmered in aromatic wood-pressed oil with tamarind pulp, roasted cumin, and fiery red chillies. Immense gut-health benefits.",
     "oilType": "Wood-Pressed Gingelly & Mustard Oil",
     "ingredients": "Peeled Desi Garlic (Vellulli), Tamarind Pulp, Wood-Pressed Sesame Oil, Red Chilli, Mustard Seeds, Cumin, Fenugreek, Rock Salt.",
@@ -284,7 +301,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 460,
     "badge": "Vitamin-C Powerhouse",
-    "image": "./Pickles_and_Snacks_Images/Usirikaya Pickle.png",
+    "image": "./Usirikaya Pickle.png",
     "shortDesc": "Whole wild amla (gooseberries) lightly fried in pure oil and sun-steeped with stone-ground mustard, fenugreek, and spicy red chillies. Tangy, astringent, and healing.",
     "oilType": "Cold-Pressed Gingelly Oil",
     "ingredients": "Whole Wild Amla (Usirikaya), Cold-Pressed Sesame Oil, Guntur Red Chilli, Mustard Powder, Roasted Methi, Turmeric, Salt.",
@@ -318,7 +335,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 520,
     "badge": "Fiery Heritage",
-    "image": "./Pickles_and_Snacks_Images/Pandumirchi Pickle.png",
+    "image": "./Pandumirchi Pickle.png",
     "shortDesc": "Vibrant ripe red chillies stone-crushed with aged old tamarind, garlic, and cumin. Rich natural crimson color, sharp punch, and quintessential Andhra spice.",
     "oilType": "Wood-Pressed Groundnut Oil",
     "ingredients": "Fresh Ripe Red Chillies (Pandumirapakayalu), Aged Tamarind, Desi Garlic, Cumin, Mustard Seeds, Cold-Pressed Oil, Sea Salt.",
@@ -352,7 +369,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.8,
     "reviewsCount": 340,
     "badge": "Iron & Folate Rich",
-    "image": "./Pickles_and_Snacks_Images/Curry Leaves Pickle.png",
+    "image": "./Curry Leaves Pickle.png",
     "shortDesc": "Crisp aromatic dark curry leaves stone-ground with tamarind, roasted dals, garlic, and red chillies. Intense herbal aroma packed with natural vitamins.",
     "oilType": "Wood-Pressed Gingelly Oil",
     "ingredients": "Fresh Country Curry Leaves, Aged Tamarind, Garlic, Red Chilli Powder, Urad Dal, Chana Dal, Mustard, Cold-Pressed Oil, Rock Salt.",
@@ -386,7 +403,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 480,
     "badge": "Pesarattu Partner",
-    "image": "./Pickles_and_Snacks_Images/Allam Pickle.png",
+    "image": "./Allam Pickle.png",
     "shortDesc": "Juicy organic ginger crushed with organic unrefined jaggery, tamarind, and roasted spices. The timeless sweet, sour, and spicy harmony loved across Godavari homes.",
     "oilType": "Cold-Pressed Gingelly Oil",
     "ingredients": "Fresh Ginger Root (Allam), Organic Jaggery (Bellam), Tamarind Pulp, Red Chilli Powder, Fenugreek, Mustard, Sesame Oil, Rock Salt.",
@@ -420,7 +437,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.8,
     "reviewsCount": 390,
     "badge": "Tangy Digestive",
-    "image": "./Pickles_and_Snacks_Images/Lemon Pickle.png",
+    "image": "./Lemon Pickle.png",
     "shortDesc": "Thin-skinned country Kagzi lemons sun-cured for weeks in pure rock salt until soft and golden, then tossed in fiery chilli powder and aromatic mustard tadka.",
     "oilType": "Cold-Pressed Gingelly Oil",
     "ingredients": "Thin-Skin Kagzi Lemons (Nimmakayalu), Turmeric, Red Chilli Powder, Roasted Mustard Powder, Cold-Pressed Oil, Sea Salt.",
@@ -454,7 +471,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 510,
     "badge": "Everyday Favorite",
-    "image": "./Pickles_and_Snacks_Images/Tomato Pickle.png",
+    "image": "./Tomato Pickle.png",
     "shortDesc": "Ripe country sour tomatoes sun-dried until chewy and concentrated, then blended with tamarind, roasted garlic cloves, mustard seeds, and rich wood-pressed oil.",
     "oilType": "Wood-Pressed Groundnut Oil",
     "ingredients": "Sun-Dried Country Tomatoes, Tamarind, Garlic Pods, Guntur Red Chilli, Mustard Seeds, Fenugreek, Cold-Pressed Oil, Rock Salt.",
@@ -488,7 +505,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.7,
     "reviewsCount": 310,
     "badge": "Crunchy Winter Special",
-    "image": "./Pickles_and_Snacks_Images/Cauliflower Pickle.png",
+    "image": "./Cauliflower Pickle.png",
     "shortDesc": "Fresh winter cauliflower florets sun-blanched to retain their snappy crisp texture, steeped in rich mustard-chilli avakaya masala and cold-pressed oil.",
     "oilType": "Cold-Pressed Groundnut Oil",
     "ingredients": "Farm-Fresh Cauliflower Florets, Mustard Powder (Aava Pindi), Red Chilli Powder, Turmeric, Lemon Juice, Cold-Pressed Oil, Rock Salt.",
@@ -522,7 +539,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 470,
     "badge": "Godavari Classic",
-    "image": "./Pickles_and_Snacks_Images/Magaya Pickle.png",
+    "image": "./Magaya Pickle.png",
     "shortDesc": "Peeled raw sour mango strips sun-dried to soft tenderness, seasoned with fenugreek powder (menthi pindi), mustard, red chillies, and garlic tadka.",
     "oilType": "Wood-Pressed Gingelly Oil",
     "ingredients": "Peeled Raw Mango Strips (Sun-Dried), Fenugreek Powder (Menthi Pindi), Red Chilli, Mustard Seeds, Sesame Oil, Rock Salt.",
@@ -556,7 +573,7 @@ const PICKLE_PRODUCTS = [
     "rating": 5,
     "reviewsCount": 560,
     "badge": "Sweet & Spicy Royal",
-    "image": "./Pickles_and_Snacks_Images/Bellam Avakaya Pickle.png",
+    "image": "./Bellam Avakaya Pickle.png",
     "shortDesc": "Sweet, sour, and fiery all at once! Crisp raw mango pieces cured with dark organic unrefined jaggery, Kashmiri chillies, mustard, and fragrant fenugreek.",
     "oilType": "Cold-Pressed Groundnut Oil",
     "ingredients": "Raw Mango Cubes, Organic Jaggery (Bellam), Red Chilli Powder, Mustard Powder, Fenugreek, Cold-Pressed Oil, Rock Salt.",
@@ -760,7 +777,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.8,
     "reviewsCount": 310,
     "badge": "River Catch Delight",
-    "image": "./Pickles_and_Snacks_Images/Fish Pickle.png",
+    "image": "./Fish Pickle.png",
     "shortDesc": "Freshwater river fish fillets deboned, crisped in cold-pressed oil, and steeped in tangy tamarind, garlic, and roasted mustard-fenugreek pickle masala.",
     "oilType": "Cold-Pressed Groundnut Oil",
     "ingredients": "Fresh River Fish Fillet Cubes, Cold-Pressed Groundnut Oil, Tamarind, Guntur Chilli, Fresh Ginger-Garlic Paste, Mustard, Fenugreek, Rock Salt.",
@@ -794,7 +811,7 @@ const PICKLE_PRODUCTS = [
     "rating": 5,
     "reviewsCount": 420,
     "badge": "Royal Andhra Mutton",
-    "image": "./Pickles_and_Snacks_Images/Mutton Pickle.png",
+    "image": "./Mutton Pickle.png",
     "shortDesc": "Succulent cubes of tender young grass-fed mutton slow-roasted until crisp on edges and rich inside, steeped in fragrant Guntur spices and wood-pressed oil.",
     "oilType": "Wood-Pressed Groundnut & Gingelly Oil",
     "ingredients": "Prime Cuts Tender Young Mutton, Wood-Pressed Oil, Guntur Red Chilli, Fresh Ginger-Garlic Paste, Whole Garam Masala, Mustard, Fenugreek, Rock Salt.",
@@ -828,7 +845,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 290,
     "badge": "Artisanal Mince",
-    "image": "./Pickles_and_Snacks_Images/Mutton Keema Pickle.png",
+    "image": "./Mutton Keema Pickle.png",
     "shortDesc": "Hand-minced prime mutton slow-simmered in aromatic spiced oil until crisp-dry, then blended into a rich, deeply savory, and spicy thick pickle gravy.",
     "oilType": "Wood-Pressed Groundnut Oil",
     "ingredients": "Hand-Minced Goat Meat (Keema), Wood-Pressed Oil, Red Chilli Powder, Crushed Garlic, Ginger, Cinnamon, Clove, Mustard, Rock Salt.",
@@ -862,7 +879,7 @@ const PICKLE_PRODUCTS = [
     "rating": 5,
     "reviewsCount": 380,
     "badge": "Pure Country Chicken",
-    "image": "./Pickles_and_Snacks_Images/Natu Kodi Boneless Pickle.png",
+    "image": "./Natu Kodi Boneless Pickle.png",
     "shortDesc": "Authentic free-range country chicken boneless bites, slow-braised to intense savory depth with wood-pressed oil, country garlic, and roasted red chillies.",
     "oilType": "Wood-Pressed Groundnut Oil",
     "ingredients": "Free-Range Country Chicken (Boneless), Cold-Pressed Oil, Guntur Red Chilli, Fresh Ginger & Garlic, Cumin, Mustard, Sea Salt.",
@@ -896,7 +913,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 340,
     "badge": "Village Heritage",
-    "image": "./Pickles_and_Snacks_Images/Natu Kodi Pickle.png",
+    "image": "./Natu Kodi Pickle.png",
     "shortDesc": "Bone-in country rooster pieces cooked according to village wedding traditions. Marrow infuses rich flavor into the dense, spicy oil-rich gravy.",
     "oilType": "Wood-Pressed Groundnut Oil",
     "ingredients": "Free-Range Country Rooster Pieces, Cold-Pressed Oil, Red Chilli, Ginger-Garlic Paste, Turmeric, Coriander, Mustard, Salt.",
@@ -930,7 +947,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 380,
     "badge": "Traditional Crunch",
-    "image": "./Pickles_and_Snacks_Images/Jantikalu.png",
+    "image": "./Jantikalu.png",
     "shortDesc": "Crispy, golden spiral savories pressed through traditional jantika brass moulds, made with aged rice flour, roasted gram, ajwain (vaamu), and sesame seeds fried in cold-pressed oil.",
     "oilType": "Pure Desi Ghee & Cold-Pressed Groundnut Oil",
     "ingredients": "Aged Rice Flour, Roasted Gram Flour, Ajwain (Vaamu), White Sesame Seeds, Pure Desi Ghee, Cold-Pressed Groundnut Oil, Rock Salt.",
@@ -964,7 +981,7 @@ const PICKLE_PRODUCTS = [
     "rating": 5,
     "reviewsCount": 420,
     "badge": "Pure Cow Ghee",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Ghee Ariselu.png",
+    "image": "./Ghee Ariselu.png",
     "shortDesc": "The pride of Sankranti! Freshly harvested paddy rice flour soaked and pounded by hand, simmered in organic unrefined jaggery syrup and fried in 100% pure desi cow ghee.",
     "oilType": "100% Pure Desi Cow Ghee (Zero Vanaspati / Zero Oil)",
     "ingredients": "Freshly Harvested Raw Rice Flour, Organic Sugarcane Jaggery (Bellam), Pure Desi Cow Ghee, Cardamom (Elachi).",
@@ -998,7 +1015,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 380,
     "badge": "Sesame Rich",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Nuvvulu Ariselu.png",
+    "image": "./Nuvvulu Ariselu.png",
     "shortDesc": "Golden jaggery rice patties generously coated on both sides with fragrant toasted sesame seeds (nuvvulu), fried gently to achieve a nutty aroma and chewy soft center.",
     "oilType": "Pure Desi Ghee & Cold-Pressed Groundnut Oil",
     "ingredients": "Aged Raw Rice Flour, Dark Organic Jaggery, White Sesame Seeds (Nuvvulu), Cardamom, Pure Cow Ghee.",
@@ -1032,7 +1049,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.8,
     "reviewsCount": 350,
     "badge": "Traditional Recipe",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Ariselu.png",
+    "image": "./Ariselu.png",
     "shortDesc": "Authentic Godavari-style traditional ariselu made with hand-pounded wet rice flour, aromatic jaggery syrup, and cardamom. Perfectly soft with crisp golden edges.",
     "oilType": "Cold-Pressed Groundnut Oil & Pure Cow Ghee",
     "ingredients": "Pounded Wet Rice Flour, Organic Jaggery (Bellam), Cardamom Powder, Desi Ghee, Pure Oil.",
@@ -1066,7 +1083,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 310,
     "badge": "Fresh Coconut Sweet",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Kobbari Ariselu.png",
+    "image": "./Kobbari Ariselu.png",
     "shortDesc": "Infused with freshly scraped coconut flakes that caramelize inside the hot jaggery dough, releasing an irresistible coconut aroma and rich texture with every bite.",
     "oilType": "Cold-Pressed Groundnut Oil & Desi Cow Ghee",
     "ingredients": "Rice Flour, Fresh Grated Coconut (Kobbari), Organic Jaggery, Cardamom, Pure Ghee.",
@@ -1100,7 +1117,7 @@ const PICKLE_PRODUCTS = [
     "rating": 5,
     "reviewsCount": 520,
     "badge": "Strength & Tradition",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Bellam Sunnundalu.png",
+    "image": "./Bellam Sunnundalu.png",
     "shortDesc": "The revered strengthening sweet of Telugu homes. Whole black urad dal roasted slowly over firewood, stone-ground with rich organic jaggery and bound generously with melted pure cow ghee.",
     "oilType": "100% Pure Melted Desi Cow Ghee",
     "ingredients": "Slow-Roasted Urad Dal (Minapappu), Organic Jaggery (Bellam), Pure Desi Cow Ghee, Cardamom.",
@@ -1134,7 +1151,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.8,
     "reviewsCount": 390,
     "badge": "Silky Melt-in-Mouth",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Sugar Sunnundalu.png",
+    "image": "./Sugar Sunnundalu.png",
     "shortDesc": "Silky, melt-in-mouth texture made by combining golden roasted urad dal flour with finely powdered sugar and generous ladles of warm, aromatic desi cow ghee.",
     "oilType": "100% Pure Desi Cow Ghee",
     "ingredients": "Firewood-Roasted Urad Dal, Fine Crystallized Sugar, Pure Desi Cow Ghee, Cardamom Powder.",
@@ -1168,7 +1185,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.7,
     "reviewsCount": 290,
     "badge": "Classic Shells",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Gavvalu.png",
+    "image": "./Gavvalu.png",
     "shortDesc": "Hand-rolled over traditional wooden grooved gavvala chekka to form lovely sea-shell shapes, fried crisp-golden and coated with aromatic sweet syrup.",
     "oilType": "Pure Desi Ghee & Cold-Pressed Groundnut Oil",
     "ingredients": "Wheat Flour (Maida/Atta), Sugar Syrup, Desi Ghee, Cardamom, Cold-Pressed Oil.",
@@ -1202,7 +1219,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 360,
     "badge": "Jaggery Glazed",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Bellam Gavvalu.png",
+    "image": "./Bellam Gavvalu.png",
     "shortDesc": "Shell-shaped crispy golden pastries tossed while hot into rich caramelized organic jaggery syrup infused with cardamom and ginger, giving a glossy sweet crunch.",
     "oilType": "Pure Cow Ghee & Cold-Pressed Groundnut Oil",
     "ingredients": "Flour, Organic Sugarcane Jaggery (Bellam), Fresh Cardamom, Desi Ghee, Oil, Dry Ginger hint.",
@@ -1236,7 +1253,7 @@ const PICKLE_PRODUCTS = [
     "rating": 5,
     "reviewsCount": 440,
     "badge": "Festive Royalty",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Kajjikayalu Kova Stuff.png",
+    "image": "./Kajjikayalu Kova Stuff.png",
     "shortDesc": "Flaky crescent pastry hand-crimped and filled to the brim with rich milk kova (mawa), crushed cashews, almonds, pistachios, cardamom, and sugar.",
     "oilType": "Pure Desi Cow Ghee & Cold-Pressed Oil",
     "ingredients": "Refined Wheat Flour, Fresh Milk Kova (Mawa), Almonds, Cashews, Pistachios, Sugar, Cardamom, Pure Cow Ghee.",
@@ -1270,7 +1287,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.8,
     "reviewsCount": 320,
     "badge": "Heritage Crunch",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Kajjikayalu Coconut Stuff.png",
+    "image": "./Kajjikayalu Coconut Stuff.png",
     "shortDesc": "Crispy, bubbly golden half-moon pastry generously packed with roasted dry coconut (kobbari), semolina, cardamom, sesame, and powdered sugar.",
     "oilType": "Pure Desi Ghee & Wood-Pressed Oil",
     "ingredients": "Wheat Flour, Grated Dry Coconut, Roasted Rava, Sugar/Jaggery, Cardamom, Pure Cow Ghee.",
@@ -1304,7 +1321,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 380,
     "badge": "Iron & Calcium Rich",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Nuvvulu Laddu.png",
+    "image": "./Nuvvulu Laddu.png",
     "shortDesc": "Carefully roasted white sesame seeds bound with rich soft organic jaggery syrup and cardamom into bite-sized nutrition balls. Excellent for bone health.",
     "oilType": "100% Pure Cow Ghee & Natural Sesame Oil",
     "ingredients": "Roasted White Sesame Seeds (Nuvvulu), Organic Jaggery (Bellam), Pure Cow Ghee, Cardamom.",
@@ -1338,7 +1355,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.7,
     "reviewsCount": 260,
     "badge": "Rare Andhra Sweet",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Pokundalu.png",
+    "image": "./Pokundalu.png",
     "shortDesc": "Crisp outside, soft and chewy within! Traditional dough of wet rice flour, fresh coconut, and jaggery shaped into small balls and golden fried.",
     "oilType": "Cold-Pressed Groundnut Oil & Pure Cow Ghee",
     "ingredients": "Aged Wet Rice Flour, Organic Jaggery, Coconut Grated, Cardamom, Desi Ghee, Oil.",
@@ -1372,7 +1389,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 390,
     "badge": "Fresh Coconut & Jaggery",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Kobbari Vundalu.png",
+    "image": "./Kobbari Vundalu.png",
     "shortDesc": "Freshly grated juicy coconut simmered in thick organic jaggery paakam until rich, fragrant, and glossy, then hand-rolled with aromatic green cardamom.",
     "oilType": "Pure Desi Cow Ghee",
     "ingredients": "Fresh Grated Coconut (Kobbari), Organic Sugarcane Jaggery (Bellam), Pure Cow Ghee, Green Cardamom.",
@@ -1406,7 +1423,7 @@ const PICKLE_PRODUCTS = [
     "rating": 5,
     "reviewsCount": 470,
     "badge": "100% Dry Fruits Power",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Special Dry Fruits Laddu.png",
+    "image": "./Special Dry Fruits Laddu.png",
     "shortDesc": "Richly packed with toasted Mamra almonds, whole cashews, pistachios, anjeer (figs), and dates bound with pure desi cow ghee. Zero added white sugar.",
     "oilType": "100% Pure Desi Cow Ghee",
     "ingredients": "California Almonds, Whole Cashews, Iranian Pistachios, Afghan Figs, Arabian Dates, Pure Cow Ghee, Cardamom.",
@@ -1440,7 +1457,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 350,
     "badge": "Superfood Nutrition",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Mix Seeds Laddu.png",
+    "image": "./Mix Seeds Laddu.png",
     "shortDesc": "Slow-roasted superfood seeds—pumpkin, watermelon, sunflower, chia, flax, and sesame—bound with organic jaggery and a touch of pure cow ghee. Loaded with minerals and Omega-3.",
     "oilType": "Pure Cow Ghee & Natural Seed Oils",
     "ingredients": "Pumpkin Seeds, Sunflower Seeds, Flax Seeds, Chia Seeds, White Sesame, Watermelon Seeds, Organic Jaggery, Desi Ghee.",
@@ -1474,7 +1491,7 @@ const PICKLE_PRODUCTS = [
     "rating": 5,
     "reviewsCount": 580,
     "badge": "GI Tagged Atreyapuram Legend",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Dry Fruits Putharekulu.png",
+    "image": "./Dry Fruits Putharekulu.png",
     "shortDesc": "The world-famous 'Paper Sweet' from Atreyapuram! Ultra-delicate wafer-thin rice starch sheets rolled with hand-roasted cashews, pistachios, almonds, and warm desi cow ghee.",
     "oilType": "100% Pure Desi Cow Ghee (Lavishly Brushed)",
     "ingredients": "Ultra-Thin Rice Starch Sheets (Rekulu), Premium Cashews, Almonds, Pistachios, Organic Jaggery/Sugar Powder, Pure Cow Ghee.",
@@ -1508,7 +1525,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.9,
     "reviewsCount": 410,
     "badge": "Hot Ghee Flatbread",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Ghee Bobbatlu.png",
+    "image": "./Ghee Bobbatlu.png",
     "shortDesc": "Thin, golden melt-in-mouth sweet flatbread filled with sweet cooked chana dal (senagapappu) and jaggery puran, roasted golden on cast iron tawa with pure cow ghee.",
     "oilType": "100% Pure Desi Cow Ghee",
     "ingredients": "Fine Wheat Flour, Split Bengal Gram (Chana Dal), Organic Sugarcane Jaggery, Nutmeg, Cardamom, Pure Cow Ghee.",
@@ -1542,7 +1559,7 @@ const PICKLE_PRODUCTS = [
     "rating": 5,
     "reviewsCount": 460,
     "badge": "Party Bestseller",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Masala Cashew.png",
+    "image": "./Masala Cashew.png",
     "shortDesc": "Jumbo W180 grade whole cashews fried golden in pure cow ghee and tossed with hand-pounded Guntur red chillies, black pepper, chaat masala, and fresh curry leaves.",
     "oilType": "Pure Desi Cow Ghee & Cold-Pressed Oil",
     "ingredients": "Jumbo Whole Cashews (Kaju), Pure Desi Cow Ghee, Guntur Red Chilli Powder, Black Salt, Cumin, Curry Leaves, Hing.",
@@ -1576,7 +1593,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.8,
     "reviewsCount": 395,
     "badge": "Street & Cinema Classic",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Masala Palli.png",
+    "image": "./Masala Palli.png",
     "shortDesc": "Crisp-roasted country peanuts tossed in wood-pressed oil with whole crushed garlic cloves, fresh curry leaves, and spicy red chilli seasoning. Addictively crunchy.",
     "oilType": "Cold-Pressed Groundnut Oil",
     "ingredients": "Country Groundnuts (Pallilu), Cold-Pressed Oil, Crushed Desi Garlic, Curry Leaves, Guntur Chilli, Rock Salt.",
@@ -1610,7 +1627,7 @@ const PICKLE_PRODUCTS = [
     "rating": 4.8,
     "reviewsCount": 340,
     "badge": "High Protein Crunch",
-    "image": "./Traditional_Sweets_and_Snacks_Images/Karam Sanagapappu.png",
+    "image": "./Karam Sanagapappu.png",
     "shortDesc": "Golden fried split Bengal gram (chana dal) seasoned with aromatic garlic-chilli podi and crackling curry leaves. Light, brittle, and packed with plant protein.",
     "oilType": "Cold-Pressed Groundnut Oil",
     "ingredients": "Split Bengal Gram (Senagapappu), Cold-Pressed Oil, Red Chilli Powder, Garlic, Curry Leaves, Rock Salt.",
@@ -2008,7 +2025,7 @@ const PAIRING_DATA = {
     badge: "Festival Heritage",
     title: "Grand Festive Feast & Pure Ghee Ariselu",
     quote: "No celebration is complete without Ammamma's Neti Ariselu and Sunnundalu. Lavish cow ghee and organic jaggery melting in your mouth.",
-    img: "./Traditional_Sweets_and_Snacks_Images/Ghee Ariselu.png",
+    img: "./Ghee Ariselu.png",
     features: [
       "Signature Pairing: Neti / Ghee Ariselu & Bellam Sunnundalu",
       "Flavor Profile: Pure Cow Ghee, Bellam Sweetness & Cardamom Warmth",
