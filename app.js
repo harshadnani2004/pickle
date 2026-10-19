@@ -86,12 +86,24 @@ function getCleanPhoneNumbers(rawPhone) {
 window.getCleanPhoneNumbers = getCleanPhoneNumbers;
 
 // -------------------------------------------------------------------
-// Admin Authentication (Phone-Number Gated)
+// Admin Authentication (6-digit PIN lock)
+// Only a hash of the PIN is kept here, so the PIN itself isn't readable in the site code.
+// To change the PIN, put the new hashAdminPin("<new pin>") result in ADMIN_PIN_HASH.
 // -------------------------------------------------------------------
-const ADMIN_PHONE_DIGITS = "7036763589"; // Admin's 10-digit mobile number
+const ADMIN_PIN_HASH = "20447C53";
+
+function hashAdminPin(pin) {
+  const str = `${pin}|HomeDelightsAdminPin`;
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    hash ^= str.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(16).toUpperCase().padStart(8, "0");
+}
 
 function isAdminAuthenticated() {
-  return sessionStorage.getItem("hd_admin_auth") === ADMIN_PHONE_DIGITS;
+  return sessionStorage.getItem("hd_admin_auth") === ADMIN_PIN_HASH;
 }
 
 function promptAdminAuth(onSuccess) {
@@ -108,10 +120,10 @@ function promptAdminAuth(onSuccess) {
     <div style="background:#FFF; border-radius:18px; padding:32px 28px; max-width:340px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
       <div style="font-size:2.6rem; margin-bottom:10px;">🔐</div>
       <h3 style="margin:0 0 6px; color:#1A1A1A; font-size:1.15rem;">Admin Access Required</h3>
-      <p style="margin:0 0 20px; color:#555; font-size:0.88rem; line-height:1.5;">Enter your registered admin mobile number to unlock the Kitchen Dispatch Panel.</p>
-      <input id="adminAuthInput" type="tel" inputmode="numeric" maxlength="10"
-        placeholder="10-digit mobile number"
-        style="width:100%; box-sizing:border-box; padding:13px 14px; border:2px solid #D5C7B5; border-radius:10px; font-size:1rem; text-align:center; outline:none; margin-bottom:12px; letter-spacing:2px;"
+      <p style="margin:0 0 20px; color:#555; font-size:0.88rem; line-height:1.5;">Enter the 6-digit admin PIN to unlock the Kitchen Dispatch Panel.</p>
+      <input id="adminAuthInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6"
+        autocomplete="off" placeholder="••••••"
+        style="width:100%; box-sizing:border-box; padding:13px 14px; border:2px solid #D5C7B5; border-radius:10px; font-size:1.3rem; text-align:center; outline:none; margin-bottom:12px; letter-spacing:8px;"
       />
       <div id="adminAuthError" style="color:#9E2A2B; font-size:0.82rem; margin-bottom:10px; min-height:18px;"></div>
       <button id="adminAuthSubmit"
@@ -133,12 +145,12 @@ function promptAdminAuth(onSuccess) {
 
   const attemptAuth = () => {
     const entered = input.value.trim().replace(/\D/g, "");
-    if (entered === ADMIN_PHONE_DIGITS) {
-      sessionStorage.setItem("hd_admin_auth", ADMIN_PHONE_DIGITS);
+    if (entered.length === 6 && hashAdminPin(entered) === ADMIN_PIN_HASH) {
+      sessionStorage.setItem("hd_admin_auth", ADMIN_PIN_HASH);
       overlay.remove();
       onSuccess();
     } else {
-      errEl.textContent = "❌ Incorrect number. Admin access denied.";
+      errEl.textContent = "❌ Incorrect PIN. Admin access denied.";
       input.style.borderColor = "#9E2A2B";
       input.value = "";
       input.focus();
@@ -2329,7 +2341,6 @@ const TRANSLATIONS = {
 
     hero_pill: "HOME DELIGHTS • INTI RUCHULU • AMMAMMA SPECIAL",
     hero_title: "Authentic Inti Ruchulu. <span class=\"title-highlight\">Pickles, Pure Ghee Pindi Vantalu, Snacks & Podis.</span>",
-    hero_lead: "Handcrafted with Ammamma's ancestral recipes: sun-cured clay jar pickles, 100% pure desi cow ghee pindi vantalu, crispy wood-pressed snacks, and stone-ground podis. Zero preservatives. 100% Homemade love.",
     hero_btn_menu: "Explore The Menu (54 Delights)",
     hero_btn_heritage: "Ammamma's Kitchen Secrets",
     hero_metric_1: "15,800+ Delicacies Delivered",
@@ -2479,7 +2490,6 @@ const TRANSLATIONS = {
 
     hero_pill: "హోమ్ డిలైట్స్ • ఇంటి రుచులు • అమ్మమ్మ స్పెషల్",
     hero_title: "అచ్చమైన ఇంటి రుచులు. <span class=\"title-highlight\">పచ్చళ్ళు, స్వచ్ఛమైన నెయ్యి పిండి వంటలు, స్నాక్స్ & పొడులు.</span>",
-    hero_lead: "అమ్మమ్మ తరాల నాటి చేతివంట: జాడీలలో సహజంగా ఊరిన పచ్చళ్ళు, 100% స్వచ్ఛమైన ఆవు నెయ్యి పిండి వంటలు, గానుగ నూనె కరకరలాడే స్నాక్స్, రోట్లో దంచిన పొడులు. ప్రిజర్వేటివ్‌లు లేని అమృతతుల్యమైన రుచులు.",
     hero_btn_menu: "మెనూ చూడండి (54 రుచులు)",
     hero_btn_heritage: "అమ్మమ్మ వంటింటి రహస్యాలు",
     hero_metric_1: "15,800+ ఆర్డర్లు చేరాయి",
@@ -2629,7 +2639,6 @@ const TRANSLATIONS = {
 
     hero_pill: "होम डिलाइट्स • घर का स्वाद • दादी का प्यार",
     hero_title: "घर का असली और पारंपरिक स्वाद। <span class=\"title-highlight\">अचार, शुद्ध देसी घी की मिठाइयां, नमकीन और पोडी मसाले।</span>",
-    hero_lead: "दादी मां की पारंपरिक रेसिपी से तैयार: चीनी मिट्टी के मर्तबान में धूप में पके अचार, 100% शुद्ध देसी गाय के घी से बनी मिठाइयां, कच्ची घानी तेल के स्नैक्स और सिलबट्टे पर पिसे पोडी मसाले। शून्य प्रिजर्वेटिव।",
     hero_btn_menu: "मेनू देखें (54 व्यंजन)",
     hero_btn_heritage: "दादी की रसोई के राज",
     hero_metric_1: "सच्ची शुरुआत • शुद्ध गुणवत्ता",
@@ -4148,7 +4157,7 @@ function openReceiptModal(order, isAdminVerified = false, isFromUrl = false) {
       // ----------------------------------------------------
       // ADMIN KITCHEN DISPATCH & 1-TAP CUSTOMER REPLY VIEW
       // ----------------------------------------------------
-      const confirmReplyMsg = `Namaste ${order.customerName} garu! 🙏\n\nYour Ammamma Special Delicacies order #${order.orderId} (Rs. ${order.total}) has been verified and confirmed! 🍯\n\nPlease send payment of Rs. ${order.total} to UPI: 7036763589@upi and share the screenshot so we can pack and dispatch your fresh order today!`;
+      const confirmReplyMsg = `Namaste ${order.customerName} garu! 🙏\n\nYour Ammamma Special Delicacies order #${order.orderId} (Rs. ${order.total}) has been verified and confirmed! 🍯\n\nPlease send payment of Rs. ${order.total} to UPI ID: 7036763589-2@ybl and share the screenshot so we can pack and dispatch your fresh order today!`;
       const waDirectUrl = `https://wa.me/${phoneInfo.clean}?text=${encodeURIComponent(confirmReplyMsg)}`;
       const waWebDirectUrl = `https://web.whatsapp.com/send?phone=${phoneInfo.clean}&text=${encodeURIComponent(confirmReplyMsg)}`;
 
@@ -4817,6 +4826,7 @@ function setupScrollEffects() {
     if (navLinks && mobileMenuOverlay) {
       navLinks.classList.toggle("mobile-open", show);
       mobileMenuOverlay.classList.toggle("active", show);
+      document.body.classList.toggle("mobile-menu-open", show);
       document.body.style.overflow = show ? "hidden" : "";
     }
   }

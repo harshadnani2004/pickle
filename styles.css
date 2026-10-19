@@ -4508,3 +4508,479 @@ body.lang-hi .brand-name {
   .nav-item { font-size: 0.78rem; }
   .header-actions { gap: 6px; }
 }
+
+/* -------------------------------------------------------------------
+   Hero menu card (replaces the hero photo) — fully responsive
+------------------------------------------------------------------- */
+.hero-menu-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #FFF;
+  border: 6px solid var(--bg-surface, #FFF);
+  box-shadow: var(--shadow-xl, 0 24px 60px rgba(38, 32, 30, 0.18));
+  text-decoration: none;
+  transition: transform var(--transition-normal, 0.3s), box-shadow var(--transition-normal, 0.3s);
+}
+
+.hero-menu-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 28px 70px rgba(38, 32, 30, 0.24);
+}
+
+.hero-menu-card-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 752 / 1024;
+}
+
+.hero-menu-card-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(43, 33, 24, 0.82);
+  color: #FFF;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+@media (max-width: 1024px) {
+  .hero-visual { max-width: 520px; width: 100%; }
+}
+
+@media (max-width: 600px) {
+  .hero-visual { max-width: 100%; }
+  .hero-menu-card {
+    border-width: 3px;
+    border-radius: 14px;
+  }
+  .hero-menu-card-hint {
+    font-size: 0.72rem;
+    padding: 6px 12px;
+    bottom: 10px;
+  }
+}
+
+/* Small phones: the header language switch covered the brand name.
+   It stays available inside the ☰ menu drawer (.mobile-lang-switcher). */
+@media (max-width: 480px) {
+  .header-actions > .lang-switcher { display: none; }
+}
+
+/* Tablet & phone hero order: pill → title → MENU CARD → buttons → stats.
+   .hero-content "dissolves" (display: contents) so its children and the
+   menu card become siblings in the one-column grid and can be reordered. */
+@media (max-width: 1024px) {
+  .hero-container { row-gap: 0; }
+  .hero-content { display: contents; }
+  .hero-content > .hero-pill { order: 1; justify-self: center; }
+  .hero-content > .hero-title { order: 2; }
+  .hero-visual { order: 3; margin: 4px auto 26px; }
+  .hero-content > .hero-actions { order: 4; }
+  .hero-content > .hero-metrics { order: 5; }
+}
+
+/* -------------------------------------------------------------------
+   Mobile menu polish (≤768px)
+   Hamburger → round button matching search/cart.
+   Drawer header → row 1: logo + name | close, row 2: full-width language switch.
+------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--bg-surface, #FFF);
+    border: 1px solid var(--border-subtle, #E8DFCF);
+    cursor: pointer;
+    transition: border-color var(--transition-fast, 0.2s), background var(--transition-fast, 0.2s);
+  }
+  .mobile-menu-toggle span {
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-primary, #9E2A2B);
+  }
+  .mobile-menu-toggle span:nth-child(2) { width: 13px; align-self: center; }
+  .mobile-menu-toggle:hover,
+  .mobile-menu-toggle:active {
+    border-color: var(--color-primary, #9E2A2B);
+    background: #FBF4EC;
+  }
+
+  .nav-links { padding: 18px 20px 28px; }
+
+  .mobile-nav-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "brand close"
+      "lang  lang";
+    align-items: center;
+    row-gap: 16px;
+    column-gap: 10px;
+    padding-bottom: 18px;
+  }
+  .mobile-nav-header .mobile-brand {
+    grid-area: brand;
+    min-width: 0;
+    gap: 10px;
+  }
+  .mobile-nav-header .brand-logo-img-small {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+  .mobile-nav-header .logo-text {
+    min-width: 0;
+    gap: 2px;
+  }
+  .mobile-nav-header .brand-name {
+    font-size: 1.12rem !important;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mobile-nav-header .brand-sub {
+    display: block;
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-nav-close {
+    grid-area: close;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    background: #F6EEE4;
+    color: var(--color-primary, #9E2A2B);
+    font-size: 1.5rem;
+    line-height: 1;
+    border: none;
+    cursor: pointer;
+  }
+  .mobile-nav-close:hover,
+  .mobile-nav-close:active { background: #EEDFCD; }
+
+  .mobile-nav-header .mobile-lang-switcher {
+    grid-area: lang;
+    display: flex;
+    width: 100%;
+    height: 40px;
+    margin: 0;
+    padding: 3px;
+    box-sizing: border-box;
+  }
+  .mobile-nav-header .mobile-lang-switcher .lang-btn {
+    flex: 1;
+    height: 32px;
+    min-width: 0;
+    font-size: 0.9rem;
+  }
+}
+
+/* Drawer was clipped to the header's height: backdrop-filter on .site-header makes it the
+   containing block for its position:fixed children (drawer + overlay). On phones the blur
+   moves to a ::before layer, so the drawer can fill the full screen height again. */
+@media (max-width: 768px) {
+  .site-header {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .site-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    pointer-events: none;
+  }
+  /* While the menu is open, lift the header (and its drawer) above the bottom tab bar & WhatsApp button */
+  body.mobile-menu-open .site-header { z-index: 1500; }
+  body.mobile-menu-open .mobile-bottom-bar,
+  body.mobile-menu-open .floating-whatsapp { display: none; }
+
+  /* Brand fits the drawer width without being cut off */
+  .mobile-nav-header .brand-name { font-size: 1rem !important; }
+}
+
+/* Heritage logo + Ammamma quote on tablets/phones: stack them (logo on top, quote full
+   width below) instead of squeezing the quote into a thin column beside the logo. */
+@media (max-width: 768px) {
+  .craft-image-frame {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 22px;
+    padding: 28px 16px 16px;
+  }
+  .craft-img {
+    width: 72%;
+    max-width: 260px;
+    max-height: none;
+    aspect-ratio: 1 / 1;
+    align-self: center;
+  }
+  .craft-overlay-card {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    padding: 18px 18px 16px;
+    background: var(--bg-dark, #1E1918);
+  }
+  .craft-overlay-card p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .quote-author { display: block; margin-top: 10px; }
+}
+
+/* -------------------------------------------------------------------
+   Animated heritage seal (Ammamma's Kitchen logo)
+   The logo itself never spins (its text stays readable); instead:
+   dotted gold ring turns slowly, a gold shine sweeps the rim,
+   three spice-coloured dots orbit, and the seal floats with a warm glow.
+------------------------------------------------------------------- */
+.craft-logo-orbit {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  animation: seal-float 6s ease-in-out infinite;
+}
+
+.craft-logo-orbit .craft-img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  animation: seal-glow 6s ease-in-out infinite;
+}
+
+.orbit-ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Slow dotted gold ring, like a temple rangoli border */
+.orbit-ring-dotted {
+  inset: -16px;
+  border: 2px dotted rgba(201, 154, 69, 0.75);
+  animation: seal-spin 40s linear infinite;
+}
+
+/* Soft gold light sweeping around the rim */
+.orbit-ring-shine {
+  inset: -7px;
+  z-index: 1;
+  background: conic-gradient(from 0deg,
+    transparent 0deg,
+    rgba(245, 197, 99, 0.0) 200deg,
+    rgba(245, 197, 99, 0.85) 300deg,
+    rgba(255, 240, 200, 1) 340deg,
+    transparent 360deg);
+  -webkit-mask: radial-gradient(circle, transparent 64%, #000 66%, #000 70%, transparent 72%);
+  mask: radial-gradient(circle, transparent 64%, #000 66%, #000 70%, transparent 72%);
+  animation: seal-spin 7s linear infinite;
+}
+
+/* Three spice dots orbiting: turmeric, chilli, curry leaf */
+.orbit-spices {
+  position: absolute;
+  inset: -16px;
+  z-index: 3;
+  pointer-events: none;
+  animation: seal-spin 18s linear infinite reverse;
+}
+
+.orbit-spices i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Place each dot on the ring (radius = half the orbit box) */
+.orbit-spices i:nth-child(1) { color: #E8A317; background: #E8A317; transform: rotate(0deg)   translateY(calc(-50% - 50cqw)); }
+.orbit-spices i:nth-child(2) { color: #C0392B; background: #C0392B; transform: rotate(120deg) translateY(calc(-50% - 50cqw)); }
+.orbit-spices i:nth-child(3) { color: #3E7C3A; background: #3E7C3A; transform: rotate(240deg) translateY(calc(-50% - 50cqw)); }
+.orbit-spices { container-type: inline-size; }
+
+@keyframes seal-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes seal-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes seal-glow {
+  0%, 100% { box-shadow: 0 16px 40px rgba(158, 42, 43, 0.20), 0 0 0 0 rgba(201, 154, 69, 0); }
+  50% { box-shadow: 0 22px 50px rgba(158, 42, 43, 0.28), 0 0 34px 6px rgba(201, 154, 69, 0.35); }
+}
+
+/* Hover: logo leans in a little (the float lives on the wrapper, so both work together) */
+.craft-image-frame:hover .craft-logo-orbit .craft-img {
+  transform: scale(1.04) rotate(-3deg);
+}
+
+@media (max-width: 768px) {
+  .craft-logo-orbit {
+    width: 72%;
+    max-width: 260px;
+    align-self: center;
+    margin: 10px auto 6px;
+  }
+  .craft-logo-orbit .craft-img { width: 100%; max-width: none; }
+  .orbit-ring-dotted, .orbit-spices { inset: -12px; }
+  .orbit-ring-shine { inset: -5px; }
+  .orbit-spices i { width: 10px; height: 10px; margin: -5px 0 0 -5px; }
+}
+
+/* Visitors who turn off motion get the still, glowing seal */
+@media (prefers-reduced-motion: reduce) {
+  .craft-logo-orbit,
+  .craft-logo-orbit .craft-img,
+  .orbit-ring-dotted,
+  .orbit-ring-shine,
+  .orbit-spices { animation: none; }
+}
+
+/* --- Seal, richer layers: breathing halo, rangoli mandala, counter ring, sparkles, spice trails --- */
+.craft-logo-orbit { container-type: inline-size; }
+
+/* Warm golden halo breathing behind the seal */
+.orbit-halo {
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(245, 197, 99, 0.45) 0%, rgba(232, 163, 23, 0.18) 45%, transparent 70%);
+  animation: halo-breathe 6s ease-in-out infinite;
+}
+
+/* Rangoli mandala: gold petals in a ring, turning very slowly */
+.orbit-mandala {
+  position: absolute;
+  inset: -11%;
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    repeating-conic-gradient(from 0deg, rgba(201, 154, 69, 0.8) 0deg 5deg, transparent 5deg 15deg);
+  -webkit-mask: radial-gradient(circle, transparent 79%, #000 80%, #000 93%, transparent 94%);
+  mask: radial-gradient(circle, transparent 79%, #000 80%, #000 93%, transparent 94%);
+  animation: seal-spin 60s linear infinite;
+  opacity: 0.85;
+}
+
+/* Thin dashed maroon-gold ring turning the other way */
+.orbit-ring-dashed {
+  inset: -4%;
+  border: 1.5px dashed rgba(158, 42, 43, 0.35);
+  animation: seal-spin 25s linear infinite reverse;
+}
+
+/* Twinkling four-point gold stars around the seal */
+.orbit-sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.orbit-sparkles i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  background: linear-gradient(135deg, #FFF3C4, #E8A317);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  opacity: 0;
+  animation: sparkle-twinkle 3.6s ease-in-out infinite;
+}
+.orbit-sparkles i:nth-child(1) { --a: 20deg;  animation-delay: 0s; }
+.orbit-sparkles i:nth-child(2) { --a: 85deg;  animation-delay: 0.6s; width: 10px; height: 10px; margin: -5px 0 0 -5px; }
+.orbit-sparkles i:nth-child(3) { --a: 150deg; animation-delay: 1.2s; }
+.orbit-sparkles i:nth-child(4) { --a: 210deg; animation-delay: 1.8s; width: 10px; height: 10px; margin: -5px 0 0 -5px; }
+.orbit-sparkles i:nth-child(5) { --a: 275deg; animation-delay: 2.4s; }
+.orbit-sparkles i:nth-child(6) { --a: 330deg; animation-delay: 3.0s; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; }
+
+/* Spice dots get soft glowing trails (dots orbit anticlockwise, so the trail sits to their right) */
+.orbit-spices i::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 34px;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, currentColor, transparent);
+  opacity: 0.55;
+  filter: blur(1px);
+}
+
+@keyframes halo-breathe {
+  0%, 100% { transform: scale(0.94); opacity: 0.75; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(-50cqw - 26px)) scale(0.3) rotate(0deg); }
+  45% { opacity: 1; transform: rotate(var(--a)) translateY(calc(-50cqw - 26px)) scale(1.15) rotate(45deg); }
+  70% { opacity: 0.6; transform: rotate(var(--a)) translateY(calc(-50cqw - 26px)) scale(0.8) rotate(80deg); }
+}
+
+@media (max-width: 768px) {
+  .craft-logo-orbit { margin: 30px auto 26px; }
+  .craft-image-frame { padding-top: 22px; }
+  @keyframes sparkle-twinkle {
+    0%, 100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(-50cqw - 18px)) scale(0.3) rotate(0deg); }
+    45% { opacity: 1; transform: rotate(var(--a)) translateY(calc(-50cqw - 18px)) scale(1.1) rotate(45deg); }
+    70% { opacity: 0.6; transform: rotate(var(--a)) translateY(calc(-50cqw - 18px)) scale(0.8) rotate(80deg); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-halo, .orbit-mandala, .orbit-ring-dashed, .orbit-sparkles i { animation: none; }
+  .orbit-sparkles { display: none; }
+}

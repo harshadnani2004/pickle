@@ -156,8 +156,6 @@
 
           <h1 class="hero-title animate-fade-up" data-i18n="hero_title">Authentic Inti Ruchulu. <span class="title-highlight">Pickles, Pure Ghee Pindi Vantalu, Snacks & Podis.</span></h1>
 
-          <p class="hero-lead animate-fade-up delay-1" data-i18n="hero_lead">Handcrafted with Ammamma's ancestral recipes: sun-cured clay jar pickles, 100% pure desi cow ghee pindi vantalu, crispy wood-pressed snacks, and stone-ground podis. Zero preservatives. 100% Homemade love.</p>
-
           <div class="hero-actions animate-fade-up delay-2">
             <a href="#shop" class="btn btn-primary pulse-btn">
               <span data-i18n="hero_btn_menu">Explore The Menu (54 Delights)</span>
@@ -191,34 +189,13 @@
 
         <!-- Right Visual with Interactive Floating Cards -->
         <div class="hero-visual animate-scale-in">
-          <div class="hero-image-wrapper">
-            <img src="./hero_pickle.jpg" onerror="handleImgError(this)"
-              alt="Artisanal Telugu Pickles, Pure Ghee Pindi Vantalu, Hot Snacks and Stone Ground Podis" class="hero-image" id="heroImage">
-            <div class="hero-overlay-gradient"></div>
-
-            <!-- Floating Spice Card 1 -->
-            <div class="floating-badge badge-top-right">
-              <div class="badge-icon"><i class="fa-solid fa-award"></i></div>
-              <div class="badge-info">
-                <strong>Pure Desi Cow Ghee</strong>
-                <span>Pindi Vantalu & Sweets</span>
-              </div>
-            </div>
-
-            <!-- Floating Spice Card 2 -->
-            <div class="floating-badge badge-bottom-left">
-              <div class="badge-icon"><i class="fa-solid fa-mortar-pestle"></i></div>
-              <div class="badge-info">
-                <strong>Stone Ground Podis</strong>
-                <span>Clay-Jar Pickles & Snacks</span>
-              </div>
-            </div>
-
-            <!-- Interactive Authenticity Seal displaying official logo -->
-            <div class="authenticity-stamp" title="Home Delights - Inti Ruchulu Official Seal">
-              <img src="./logo.jpg" alt="Home Delights - Ammamma Special Seal" class="hero-seal-logo">
-            </div>
-          </div>
+          <!-- Official menu card with prices (tap opens full size for zooming on phones) -->
+          <a href="./menu-card.png" target="_blank" rel="noopener" class="hero-menu-card"
+            aria-label="Open the full Home Delights menu card">
+            <img src="./menu-card.png" alt="Home Delights - Inti Ruchulu Ammamma Special menu card with prices for Veg Pickles, Non-Veg Pickles, Pindi Vantalu, Hot Snacks and Podis"
+              class="hero-menu-card-img" width="752" height="1024" fetchpriority="high">
+            <span class="hero-menu-card-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> Tap to view full menu</span>
+          </a>
         </div>
       </div>
     </section>
@@ -336,8 +313,18 @@
         <div class="heritage-grid">
           <div class="heritage-media">
             <div class="craft-image-frame">
-              <img src="./logo.jpg" onerror="handleImgError(this)"
-                alt="HOME DELIGHTS - INTI RUCHULU | AMMAMMA SPECIAL Official Brand Logo" class="craft-img">
+              <!-- Animated seal: rotating gold rings + orbiting spice dots around a gently floating logo -->
+              <div class="craft-logo-orbit">
+                <span class="orbit-halo" aria-hidden="true"></span>
+                <span class="orbit-mandala" aria-hidden="true"></span>
+                <span class="orbit-ring orbit-ring-dashed" aria-hidden="true"></span>
+                <span class="orbit-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                <span class="orbit-ring orbit-ring-dotted" aria-hidden="true"></span>
+                <span class="orbit-ring orbit-ring-shine" aria-hidden="true"></span>
+                <span class="orbit-spices" aria-hidden="true"><i></i><i></i><i></i></span>
+                <img src="./logo.jpg" onerror="handleImgError(this)"
+                  alt="HOME DELIGHTS - INTI RUCHULU | AMMAMMA SPECIAL Official Brand Logo" class="craft-img">
+              </div>
               <div class="craft-overlay-card">
                 <div class="card-quote-mark">“</div>
                 <p data-i18n="heritage_quote">Food in an Indian home is an emotion of warmth and memory. From sun-matured Avakaya and pure ghee Ariselu to crispy Chekkalu and stone-pounded Kandi Podi, every recipe carries Ammamma's lifelong love.</p>
