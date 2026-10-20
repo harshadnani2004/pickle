@@ -5491,3 +5491,8 @@ body.lang-hi .brand-name {
   .hero-content .hero-pill { margin-left: 0; margin-right: 0; }
   .hero-actions, .hero-metrics { justify-content: flex-start; }
 }
+
+/* Phones & tablets: the HOME DELIGHTS • INTI RUCHULU pill sits above the logo banner */
+@media (max-width: 1024px) {
+  .hero-content > .hero-pill { order: -1; margin-bottom: 14px; }
+}

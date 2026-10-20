@@ -4369,7 +4369,10 @@ function openReceiptModal(order, isAdminVerified = false, isFromUrl = false) {
       // ----------------------------------------------------
       // ADMIN KITCHEN DISPATCH & 1-TAP CUSTOMER REPLY VIEW
       // ----------------------------------------------------
-      const confirmReplyMsg = `Namaste ${order.customerName} garu! 🙏\n\nYour Ammamma Special Delicacies order #${order.orderId} (Rs. ${order.total}) has been verified and confirmed! 🍯\n\nPlease send payment of Rs. ${order.total} to UPI ID: 7036763589-2@ybl and share the screenshot so we can pack and dispatch your fresh order today!`;
+      const confirmReplyMsg = `Namaste ${order.customerName} garu! 🙏\n\nYour Ammamma Special Delicacies order #${order.orderId} (Rs. ${order.total}) has been verified and confirmed! 🍯\n\nPlease send payment of Rs. ${order.total}
+UPI ID: 7036763589-2@ybl
+Share the screenshot so we can pack
+Dispatch your fresh order today!`;
       const waDirectUrl = `https://wa.me/${phoneInfo.clean}?text=${encodeURIComponent(confirmReplyMsg)}`;
       const waWebDirectUrl = `https://web.whatsapp.com/send?phone=${phoneInfo.clean}&text=${encodeURIComponent(confirmReplyMsg)}`;
 
