@@ -79,7 +79,7 @@
           <button class="mobile-nav-close" id="closeMobileNav" aria-label="Close menu">&times;</button>
         </div>
         <a href="#hero" class="nav-item active" data-i18n="nav_home">Home</a>
-        <a href="#shop" class="nav-item" data-i18n="nav_menu">Our Menu (54)</a>
+        <a href="#categories" class="nav-item" data-i18n="nav_menu">Our Menu (54)</a>
         <a href="#heritage" class="nav-item" data-i18n="nav_kitchen">Ammamma's Kitchen</a>
         <a href="#pairing" class="nav-item" data-i18n="nav_pairing">Pairing Guide</a>
         <a href="#reviews" class="nav-item" data-i18n="nav_reviews">Reviews</a>
@@ -147,6 +147,20 @@
       <div class="hero-bg-glow glow-2"></div>
 
       <div class="hero-container">
+        <!-- Brand banner: big logo seal in the centre, product photos circling it -->
+        <div class="hero-banner animate-scale-in" aria-label="Home Delights - Inti Ruchulu, Ammamma Special">
+          <div class="hero-banner-stage">
+            <span class="hero-banner-ring" aria-hidden="true"></span>
+            <img src="./logo.jpg" alt="Home Delights - Inti Ruchulu Ammamma Special logo" class="hero-banner-logo">
+            <img src="./Mango Pickle.png" alt="" class="hero-banner-dish dish-1" loading="lazy">
+            <img src="./Natu Kodi Pickle.png" alt="" class="hero-banner-dish dish-2" loading="lazy">
+            <img src="./Kobbari Vundalu.png" alt="" class="hero-banner-dish dish-3" loading="lazy">
+            <img src="./Masala Cashew.png" alt="" class="hero-banner-dish dish-4" loading="lazy">
+            <img src="./kandi_podi.jpg" alt="" class="hero-banner-dish dish-5" loading="lazy">
+            <img src="./Gongura Pickle.png" alt="" class="hero-banner-dish dish-6" loading="lazy">
+          </div>
+        </div>
+
         <!-- Left Content -->
         <div class="hero-content">
           <div class="hero-pill animate-fade-in">
@@ -157,7 +171,7 @@
           <h1 class="hero-title animate-fade-up" data-i18n="hero_title">Authentic Inti Ruchulu. <span class="title-highlight">Pickles, Pure Ghee Pindi Vantalu, Snacks & Podis.</span></h1>
 
           <div class="hero-actions animate-fade-up delay-2">
-            <a href="#shop" class="btn btn-primary pulse-btn">
+            <a href="#categories" class="btn btn-primary pulse-btn">
               <span data-i18n="hero_btn_menu">Explore The Menu (54 Delights)</span>
               <i class="fa-solid fa-arrow-right"></i>
             </a>
@@ -187,16 +201,14 @@
           </div>
         </div>
 
-        <!-- Right Visual with Interactive Floating Cards -->
-        <div class="hero-visual animate-scale-in">
-          <!-- Official menu card with prices (tap opens full size for zooming on phones) -->
-          <a href="./menu-card.png" target="_blank" rel="noopener" class="hero-menu-card"
-            aria-label="Open the full Home Delights menu card">
-            <img src="./menu-card.png" alt="Home Delights - Inti Ruchulu Ammamma Special menu card with prices for Veg Pickles, Non-Veg Pickles, Pindi Vantalu, Hot Snacks and Podis"
-              class="hero-menu-card-img" width="752" height="1024" fetchpriority="high">
-            <span class="hero-menu-card-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> Tap to view full menu</span>
-          </a>
-        </div>
+      </div>
+    </section>
+
+    <!-- TOP CATEGORIES: tap a tile to open that category's page (built by renderCategoryTiles in app.js) -->
+    <section class="top-categories-section" id="categories">
+      <div class="top-categories-container">
+        <h2 class="top-categories-title" data-i18n="top_cat_title">Top Categories</h2>
+        <div class="top-categories-grid" id="topCategoriesGrid"></div>
       </div>
     </section>
 
@@ -231,78 +243,6 @@
             <p data-i18n="trust_4_desc">Vacuum-sealed pouches, airtight food tins & spill-proof jars</p>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- PRODUCT CATALOG SECTION -->
-    <section class="catalog-section" id="shop">
-      <div class="catalog-container">
-
-        <!-- Section Header -->
-        <div class="section-header text-center">
-          <span class="section-tag" data-i18n="catalog_tag">THE ARTISANAL PANTRY</span>
-          <h2 class="section-title" data-i18n="catalog_title">Fresh Small-Batch Delights</h2>
-          <p class="section-desc" data-i18n="catalog_desc">Authentic Veg Pickles, Non-Veg Pickles, Traditional Pindi Vantalu, Hot Snacks, and Stone-Ground Podis. Handcrafted with Ammamma's heritage recipes and delivered fresh to your doorstep.</p>
-        </div>
-
-        <!-- Filter Controls -->
-        <div class="filter-controls-wrap">
-          <!-- Category Tabs -->
-          <div class="category-tabs" id="categoryTabs">
-            <button class="cat-btn active" data-category="all">
-              <i class="fa-solid fa-border-all"></i> <span data-i18n="cat_all">All Delights (54)</span>
-            </button>
-            <button class="cat-btn" data-category="veg-pickles">
-              <i class="fa-solid fa-leaf"></i> <span data-i18n="cat_veg">Veg Pickles (13)</span>
-            </button>
-            <button class="cat-btn" data-category="nonveg-pickles">
-              <i class="fa-solid fa-drumstick-bite"></i> <span data-i18n="cat_nonveg">Non-Veg Pickles (10)</span>
-            </button>
-            <button class="cat-btn" data-category="pindi-vantalu">
-              <i class="fa-solid fa-cookie-bite"></i> <span data-i18n="cat_sweets">Pindi Vantalu (18)</span>
-            </button>
-            <button class="cat-btn" data-category="hot-snacks">
-              <i class="fa-solid fa-bowl-food"></i> <span data-i18n="cat_snacks">Hot Snacks (5)</span>
-            </button>
-            <button class="cat-btn" data-category="podis">
-              <i class="fa-solid fa-mortar-pestle"></i> <span data-i18n="cat_podis">Podis (8)</span>
-            </button>
-          </div>
-
-          <!-- Heat / Spice Filter & Sorter -->
-          <div class="secondary-filters">
-            <div class="spice-filter-group">
-              <span class="filter-label"><i class="fa-solid fa-pepper-hot"></i> <span data-i18n="heat_label">Heat Level:</span></span>
-              <div class="spice-buttons" id="spiceFilters">
-                <button class="spice-btn active" data-heat="all" data-i18n="heat_any">Any</button>
-                <button class="spice-btn" data-heat="mild" data-i18n="heat_mild">Mild 🌶️</button>
-                <button class="spice-btn" data-heat="medium" data-i18n="heat_medium">Medium 🌶️🌶️</button>
-                <button class="spice-btn" data-heat="fiery" data-i18n="heat_fiery">Fiery 🌶️🌶️🌶️</button>
-              </div>
-            </div>
-
-            <div class="sort-group">
-              <label for="productSort" class="filter-label" data-i18n="sort_label">Sort by:</label>
-              <select id="productSort" class="sort-select">
-                <option value="featured" data-i18n="sort_featured">Bestsellers</option>
-                <option value="price-low" data-i18n="sort_low">Price: Low to High</option>
-                <option value="price-high" data-i18n="sort_high">Price: High to Low</option>
-                <option value="rating" data-i18n="sort_rating">Customer Rating</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Live Results Count -->
-        <div class="catalog-status">
-          <span id="resultsCount">Showing all handcrafted jars</span>
-        </div>
-
-        <!-- Product Cards Grid -->
-        <div class="products-grid" id="productsGrid">
-          <!-- Dynamically populated via app.js -->
-        </div>
-
       </div>
     </section>
 
@@ -373,7 +313,7 @@
             </div>
 
             <div class="heritage-cta">
-              <a href="#shop" class="btn btn-primary" data-i18n="heritage_cta">Taste Ammamma Special Delicacies</a>
+              <a href="#categories" class="btn btn-primary" data-i18n="heritage_cta">Taste Ammamma Special Delicacies</a>
             </div>
           </div>
         </div>
@@ -466,6 +406,20 @@
     </section>
 
     <!-- FREQUENTLY ASKED QUESTIONS -->
+    <!-- OFFICIAL MENU CARD WITH PRICES -->
+    <section class="menu-card-section" id="menu-card">
+      <div class="menu-card-container">
+        <span class="section-tag" data-i18n="menu_card_tag">PRICE LIST</span>
+        <h2 class="section-title" data-i18n="menu_card_title">Our Menu Card</h2>
+        <a href="./menu-card.png" target="_blank" rel="noopener" class="hero-menu-card"
+          aria-label="Open the full Home Delights menu card">
+          <img src="./menu-card.png" alt="Home Delights - Inti Ruchulu Ammamma Special menu card with prices for Veg Pickles, Non-Veg Pickles, Pindi Vantalu, Hot Snacks and Podis"
+            class="hero-menu-card-img" width="752" height="1024" loading="lazy">
+          <span class="hero-menu-card-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> Tap to view full menu</span>
+        </a>
+      </div>
+    </section>
+
     <section class="faq-section" id="faq">
       <div class="faq-container">
         <div class="section-header text-center">
@@ -561,6 +515,36 @@
 
   </main>
 
+  <!-- CATEGORY PAGE (opens when a Top Category tile is tapped) -->
+  <div class="category-view" id="categoryView" aria-hidden="true" role="dialog" aria-labelledby="categoryViewTitle">
+    <div class="category-view-header">
+      <button type="button" class="category-view-back" id="categoryViewBack" aria-label="Back">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <h2 class="category-view-title" id="categoryViewTitle">Category</h2>
+      <input type="search" class="category-view-search" id="categoryViewSearch" hidden
+        placeholder="Search pickles, sweets, podis..." aria-label="Search delicacies" autocomplete="off">
+      <button type="button" class="category-view-cart" id="categoryViewCart" aria-label="Open cart">
+        <i class="fa-solid fa-basket-shopping"></i>
+        <span class="category-view-cart-count" id="categoryViewCartCount">0</span>
+      </button>
+    </div>
+    <div class="category-view-body">
+      <div class="category-view-toolbar">
+        <span class="category-view-count" id="categoryViewCount">0 Items</span>
+        <label class="category-view-sort">
+          <i class="fa-solid fa-arrow-down-wide-short"></i>
+          <select id="categoryViewSort" aria-label="Sort items">
+            <option value="featured">Popular</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+        </label>
+      </div>
+      <div class="category-view-grid" id="categoryViewGrid"></div>
+    </div>
+  </div>
+
   <!-- SITE FOOTER -->
   <footer class="site-footer">
     <div class="footer-container">
@@ -583,11 +567,11 @@
       <div class="footer-col">
         <h4 data-i18n="foot_menu_title">Ammamma Special Menu</h4>
         <ul class="footer-links">
-          <li><a href="#shop" data-filter="nonveg-pickles" data-i18n="foot_link_prawns">Prawns Pickle</a></li>
-          <li><a href="#shop" data-filter="pindi-vantalu" data-i18n="foot_link_dryfruit_laddu">Dry Fruits Laddu</a></li>
-          <li><a href="#shop" data-filter="veg-pickles" data-i18n="foot_link_gongura">Gongura Pickle</a></li>
-          <li><a href="#shop" data-filter="nonveg-pickles" data-i18n="foot_link_natukodi">Natu Kodi Pickle</a></li>
-          <li><a href="#shop" data-filter="veg-pickles" data-i18n="foot_link_allam">Allam Pickle</a></li>
+          <li><a href="#categories" data-product="prawns-pickle" data-i18n="foot_link_prawns">Prawns Pickle</a></li>
+          <li><a href="#categories" data-product="special-dry-fruits-laddu" data-i18n="foot_link_dryfruit_laddu">Dry Fruits Laddu</a></li>
+          <li><a href="#categories" data-product="gongura-pickle" data-i18n="foot_link_gongura">Gongura Pickle</a></li>
+          <li><a href="#categories" data-product="natu-kodi-pickle" data-i18n="foot_link_natukodi">Natu Kodi Pickle</a></li>
+          <li><a href="#categories" data-product="allam-pickle" data-i18n="foot_link_allam">Allam Pickle</a></li>
         </ul>
       </div>
 
@@ -873,7 +857,7 @@
       <i class="fa-solid fa-house"></i>
       <span data-i18n="mob_home">Home</span>
     </a>
-    <a href="#shop" class="mob-bar-item" id="mobNavShop">
+    <a href="#categories" class="mob-bar-item" id="mobNavShop">
       <i class="fa-solid fa-utensils"></i>
       <span data-i18n="mob_menu">Menu</span>
     </a>

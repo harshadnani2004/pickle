@@ -2185,6 +2185,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCartUI();
     loadHeroStats();
     loadPublicReviews();
+    setupCategoryView();
 
     setupScrollEffects();
     setupFilterEvents();
@@ -2344,6 +2345,9 @@ const TRANSLATIONS = {
     hero_btn_menu: "Explore The Menu (54 Delights)",
     hero_btn_heritage: "Ammamma's Kitchen Secrets",
     hero_metric_1: "15,800+ Delicacies Delivered",
+    top_cat_title: "Top Categories",
+    menu_card_tag: "PRICE LIST",
+    menu_card_title: "Our Menu Card",
     hero_metric_2: "Pure Desi Ghee & Cold-Pressed Oil",
     hero_metric_3: "Chemical Preservatives",
 
@@ -2493,6 +2497,9 @@ const TRANSLATIONS = {
     hero_btn_menu: "మెనూ చూడండి (54 రుచులు)",
     hero_btn_heritage: "అమ్మమ్మ వంటింటి రహస్యాలు",
     hero_metric_1: "15,800+ ఆర్డర్లు చేరాయి",
+    top_cat_title: "ముఖ్య విభాగాలు",
+    menu_card_tag: "ధరల జాబితా",
+    menu_card_title: "మా మెనూ కార్డ్",
     hero_metric_2: "స్వచ్ఛమైన ఆవు నెయ్యి & గానుగ నూనె",
     hero_metric_3: "రసాయన ప్రిజర్వేటివ్‌లు లేవు",
 
@@ -2642,6 +2649,9 @@ const TRANSLATIONS = {
     hero_btn_menu: "मेनू देखें (54 व्यंजन)",
     hero_btn_heritage: "दादी की रसोई के राज",
     hero_metric_1: "सच्ची शुरुआत • शुद्ध गुणवत्ता",
+    top_cat_title: "मुख्य श्रेणियाँ",
+    menu_card_tag: "मूल्य सूची",
+    menu_card_title: "हमारा मेनू कार्ड",
     hero_metric_2: "शुद्ध देसी घी और कच्ची घानी तेल",
     hero_metric_3: "शून्य रसायन, 100% प्राकृतिक",
 
@@ -2959,6 +2969,10 @@ function applyLanguage(lang) {
   if (typeof renderCatalog === "function") {
     renderCatalog();
   }
+  if (typeof renderCategoryTiles === "function") {
+    renderCategoryTiles();
+    if (activeCategoryView) renderCategoryView();
+  }
 
   // Update Cart UI if open
   if (typeof updateCartUI === "function") {
@@ -3176,6 +3190,207 @@ function renderCatalog() {
   });
 }
 
+// -------------------------------------------------------------------
+// Top Categories tiles + Category page (opens like an app screen)
+// -------------------------------------------------------------------
+const TOP_CATEGORIES = [
+  { id: "veg-pickles", i18nKey: "cat_veg", image: "./Mango Pickle.png" },
+  { id: "nonveg-pickles", i18nKey: "cat_nonveg", image: "./Natu Kodi Pickle.png" },
+  { id: "pindi-vantalu", i18nKey: "cat_sweets", image: "./Kobbari Vundalu.png" },
+  { id: "hot-snacks", i18nKey: "cat_snacks", image: "./Masala Cashew.png" },
+  { id: "podis", i18nKey: "cat_podis", image: "./kandi_podi.jpg" }
+];
+
+let activeCategoryView = null;
+let categoryViewSort = "featured";
+
+// Translated category name without the "(13)" count suffix
+function getCategoryName(cat) {
+  const lang = AppState.currentLang || "en";
+  const label = (TRANSLATIONS[lang] && TRANSLATIONS[lang][cat.i18nKey]) || TRANSLATIONS.en[cat.i18nKey] || cat.id;
+  return label.replace(/\s*\(\d+\)\s*$/, "");
+}
+
+function renderCategoryTiles() {
+  const grid = document.getElementById("topCategoriesGrid");
+  if (!grid) return;
+  grid.innerHTML = TOP_CATEGORIES.map((cat) => {
+    const count = PICKLE_PRODUCTS.filter((p) => p.category === cat.id).length;
+    const name = getCategoryName(cat);
+    return `
+      <button type="button" class="top-category-tile" data-category="${cat.id}" aria-label="${safeEscape(name)} (${count} items)">
+        <span class="top-category-img-wrap">
+          <img src="${cat.image}" onerror="handleImgError(this)" alt="${safeEscape(name)}" loading="lazy">
+          <span class="top-category-count">${count} items</span>
+        </span>
+        <span class="top-category-name">${safeEscape(name)} <i class="fa-solid fa-chevron-right"></i></span>
+      </button>
+    `;
+  }).join("");
+
+  grid.querySelectorAll(".top-category-tile").forEach((tile) => {
+    tile.addEventListener("click", () => openCategoryView(tile.dataset.category));
+  });
+}
+
+function renderCategoryView() {
+  const isSearch = activeCategoryView === "search";
+  const cat = TOP_CATEGORIES.find((c) => c.id === activeCategoryView);
+  const grid = document.getElementById("categoryViewGrid");
+  if ((!cat && !isSearch) || !grid) return;
+
+  const lang = AppState.currentLang || "en";
+  const titleEl = document.getElementById("categoryViewTitle");
+  const searchEl = document.getElementById("categoryViewSearch");
+  titleEl.hidden = isSearch;
+  searchEl.hidden = !isSearch;
+
+  let items;
+  if (isSearch) {
+    const q = searchEl.value.toLowerCase().trim();
+    items = !q ? [] : PICKLE_PRODUCTS.filter((item) => {
+      const tTitle = PRODUCT_TRANSLATIONS[item.id]?.[lang]?.title || "";
+      return item.title.toLowerCase().includes(q) ||
+        tTitle.toLowerCase().includes(q) ||
+        item.subtitle.toLowerCase().includes(q) ||
+        item.ingredients.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q);
+    });
+  } else {
+    titleEl.textContent = getCategoryName(cat);
+    items = PICKLE_PRODUCTS.filter((p) => p.category === cat.id);
+  }
+  if (categoryViewSort === "price-low") items = [...items].sort((a, b) => a.weights[0].price - b.weights[0].price);
+  if (categoryViewSort === "price-high") items = [...items].sort((a, b) => b.weights[0].price - a.weights[0].price);
+
+  document.getElementById("categoryViewCount").textContent = isSearch
+    ? (searchEl.value.trim() ? `${items.length} ${items.length === 1 ? "Result" : "Results"}` : "Type to search")
+    : `${items.length} Items`;
+
+  if (isSearch && searchEl.value.trim() && items.length === 0) {
+    grid.innerHTML = `
+      <div class="cv-empty">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <p>No delicacies found for "${safeEscape(searchEl.value.trim())}".<br>Try "Gongura", "Chicken", "Ariselu" or "Podi".</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = items.map((item) => {
+    const displayTitle = PRODUCT_TRANSLATIONS[item.id]?.[lang]?.title || item.title;
+    const w = item.weights[1] || item.weights[0]; // default 500g (or the only size)
+    const off = w.origPrice > w.price ? Math.round((1 - w.price / w.origPrice) * 100) : 0;
+    return `
+      <article class="cv-card" data-id="${item.id}">
+        <button type="button" class="cv-thumb" data-action="cv-quickview" aria-label="View ${safeEscape(item.title)}">
+          <img src="${item.image}" onerror="handleImgError(this)" alt="${safeEscape(item.title)}" loading="lazy">
+        </button>
+        <div class="cv-info">
+          <div class="cv-price-row">
+            <span class="cv-price" data-role="price">₹${w.price}</span>
+            <span class="cv-orig" data-role="orig">${off ? `₹${w.origPrice}` : ""}</span>
+            <span class="cv-off" data-role="off" ${off ? "" : "hidden"}>${off}% off</span>
+          </div>
+          <h3 class="cv-title">${safeEscape(displayTitle)}</h3>
+          <div class="cv-weights">
+            ${item.weights.map((wt) => `
+              <button type="button" class="cv-weight ${wt.size === w.size ? "selected" : ""}"
+                data-size="${wt.size}" data-price="${wt.price}" data-orig="${wt.origPrice}">${wt.size}</button>
+            `).join("")}
+          </div>
+          <button type="button" class="cv-add" data-action="cv-add">Add to bag</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  grid.querySelectorAll(".cv-card").forEach((card) => {
+    const id = card.dataset.id;
+    card.querySelectorAll(".cv-weight").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        card.querySelectorAll(".cv-weight").forEach((b) => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        const price = parseInt(btn.dataset.price, 10);
+        const orig = parseInt(btn.dataset.orig, 10);
+        const off = orig > price ? Math.round((1 - price / orig) * 100) : 0;
+        card.querySelector('[data-role="price"]').textContent = `₹${price}`;
+        card.querySelector('[data-role="orig"]').textContent = off ? `₹${orig}` : "";
+        const offEl = card.querySelector('[data-role="off"]');
+        offEl.textContent = `${off}% off`;
+        offEl.hidden = !off;
+      });
+    });
+    card.querySelector('[data-action="cv-quickview"]').addEventListener("click", () => openQuickView(id));
+    card.querySelector('[data-action="cv-add"]').addEventListener("click", () => {
+      const sel = card.querySelector(".cv-weight.selected");
+      addToCart(id, sel.dataset.size, parseInt(sel.dataset.price, 10));
+      syncCategoryViewCart();
+    });
+  });
+
+  syncCategoryViewCart();
+}
+
+function syncCategoryViewCart() {
+  const el = document.getElementById("categoryViewCartCount");
+  if (el) el.textContent = AppState.cart.reduce((sum, item) => sum + item.quantity, 0);
+}
+
+function openCategoryView(categoryId, { fromHistory = false } = {}) {
+  const view = document.getElementById("categoryView");
+  if (!view || (categoryId !== "search" && !TOP_CATEGORIES.some((c) => c.id === categoryId))) return;
+  activeCategoryView = categoryId;
+  renderCategoryView();
+  view.classList.add("open");
+  view.setAttribute("aria-hidden", "false");
+  view.querySelector(".category-view-body").scrollTop = 0;
+  document.body.style.overflow = "hidden";
+  if (categoryId === "search") setTimeout(() => document.getElementById("categoryViewSearch")?.focus(), 350);
+  // Phone back button closes the category page instead of leaving the site
+  if (!fromHistory) history.pushState({ categoryView: categoryId }, "", `#category-${categoryId}`);
+}
+window.openCategoryView = openCategoryView;
+
+function closeCategoryView({ fromHistory = false } = {}) {
+  const view = document.getElementById("categoryView");
+  if (!view || !activeCategoryView) return;
+  activeCategoryView = null;
+  view.classList.remove("open");
+  view.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+  if (!fromHistory && history.state && history.state.categoryView) history.back();
+}
+
+function setupCategoryView() {
+  renderCategoryTiles();
+  document.getElementById("categoryViewBack")?.addEventListener("click", () => closeCategoryView());
+  document.getElementById("categoryViewCart")?.addEventListener("click", () => openCart());
+  document.getElementById("categoryViewSearch")?.addEventListener("input", () => renderCategoryView());
+  document.getElementById("categoryViewSort")?.addEventListener("change", (e) => {
+    categoryViewSort = e.target.value;
+    renderCategoryView();
+  });
+  window.addEventListener("popstate", (e) => {
+    const cat = e.state && e.state.categoryView;
+    if (cat) openCategoryView(cat, { fromHistory: true });
+    else closeCategoryView({ fromHistory: true });
+  });
+  // Direct link like ...#category-podis opens that page
+  // Footer product links open that product's details
+  document.querySelectorAll(".footer-links a[data-product]").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      openQuickView(link.dataset.product);
+    });
+  });
+
+  const m = window.location.hash.match(/^#category-([a-z-]+)$/);
+  if (m) {
+    history.replaceState({ categoryView: m[1] }, "", window.location.hash);
+    openCategoryView(m[1], { fromHistory: true });
+  }
+}
+
 function resetAllFilters() {
   AppState.selectedCategory = "all";
   AppState.selectedHeat = "all";
@@ -3227,13 +3442,9 @@ function setupFilterEvents() {
   }
 
   // Search Toggle
-  if (searchToggle && headerSearchBar) {
-    searchToggle.addEventListener("click", () => {
-      headerSearchBar.classList.toggle("open");
-      if (headerSearchBar.classList.contains("open")) {
-        globalSearchInput.focus();
-      }
-    });
+  // Search icon opens the full-screen search page (same layout as category pages)
+  if (searchToggle) {
+    searchToggle.addEventListener("click", () => openCategoryView("search"));
   }
 
   // Global search input
@@ -3342,6 +3553,7 @@ custStateInput?.addEventListener("change", () => updateCartUI());
 
 function updateCartUI() {
   const totalCount = AppState.cart.reduce((sum, item) => sum + item.quantity, 0);
+  syncCategoryViewCart();
   const subtotal = AppState.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const freeThreshold = FREE_DELIVERY_THRESHOLD;
   const isFreeDelivery = subtotal >= freeThreshold || subtotal === 0;
@@ -3417,7 +3629,7 @@ function updateCartUI() {
           <i class="fa-solid fa-basket-shopping"></i>
           <h4>Your Delicacy Box is Empty</h4>
           <p>Handcrafted pickles, sweets, hot snacks & podis are waiting for your dining table!</p>
-          <a href="#shop" class="btn btn-secondary" onclick="closeCart()">Browse Ammamma's Menu</a>
+          <a href="#categories" class="btn btn-secondary" onclick="closeCart()">Browse Ammamma's Menu</a>
         </div>
       `;
     } else {
